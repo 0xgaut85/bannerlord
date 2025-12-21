@@ -20,15 +20,35 @@ export async function POST(
     }
     
     if (action === "approve") {
+      // Build update data - only include fields that have suggested changes
+      const updateData: Record<string, any> = {}
+      
+      if (editRequest.suggestedNationality) {
+        updateData.nationality = editRequest.suggestedNationality
+      }
+      if (editRequest.suggestedClan) {
+        updateData.clan = editRequest.suggestedClan
+      }
+      if (editRequest.suggestedBio) {
+        updateData.bio = editRequest.suggestedBio
+      }
+      if (editRequest.suggestedAvatar) {
+        updateData.avatar = editRequest.suggestedAvatar
+      }
+      if (editRequest.suggestedDivision) {
+        updateData.division = editRequest.suggestedDivision
+      }
+      if (editRequest.suggestedCategory) {
+        updateData.category = editRequest.suggestedCategory
+      }
+      
       // Update player with suggestions
-      await prisma.player.update({
-        where: { id: editRequest.playerId },
-        data: {
-          nationality: editRequest.suggestedNationality || editRequest.player.nationality,
-          clan: editRequest.suggestedClan || editRequest.player.clan,
-          bio: editRequest.suggestedBio || editRequest.player.bio,
-        }
-      })
+      if (Object.keys(updateData).length > 0) {
+        await prisma.player.update({
+          where: { id: editRequest.playerId },
+          data: updateData
+        })
+      }
       
       // Update request status
       await prisma.editRequest.update({
@@ -46,7 +66,7 @@ export async function POST(
     
     return NextResponse.json({ success: true })
   } catch (error) {
+    console.error("Request action error:", error)
     return NextResponse.json({ error: "Failed to process request" }, { status: 500 })
   }
 }
-

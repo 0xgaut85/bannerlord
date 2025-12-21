@@ -287,6 +287,8 @@ export default function AdminPage() {
                     <div className="text-white space-y-1">
                       <p>Nationality: {request.player.nationality || "None"}</p>
                       <p>Clan: {request.player.clan || "None"}</p>
+                      <p>Division: {request.player.division || "None"}</p>
+                      <p>Category: {request.player.category || "None"}</p>
                     </div>
                   </div>
                   <div className="bg-green-500/10 rounded-lg p-3">
@@ -294,6 +296,9 @@ export default function AdminPage() {
                     <div className="text-white space-y-1">
                       <p>Nationality: {request.suggestedNationality || "No Change"}</p>
                       <p>Clan: {request.suggestedClan || "No Change"}</p>
+                      <p>Division: {request.suggestedDivision || "No Change"}</p>
+                      <p>Category: {request.suggestedCategory || "No Change"}</p>
+                      {request.suggestedAvatar && <p className="text-green-400">New Avatar Uploaded</p>}
                     </div>
                   </div>
                 </div>
@@ -399,6 +404,26 @@ export default function AdminPage() {
                         <option value="ARCHER">ARCHER</option>
                       </select>
                     </div>
+                    <div>
+                      <label className="block text-sm text-white/70 mb-2">Division</label>
+                      <select
+                        className="w-full bg-slate-900 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-900 [&>option]:text-white"
+                        value={editingPlayer.division || ""}
+                        onChange={(e) => setEditingPlayer({...editingPlayer, division: e.target.value || null})}
+                      >
+                        <option value="">No Division</option>
+                        <option value="A">Division A</option>
+                        <option value="B">Division B</option>
+                        <option value="C">Division C</option>
+                        <option value="D">Division D</option>
+                        <option value="E">Division E</option>
+                        <option value="F">Division F</option>
+                        <option value="G">Division G</option>
+                        <option value="H">Division H</option>
+                        <option value="I">Division I</option>
+                        <option value="J">Division J</option>
+                      </select>
+                    </div>
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/10">
                       <Button type="button" onClick={() => { setEditingPlayer(null); setCountrySearch("") }} className="!bg-white/10 !text-white hover:!bg-white/20">
                         Cancel
@@ -419,8 +444,9 @@ export default function AdminPage() {
                     <Flag code={player.nationality} size="md" />
                     <div>
                       <h3 className="font-medium text-white">{player.name}</h3>
-                      <div className="flex gap-2 mt-1">
+                      <div className="flex gap-2 mt-1 flex-wrap">
                         <span className="px-2 py-0.5 bg-white/10 text-white/70 rounded text-xs">{player.category}</span>
+                        {player.division && <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded text-xs">Div {player.division}</span>}
                         {player.clan && <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded text-xs">{player.clan}</span>}
                       </div>
                     </div>

@@ -42,6 +42,7 @@ export default function EditPlayerPage() {
   const [bio, setBio] = useState("")
   const [avatar, setAvatar] = useState<string | null>(null)
   const [division, setDivision] = useState<Division | "">("")
+  const [category, setCategory] = useState<PlayerCategory>("INFANTRY")
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -226,6 +227,7 @@ export default function EditPlayerPage() {
       setBio(selectedPlayer.bio || "")
       setAvatar((selectedPlayer as any).avatar || null)
       setDivision((selectedPlayer as any).division || "")
+      setCategory(selectedPlayer.category)
     }
   }, [selectedPlayer])
   
@@ -274,6 +276,7 @@ export default function EditPlayerPage() {
           bio,
           avatar,
           division: division || null,
+          category: category !== selectedPlayer.category ? category : null,
         }),
       })
       
@@ -705,6 +708,27 @@ export default function EditPlayerPage() {
                   </div>
                 </div>
                 
+                {/* Category */}
+                <div>
+                  <label className="block text-white/70 text-sm mb-2">Class</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.value}
+                        onClick={() => setCategory(cat.value)}
+                        className={cn(
+                          "px-3 py-2 rounded-lg font-bold transition-all text-sm",
+                          category === cat.value
+                            ? "bg-amber-500 text-black"
+                            : "bg-white/10 text-white/70 hover:bg-white/20"
+                        )}
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
                 {/* Division */}
                 <div>
                   <label className="block text-white/70 text-sm mb-2">Division</label>
@@ -724,7 +748,7 @@ export default function EditPlayerPage() {
                       </button>
                     ))}
                   </div>
-          </div>
+                </div>
           
             <div>
                   <label className="block text-white/70 text-sm mb-2">Nationality</label>
