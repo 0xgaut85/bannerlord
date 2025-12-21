@@ -35,7 +35,7 @@ export default function CommunityPage() {
   }, [])
   
   return (
-    <div className="page-transition max-w-[1400px] mx-auto px-4 lg:px-8 py-12 sm:py-16">
+    <div className="page-transition w-full px-4 lg:px-8 py-12 sm:py-16">
       {/* Header */}
       <div className="text-center mb-12">
         <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#c9a962] mb-4">
