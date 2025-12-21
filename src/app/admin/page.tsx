@@ -657,8 +657,30 @@ export default function AdminPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="text-2xl font-bold text-amber-500">
-                        {rating.score}
+                      <div className="flex items-center gap-4">
+                        <span className="text-2xl font-bold text-amber-500">
+                          {rating.score}
+                        </span>
+                        <Button
+                          size="sm"
+                          className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30 !px-2 !py-1"
+                          onClick={async () => {
+                            if (!confirm(`Delete rating for ${rating.player.name}?`)) return
+                            try {
+                              const res = await fetch(`/api/admin/ratings/${rating.id}`, { method: "DELETE" })
+                              if (res.ok) {
+                                setSelectedUser({
+                                  ...selectedUser,
+                                  ratings: selectedUser.ratings.filter((r: any) => r.id !== rating.id)
+                                })
+                              }
+                            } catch (err) {
+                              alert("Failed to delete rating")
+                            }
+                          }}
+                        >
+                          X
+                        </Button>
                       </div>
                     </div>
                   ))}
