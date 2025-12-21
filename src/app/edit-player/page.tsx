@@ -19,7 +19,7 @@ const categories: { value: PlayerCategory; label: string }[] = [
   { value: "ARCHER", label: "Archer" },
 ]
 
-const divisions: Division[] = ["A", "B", "C", "D", "E", "F"]
+const divisions: Division[] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
 interface Clan {
   id: string
@@ -620,13 +620,13 @@ export default function EditPlayerPage() {
                 {/* Division */}
                 <div>
                   <label className="block text-white/70 text-sm mb-2">Division</label>
-                  <div className="grid grid-cols-6 gap-2">
+                  <div className="grid grid-cols-5 gap-2">
                     {divisions.map((div) => (
                       <button
                         key={div}
                         onClick={() => setDivision(div)}
                         className={cn(
-                          "px-3 py-2 rounded-lg font-bold transition-all",
+                          "px-2 py-1.5 rounded-lg font-bold transition-all text-sm",
                           division === div
                             ? "bg-amber-500 text-black"
                             : "bg-white/10 text-white/70 hover:bg-white/20"
@@ -854,13 +854,13 @@ export default function EditPlayerPage() {
                 
                 <div>
                   <label className="block text-white/70 text-sm mb-2">Division * (Default rating: {DIVISION_DEFAULT_RATINGS[newPlayerDivision]})</label>
-                  <div className="grid grid-cols-6 gap-2">
+                  <div className="grid grid-cols-5 gap-2">
                     {divisions.map((div) => (
                       <button
                         key={div}
                         onClick={() => setNewPlayerDivision(div)}
                         className={cn(
-                          "px-3 py-2 rounded-lg font-bold transition-all",
+                          "px-2 py-1.5 rounded-lg font-bold transition-all text-sm",
                           newPlayerDivision === div
                             ? "bg-amber-500 text-black"
                             : "bg-white/10 text-white/70 hover:bg-white/20"

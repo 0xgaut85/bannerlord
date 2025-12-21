@@ -14,6 +14,10 @@ enum Division {
   D
   E
   F
+  G
+  H
+  I
+  J
 }
 
 enum PlayerCategory {

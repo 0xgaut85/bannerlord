@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
-import { canUserEdit, MIN_PLAYER_RATINGS, MAX_RATING_DEVIATION, DIVISION_WEIGHTS } from "@/lib/utils"
+import { MIN_PLAYER_RATINGS, MAX_RATING_DEVIATION, DIVISION_WEIGHTS } from "@/lib/utils"
 
 export async function GET() {
   try {
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     // Check if profile is complete
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { isProfileComplete: true, lastEditAt: true, division: true }
+      select: { isProfileComplete: true, division: true }
     })
     
     if (!user?.isProfileComplete) {
@@ -89,12 +89,7 @@ export async function POST(request: NextRequest) {
       }, { status: 403 })
     }
     
-    // Check 24h cooldown
-    if (!canUserEdit(user.lastEditAt)) {
-      return NextResponse.json({ 
-        error: "You can only edit your ratings once every 24 hours" 
-      }, { status: 429 })
-    }
+    // No cooldown - users can edit anytime
     
     const body = await request.json()
     const { ratings } = body as { ratings: { playerId: string; score: number }[] }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { PlayerCategory } from "@prisma/client"
-import { DIVISION_WEIGHTS, MIN_RATINGS, MIN_PLAYER_RATINGS } from "@/lib/utils"
+import { PlayerCategory, Division } from "@prisma/client"
+import { DIVISION_WEIGHTS, MIN_RATINGS, MIN_PLAYER_RATINGS, DIVISION_DEFAULT_RATINGS } from "@/lib/utils"
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     // AND system raters who are always eligible
     const eligibleUserIds = await getEligibleUserIds()
     
-    // Get players with their ratings from eligible users only
+    // Get all players with their ratings from eligible users
     const players = await prisma.player.findMany({
       where: { category },
       include: {
@@ -34,10 +34,13 @@ export async function GET(request: NextRequest) {
     })
     
     // Calculate weighted average for each player
-    const rankedPlayers = players
-      // Filter: only include players with at least MIN_PLAYER_RATINGS ratings
-      .filter(player => player.ratings.length >= MIN_PLAYER_RATINGS)
-      .map(player => {
+    const rankedPlayers = players.map(player => {
+      const hasEnoughRatings = player.ratings.length >= MIN_PLAYER_RATINGS
+      
+      let averageRating: number
+      
+      if (hasEnoughRatings) {
+        // Calculate weighted average from actual ratings
         let weightedSum = 0
         let totalWeight = 0
         
@@ -49,21 +52,29 @@ export async function GET(request: NextRequest) {
           totalWeight += weight
         }
         
-        const averageRating = totalWeight > 0 ? weightedSum / totalWeight : 0
-        
-        return {
-          id: player.id,
-          name: player.name,
-          category: player.category,
-          nationality: player.nationality,
-          clan: player.clan,
-          bio: player.bio,
-          avatar: player.avatar,
-          division: player.division,
-          averageRating: Math.round(averageRating * 100) / 100,
-          totalRatings: player.ratings.length,
-        }
-      })
+        averageRating = totalWeight > 0 ? weightedSum / totalWeight : 0
+      } else if (player.division) {
+        // Use default rating based on division
+        averageRating = DIVISION_DEFAULT_RATINGS[player.division as Division]
+      } else {
+        // No division set and not enough ratings - use 70 as default
+        averageRating = 70
+      }
+      
+      return {
+        id: player.id,
+        name: player.name,
+        category: player.category,
+        nationality: player.nationality,
+        clan: player.clan,
+        bio: player.bio,
+        avatar: player.avatar,
+        division: player.division,
+        averageRating: Math.round(averageRating * 100) / 100,
+        totalRatings: player.ratings.length,
+        hasEnoughRatings,
+      }
+    })
     
     // Sort by average rating descending
     rankedPlayers.sort((a, b) => b.averageRating - a.averageRating)

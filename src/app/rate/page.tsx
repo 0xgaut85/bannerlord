@@ -13,7 +13,7 @@ interface RatingMap {
   [playerId: string]: number
 }
 
-const DIVISIONS: Division[] = ["A", "B", "C", "D", "E", "F"]
+const DIVISIONS: Division[] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 const CATEGORIES = ["ALL", "INFANTRY", "CAVALRY", "ARCHER"] as const
 
 export default function RatePage() {

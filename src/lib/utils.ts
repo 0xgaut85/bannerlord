@@ -8,6 +8,10 @@ export const DIVISION_WEIGHTS: Record<Division, number> = {
   D: 0.7,
   E: 0.6,
   F: 0.5,
+  G: 0.5,
+  H: 0.5,
+  I: 0.5,
+  J: 0.5,
 }
 
 // Default ratings for new players based on division
@@ -18,6 +22,10 @@ export const DIVISION_DEFAULT_RATINGS: Record<Division, number> = {
   D: 70,
   E: 65,
   F: 60,
+  G: 55,
+  H: 50,
+  I: 50,
+  J: 50,
 }
 
 // Minimum ratings required for user eligibility (to count their votes)
