@@ -37,21 +37,27 @@ export async function GET(request: NextRequest) {
     // Get all unique clan names and fetch their logos
     const clanNames = [...new Set(players.map(p => p.clan).filter(Boolean))] as string[]
     
-    // Fetch clan logos from Clan table
+    // Fetch clan logos from Clan table (match by shortName OR name)
     const clans = await prisma.clan.findMany({
       where: {
-        shortName: { in: clanNames }
+        OR: [
+          { shortName: { in: clanNames } },
+          { name: { in: clanNames } }
+        ]
       },
       select: {
+        name: true,
         shortName: true,
         logo: true,
       }
     })
     
-    // Create a map of clan shortName to logo
+    // Create a map of clan name/shortName to logo
     const clanLogos: Record<string, string | null> = {}
     clans.forEach(c => {
+      // Map both name and shortName to the logo
       clanLogos[c.shortName] = c.logo
+      if (c.name) clanLogos[c.name] = c.logo
     })
     
     // Add clanLogo and calculated division to each player

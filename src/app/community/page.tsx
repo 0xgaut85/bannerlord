@@ -388,12 +388,13 @@ function FifaDisplayCard({
             <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} style={{ transform: 'scale(0.6)' }} />
             
             {/* Player Avatar */}
-            <div className="relative w-22 h-22 sm:w-26 sm:h-26 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30">
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30">
               <Image
                 src={avatarSrc}
                 alt={player.name}
-                fill
-                className="object-cover"
+                width={96}
+                height={96}
+                className="w-full h-full object-cover"
               />
             </div>
 
