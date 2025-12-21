@@ -7,6 +7,113 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                String        @id @default(cuid())
+  name              String?
+  email             String?       @unique
+  emailVerified     DateTime?
+  image             String?
+  discordId         String?       @unique
+  discordName       String?
+  team              String?
+  division          Division?
+  lastEditAt        DateTime?
+  isProfileComplete Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  accounts          Account[]
+  editRequests      EditRequest[]
+  ratings           Rating[]
+  sessions          Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Player {
+  id           String         @id @default(cuid())
+  name         String         @unique
+  category     PlayerCategory
+  nationality  String?
+  clan         String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  bio          String?
+  avatar       String?
+  division     Division?
+  editRequests EditRequest[]
+  ratings      Rating[]
+}
+
+model Clan {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  shortName String   @unique
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  score     Int
+  raterId   String
+  playerId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  rater     User     @relation(fields: [raterId], references: [id], onDelete: Cascade)
+
+  @@unique([raterId, playerId])
+}
+
+model EditRequest {
+  id                   String        @id @default(cuid())
+  playerId             String
+  userId               String
+  suggestedClan        String?
+  suggestedNationality String?
+  suggestedBio         String?
+  status               RequestStatus @default(PENDING)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  suggestedAvatar      String?
+  suggestedDivision    Division?
+  player               Player        @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 enum Division {
   A
   B
@@ -30,125 +137,4 @@ enum RequestStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  
-  // Custom fields
-  discordId     String?   @unique
-  discordName   String?
-  team          String?
-  division      Division?
-  lastEditAt    DateTime?
-  isProfileComplete Boolean @default(false)
-  
-  accounts      Account[]
-  sessions      Session[]
-  ratings       Rating[]
-  editRequests  EditRequest[]
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Player {
-  id          String         @id @default(cuid())
-  name        String         @unique
-  category    PlayerCategory
-  nationality String?        // ISO country code (FR, DE, PL, etc.)
-  clan        String?        // Player's clan/team short name
-  bio         String?        // Player bio (max 240 chars)
-  avatar      String?        // Player avatar URL
-  division    Division?      // Player's division for default rating
-  
-  ratings     Rating[]
-  editRequests EditRequest[]
-  
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-}
-
-model Clan {
-  id          String   @id @default(cuid())
-  name        String   @unique  // Full clan name
-  shortName   String   @unique  // Short name (e.g. VW)
-  logo        String?           // Clan logo URL
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Rating {
-  id        String   @id @default(cuid())
-  score     Int      // 50-99
-  
-  raterId   String
-  rater     User     @relation(fields: [raterId], references: [id], onDelete: Cascade)
-  
-  playerId  String
-  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([raterId, playerId])
-}
-
-model EditRequest {
-  id          String        @id @default(cuid())
-  playerId    String
-  player      Player        @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  suggestedClan        String?
-  suggestedNationality String?
-  suggestedBio         String?
-  suggestedAvatar      String?
-  suggestedDivision    Division?
-  
-  status      RequestStatus @default(PENDING)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
 }

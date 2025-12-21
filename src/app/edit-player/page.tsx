@@ -82,6 +82,18 @@ export default function EditPlayerPage() {
   const [isCreatingClan, setIsCreatingClan] = useState(false)
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   
+  // Clan editing modal
+  const [editingClan, setEditingClan] = useState<Clan | null>(null)
+  const [editClanName, setEditClanName] = useState("")
+  const [editClanShortName, setEditClanShortName] = useState("")
+  const [editClanYear, setEditClanYear] = useState("")
+  const [editClanLogo, setEditClanLogo] = useState<string | null>(null)
+  const [isUploadingEditClanLogo, setIsUploadingEditClanLogo] = useState(false)
+  const [isSubmittingClanEdit, setIsSubmittingClanEdit] = useState(false)
+  const [clanEditSuccess, setClanEditSuccess] = useState(false)
+  const [clanEditError, setClanEditError] = useState<string | null>(null)
+  const editClanLogoInputRef = useRef<HTMLInputElement>(null)
+  
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const editAvatarInputRef = useRef<HTMLInputElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
@@ -362,6 +374,82 @@ export default function EditPlayerPage() {
       setClanError(err instanceof Error ? err.message : "Failed to upload logo")
     } finally {
       setIsUploadingLogo(false)
+    }
+  }
+  
+  const handleEditClanLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    setIsUploadingEditClanLogo(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("type", "clan-logo")
+      
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+      
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to upload")
+      }
+      
+      const { url } = await res.json()
+      setEditClanLogo(url)
+    } catch (err) {
+      setClanEditError(err instanceof Error ? err.message : "Failed to upload logo")
+    } finally {
+      setIsUploadingEditClanLogo(false)
+    }
+  }
+  
+  const openClanEditModal = (c: Clan) => {
+    setEditingClan(c)
+    setEditClanName(c.name || "")
+    setEditClanShortName(c.shortName || "")
+    setEditClanYear("")
+    setEditClanLogo(c.logo || null)
+    setClanEditSuccess(false)
+    setClanEditError(null)
+  }
+  
+  const handleSubmitClanEdit = async () => {
+    if (!editingClan || !session?.user?.id) return
+    
+    setIsSubmittingClanEdit(true)
+    setClanEditError(null)
+    setClanEditSuccess(false)
+    
+    try {
+      const res = await fetch("/api/clan-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clanId: editingClan.id,
+          suggestedName: editClanName !== editingClan.name ? editClanName : null,
+          suggestedShortName: editClanShortName !== editingClan.shortName ? editClanShortName : null,
+          suggestedYear: editClanYear || null,
+          suggestedLogo: editClanLogo !== editingClan.logo ? editClanLogo : null,
+        }),
+      })
+      
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to submit request")
+      }
+      
+      setClanEditSuccess(true)
+      setTimeout(() => {
+        setEditingClan(null)
+        setClanEditSuccess(false)
+      }, 2000)
+    } catch (err) {
+      setClanEditError(err instanceof Error ? err.message : "Failed to submit")
+    } finally {
+      setIsSubmittingClanEdit(false)
     }
   }
   
@@ -980,12 +1068,120 @@ export default function EditPlayerPage() {
       ) : (
         /* CLAN TAB */
         <div className="max-w-4xl mx-auto px-6 pb-20">
+          {/* Clan Edit Modal */}
+          {editingClan && (
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-800 rounded-2xl p-6 border border-white/20 max-w-md w-full">
+                <h3 className="text-xl font-display font-bold text-white mb-4">
+                  Suggest Edit for {editingClan.shortName}
+                </h3>
+                <p className="text-white/50 text-sm mb-6">
+                  Your suggestions will be reviewed by admins before being applied.
+                </p>
+                
+                <div className="space-y-4">
+                  {/* Logo Upload */}
+                  <div>
+                    <label className="block text-white/70 text-sm mb-2">Clan Logo</label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        ref={editClanLogoInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg"
+                        onChange={handleEditClanLogoUpload}
+                        className="hidden"
+                      />
+                      <button
+                        onClick={() => editClanLogoInputRef.current?.click()}
+                        disabled={isUploadingEditClanLogo}
+                        className="w-16 h-16 rounded-lg bg-white/10 border-2 border-dashed border-white/30 flex items-center justify-center hover:bg-white/20 overflow-hidden"
+                      >
+                        {editClanLogo ? (
+                          <Image src={editClanLogo} alt="Logo" width={64} height={64} className="w-full h-full object-cover" />
+                        ) : isUploadingEditClanLogo ? (
+                          <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <span className="text-white/40 text-2xl">+</span>
+                        )}
+                      </button>
+                      <span className="text-white/40 text-xs">PNG or JPEG, square</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-white/70 text-sm mb-2">Clan Name</label>
+                    <input
+                      type="text"
+                      value={editClanName}
+                      onChange={(e) => setEditClanName(e.target.value)}
+                      className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-white/70 text-sm mb-2">Short Name</label>
+                    <input
+                      type="text"
+                      value={editClanShortName}
+                      onChange={(e) => setEditClanShortName(e.target.value.toUpperCase())}
+                      maxLength={10}
+                      className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white uppercase focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-white/70 text-sm mb-2">Year Founded (optional)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 2021"
+                      value={editClanYear}
+                      onChange={(e) => setEditClanYear(e.target.value)}
+                      maxLength={4}
+                      className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    />
+                  </div>
+                  
+                  {clanEditError && (
+                    <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300 text-sm">
+                      {clanEditError}
+                    </div>
+                  )}
+                  
+                  {clanEditSuccess && (
+                    <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-xl text-green-300 text-sm">
+                      Edit suggestion submitted! Awaiting admin review.
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-3 pt-2">
+                    <Button
+                      onClick={() => setEditingClan(null)}
+                      className="flex-1 !bg-white/10 !text-white hover:!bg-white/20"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSubmitClanEdit}
+                      isLoading={isSubmittingClanEdit}
+                      className="flex-1 !bg-amber-500 !text-black hover:!bg-amber-400"
+                    >
+                      Submit
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left - View Clans */}
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-              <h2 className="text-xl font-display font-bold text-white mb-6">
+              <h2 className="text-xl font-display font-bold text-white mb-2">
                 Search Clans
               </h2>
+              <p className="text-white/50 text-sm mb-6">
+                Click on a clan to suggest edits
+              </p>
               
               <div className="relative mb-6">
                 <input
@@ -1000,9 +1196,10 @@ export default function EditPlayerPage() {
               {clans.length > 0 ? (
                 <div className="space-y-3">
                   {clans.map((c) => (
-                    <div 
+                    <button 
                       key={c.id}
-                      className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10"
+                      onClick={() => openClanEditModal(c)}
+                      className="w-full flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-amber-500/30 text-left"
                     >
                       {c.logo ? (
                         <Image src={c.logo} alt={c.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
@@ -1011,11 +1208,12 @@ export default function EditPlayerPage() {
                           <span className="text-amber-400 font-bold">{c.shortName.slice(0, 2)}</span>
                         </div>
                       )}
-                      <div>
-                        <h3 className="text-white font-semibold">{c.name}</h3>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-white font-semibold truncate">{c.name}</h3>
                         <p className="text-white/40 text-sm">{c.shortName}</p>
                       </div>
-                    </div>
+                      <span className="text-white/30 text-sm">Edit</span>
+                    </button>
                   ))}
                 </div>
               ) : clanSearch.length >= 2 ? (

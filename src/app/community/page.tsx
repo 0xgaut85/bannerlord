@@ -24,100 +24,87 @@ function getDefaultAvatar(category: string): string {
   }
 }
 
-// Rating-based card styles with texture patterns
+// AAA+ Premium card styles with heavy textures
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
-    // ICON - Dark Platinum/Diamond
-    bg: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900",
-    border: "border-slate-400/50",
-    accent: "from-cyan-400 via-white to-cyan-400",
+    // ICON - Obsidian Diamond with aurora undertones
+    bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
+    border: "border-cyan-300/60",
+    accent: "from-cyan-300 via-white to-cyan-300",
     text: "text-white",
-    subtext: "text-cyan-100",
-    overlay: "mix-blend-overlay opacity-30",
-    noiseOpacity: "0.15",
-    // Intricate geometric pattern for high tier
-    pattern: `radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%), 
-              repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px),
-              repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px)`,
+    subtext: "text-cyan-200",
+    noiseOpacity: 0.35,
+    overlayGradient: "linear-gradient(180deg, rgba(6,182,212,0.1) 0%, transparent 40%, rgba(6,182,212,0.05) 100%)",
   }
   if (rating >= 90) return {
-    // LEGEND - Deep Rich Gold
-    bg: "bg-gradient-to-br from-yellow-900 via-amber-700 to-yellow-900",
-    border: "border-amber-400/50",
+    // LEGEND - Deep molten gold with ember core
+    bg: "linear-gradient(145deg, #1a0f00 0%, #3d2200 20%, #5c3a00 40%, #4a2c00 60%, #2d1800 80%, #1a0f00 100%)",
+    border: "border-amber-400/60",
     accent: "from-amber-300 via-yellow-200 to-amber-300",
     text: "text-amber-50",
     subtext: "text-amber-200",
-    overlay: "mix-blend-overlay opacity-20",
-    noiseOpacity: "0.12",
-    pattern: `radial-gradient(circle at 50% 0%, rgba(255,215,0,0.2) 0%, transparent 70%),
-              repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 12px)`,
+    noiseOpacity: 0.30,
+    overlayGradient: "linear-gradient(180deg, rgba(255,193,7,0.15) 0%, transparent 50%, rgba(255,152,0,0.1) 100%)",
   }
   if (rating >= 85) return {
-    // GOLD - Metallic Gold
-    bg: "bg-gradient-to-br from-yellow-600 via-yellow-500 to-amber-600",
-    border: "border-yellow-300/50",
+    // GOLD - Burnished gold with depth
+    bg: "linear-gradient(145deg, #5c4a00 0%, #8b7500 25%, #b8960a 50%, #8b7500 75%, #5c4a00 100%)",
+    border: "border-yellow-400/50",
     accent: "from-yellow-200 via-white to-yellow-200",
     text: "text-white",
-    subtext: "text-yellow-50",
-    overlay: "mix-blend-overlay opacity-10",
-    noiseOpacity: "0.10",
-    pattern: `linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%)`,
+    subtext: "text-yellow-100",
+    noiseOpacity: 0.25,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,215,0,0.1) 100%)",
   }
   if (rating >= 80) return {
-    // SILVER - Clean Metallic
-    bg: "bg-gradient-to-br from-slate-400 via-slate-300 to-slate-400",
-    border: "border-slate-200/50",
-    accent: "from-white via-slate-100 to-white",
-    text: "text-slate-900",
-    subtext: "text-slate-700",
-    overlay: "mix-blend-overlay opacity-10",
-    noiseOpacity: "0.08",
-    pattern: `linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, transparent 100%)`,
+    // SILVER - Polished steel with industrial edge
+    bg: "linear-gradient(145deg, #2a2a2a 0%, #4a4a4a 25%, #6a6a6a 50%, #4a4a4a 75%, #2a2a2a 100%)",
+    border: "border-slate-300/50",
+    accent: "from-white via-slate-200 to-white",
+    text: "text-white",
+    subtext: "text-slate-200",
+    noiseOpacity: 0.22,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
   }
   if (rating >= 75) return {
-    // SILVER (Lower) - Slightly darker
-    bg: "bg-gradient-to-br from-slate-500 via-slate-400 to-slate-500",
-    border: "border-slate-300/50",
-    accent: "from-slate-200 via-white to-slate-200",
-    text: "text-slate-900",
-    subtext: "text-slate-800",
-    overlay: "mix-blend-overlay opacity-10",
-    noiseOpacity: "0.10",
-    pattern: `linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 100%)`,
+    // SILVER (Lower) - Weathered steel
+    bg: "linear-gradient(145deg, #1f1f1f 0%, #3a3a3a 25%, #505050 50%, #3a3a3a 75%, #1f1f1f 100%)",
+    border: "border-slate-400/40",
+    accent: "from-slate-300 via-white to-slate-300",
+    text: "text-slate-100",
+    subtext: "text-slate-300",
+    noiseOpacity: 0.28,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%)",
   }
   if (rating >= 70) return {
-    // BRONZE - Deep reddish
-    bg: "bg-gradient-to-br from-orange-800 via-orange-700 to-amber-900",
-    border: "border-orange-400/40",
+    // BRONZE - Rich copper patina
+    bg: "linear-gradient(145deg, #1a0800 0%, #4a1c00 25%, #6d3500 50%, #4a1c00 75%, #1a0800 100%)",
+    border: "border-orange-500/50",
     accent: "from-orange-300 via-orange-200 to-orange-300",
     text: "text-orange-50",
     subtext: "text-orange-200",
-    overlay: "mix-blend-overlay opacity-15",
-    noiseOpacity: "0.12",
-    pattern: `radial-gradient(circle at 100% 100%, rgba(0,0,0,0.2) 0%, transparent 50%)`,
+    noiseOpacity: 0.30,
+    overlayGradient: "linear-gradient(180deg, rgba(234,88,12,0.1) 0%, transparent 50%, rgba(194,65,12,0.08) 100%)",
   }
   if (rating >= 65) return {
-    // BRONZE (Lower)
-    bg: "bg-gradient-to-br from-orange-900 via-orange-800 to-amber-950",
-    border: "border-orange-500/30",
+    // BRONZE (Lower) - Aged copper
+    bg: "linear-gradient(145deg, #120500 0%, #2d1000 25%, #451a00 50%, #2d1000 75%, #120500 100%)",
+    border: "border-orange-600/40",
     accent: "from-orange-400 via-orange-300 to-orange-400",
     text: "text-orange-100",
     subtext: "text-orange-300",
-    overlay: "mix-blend-overlay opacity-20",
-    noiseOpacity: "0.15",
-    pattern: `radial-gradient(circle at 0% 0%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
+    noiseOpacity: 0.32,
+    overlayGradient: "linear-gradient(180deg, rgba(194,65,12,0.08) 0%, transparent 50%)",
   }
-  // WOOD/COMMON - Dark, textured
+  // WOOD/COMMON - Dark oak with grain
   return {
-    bg: "bg-[#2a231d]",
-    border: "border-[#5c4d3c]",
-    accent: "from-[#8b7355] via-[#a68a6d] to-[#8b7355]",
+    bg: "linear-gradient(145deg, #0f0a06 0%, #1f150d 25%, #2a1f15 50%, #1f150d 75%, #0f0a06 100%)",
+    border: "border-[#6b5344]/50",
+    accent: "from-[#a08060] via-[#c0a080] to-[#a08060]",
     text: "text-[#e8dcc5]",
     subtext: "text-[#c2b299]",
-    overlay: "mix-blend-overlay opacity-40",
-    noiseOpacity: "0.30", // Heavy grain for wood
-    pattern: `repeating-linear-gradient(90deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px),
-              linear-gradient(to bottom, rgba(0,0,0,0.2), transparent)`,
+    noiseOpacity: 0.45,
+    overlayGradient: "linear-gradient(180deg, rgba(160,128,96,0.05) 0%, transparent 50%)",
   }
 }
 
@@ -175,7 +162,7 @@ export default function CommunityPage() {
               key={cat}
               onClick={() => setCategory(cat)}
               className={cn(
-                "px-6 py-3 rounded-xl font-semibold transition-all",
+                "px-6 py-3 rounded-xl font-semibold",
                 category === cat
                   ? "bg-amber-500 text-black shadow-xl"
                   : "bg-white/10 text-white/70 hover:bg-white/20"
@@ -292,7 +279,7 @@ export default function CommunityPage() {
   )
 }
 
-// FIFA-style display card for Top 3 (same design as rate page, no animations)
+// FIFA-style display card for Top 3 - AAA+ Premium Design
 function FifaDisplayCard({ 
   player, 
   rank, 
@@ -312,31 +299,47 @@ function FifaDisplayCard({
       "flex justify-center",
       isCenter ? "md:scale-110 z-10" : ""
     )}>
-      {/* FIFA Card - Static Premium Design */}
+      {/* FIFA Card - AAA+ Premium Design */}
       <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border}`}>
-        {/* Background Base */}
-        <div className={`absolute inset-0 ${style.bg}`} />
+        {/* Background Base - Rich gradient */}
+        <div 
+          className="absolute inset-0"
+          style={{ background: style.bg }}
+        />
         
-        {/* Texture Pattern */}
+        {/* Overlay Gradient for depth */}
         <div 
           className="absolute inset-0 pointer-events-none"
-          style={{ backgroundImage: style.pattern }}
+          style={{ background: style.overlayGradient }}
         />
         
-        {/* Heavy Noise Texture (SVG) */}
+        {/* Heavy Noise/Grain Texture */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>
+          <filter id={`noiseFilter-${player.id}`}>
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter={`url(#noiseFilter-${player.id})`} />
+        </svg>
+        
+        {/* Secondary grain layer */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-soft-light" style={{ opacity: style.noiseOpacity * 0.5 }}>
+          <filter id={`grainFilter-${player.id}`}>
+            <feTurbulence type="turbulence" baseFrequency="1.2" numOctaves="3" stitchTiles="stitch" />
+          </filter>
+          <rect width="100%" height="100%" filter={`url(#grainFilter-${player.id})`} />
+        </svg>
+
+        {/* Inner Border (Dashed) - more inset */}
+        <div className="absolute inset-4 border border-dashed border-white/15 rounded-2xl pointer-events-none z-10" />
+        
+        {/* Vignette effect */}
         <div 
-          className="absolute inset-0 pointer-events-none mix-blend-overlay"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='${style.noiseOpacity}'/%3E%3C/svg%3E")`,
-            opacity: 1,
+          className="absolute inset-0 pointer-events-none z-15"
+          style={{ 
+            background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%)"
           }}
         />
-
-        {/* Inner Border (Dashed) */}
-        <div className="absolute inset-3 border border-dashed border-white/20 rounded-2xl pointer-events-none z-10" />
-        
-        {/* Shine Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none z-20" />
 
         {/* Content Container */}
         <div className="relative h-full flex flex-col p-4 z-30">
@@ -344,7 +347,7 @@ function FifaDisplayCard({
           {/* Top Section: Rating & Position Left, Name Right */}
           <div className="flex justify-between items-start mb-2">
             <div className="flex flex-col items-center -ml-1">
-              <span className={`text-4xl font-black ${style.text} leading-none drop-shadow-lg`}>
+              <span className={`text-4xl font-black ${style.text} leading-none drop-shadow-lg`} style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
                 {player.averageRating.toFixed(0)}
               </span>
               <span className={`text-[10px] font-bold ${style.subtext} tracking-widest mt-1 uppercase`}>
@@ -357,7 +360,7 @@ function FifaDisplayCard({
               <div className={`text-xs font-bold ${style.subtext} mb-0.5 opacity-80 tracking-widest`}>
                 {rankLabels[rank as 1 | 2 | 3]}
               </div>
-              <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md truncate`}>
+              <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md truncate`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
                 {player.name}
               </h2>
             </div>
@@ -366,10 +369,10 @@ function FifaDisplayCard({
           {/* Middle Section: Avatar & Flag */}
           <div className="flex-1 relative flex items-center justify-center my-1">
             {/* Background Glow behind avatar */}
-            <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-20 blur-xl rounded-full`} style={{ transform: 'scale(0.75)' }} />
+            <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} style={{ transform: 'scale(0.6)' }} />
             
             {/* Player Avatar */}
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/20">
+            <div className="relative w-22 h-22 sm:w-26 sm:h-26 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30">
               <Image
                 src={avatarSrc}
                 alt={player.name}
@@ -378,15 +381,15 @@ function FifaDisplayCard({
               />
             </div>
 
-            {/* Country Flag - Full display, no crop */}
-            <div className="absolute -bottom-1 -right-1 shadow-xl">
-              <Flag code={player.nationality} size="lg" />
+            {/* Country Flag - moved more left */}
+            <div className="absolute right-2 bottom-0 shadow-xl z-20">
+              <Flag code={player.nationality} size="md" />
             </div>
           </div>
 
           {/* Bottom Section: Division & Clan */}
           <div className="mt-auto pt-3">
-            <div className={`h-0.5 w-full bg-gradient-to-r ${style.accent} mb-2 rounded-full opacity-50`} />
+            <div className={`h-0.5 w-full bg-gradient-to-r ${style.accent} mb-2 rounded-full opacity-40`} />
             
             <div className="flex justify-between items-end">
               {/* Division */}
@@ -401,7 +404,7 @@ function FifaDisplayCard({
 
               {/* Clan Badge */}
               {player.clan && (
-                <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md border border-white/10 shadow-lg">
+                <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-md border border-white/10 shadow-lg">
                   <span className={`text-[10px] font-bold ${style.text} tracking-wide`}>
                     {player.clan}
                   </span>
@@ -420,7 +423,7 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/15 transition-all">
+    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/15">
       <div className="flex items-center gap-3">
         <div className="text-white/40 font-bold text-lg w-8">#{player.rank}</div>
         <Image src={avatarSrc} alt={player.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
@@ -443,7 +446,7 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
 // Compact player card (16-30)
 function CompactPlayerCard({ player }: { player: PlayerWithRating }) {
   return (
-    <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:bg-white/10 transition-all">
+    <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:bg-white/10">
       <div className="flex items-center gap-2">
         <span className="text-white/30 text-sm w-6">#{player.rank}</span>
         <Flag code={player.nationality} size="md" className="rounded" />
