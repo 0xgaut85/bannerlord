@@ -125,16 +125,18 @@ function getDefaultAvatar(category: string): string {
   }
 }
 
-// Calculate division from rating
-function getDivisionFromRating(rating: number): string {
+// Calculate tier from rating for FIFA card display
+function getTierFromRating(rating: number): string {
+  if (rating >= 95) return "S"
+  if (rating >= 90) return "A+"
   if (rating >= 85) return "A"
-  if (rating >= 80) return "B"
-  if (rating >= 75) return "C"
-  if (rating >= 70) return "D"
-  if (rating >= 65) return "E"
-  if (rating >= 60) return "F"
-  if (rating >= 55) return "G"
-  return "H+"
+  if (rating >= 80) return "B+"
+  if (rating >= 75) return "B"
+  if (rating >= 70) return "B-"
+  if (rating >= 65) return "C+"
+  if (rating >= 60) return "C"
+  if (rating >= 55) return "C-"
+  return "D"
 }
 
 export function FifaCard({
@@ -152,8 +154,8 @@ export function FifaCard({
   const style = getCardStyle(currentRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   
-  // Get division from player or calculate from current rating
-  const playerDivision = player.division || getDivisionFromRating(currentRating)
+  // Get tier from current rating
+  const playerTier = getTierFromRating(currentRating)
   
   // Get clan logo if available
   const clanLogo = (player as any).clanLogo || null
@@ -275,18 +277,18 @@ export function FifaCard({
             </div>
           </div>
 
-          {/* Bottom Section: Division & Clan */}
+          {/* Bottom Section: Tier & Clan */}
           <div className="mt-auto pt-4">
             <div className={`h-0.5 w-full bg-gradient-to-r ${style.accent} mb-3 rounded-full opacity-40`} />
             
             <div className="flex justify-between items-end">
-              {/* Division */}
+              {/* Tier */}
               <div className="flex flex-col">
                 <span className={`text-[10px] font-bold ${style.subtext} opacity-60 uppercase tracking-widest`}>
-                  Division
+                  Tier
                 </span>
                 <span className={`text-lg font-black ${style.text} drop-shadow-sm`}>
-                  {playerDivision || "-"}
+                  {playerTier}
                 </span>
               </div>
 

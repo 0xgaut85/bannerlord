@@ -24,16 +24,18 @@ function getDefaultAvatar(category: string): string {
   }
 }
 
-// Calculate division from rating
-function getDivisionFromRating(rating: number): string {
+// Calculate tier from rating for FIFA card display
+function getTierFromRating(rating: number): string {
+  if (rating >= 95) return "S"
+  if (rating >= 90) return "A+"
   if (rating >= 85) return "A"
-  if (rating >= 80) return "B"
-  if (rating >= 75) return "C"
-  if (rating >= 70) return "D"
-  if (rating >= 65) return "E"
-  if (rating >= 60) return "F"
-  if (rating >= 55) return "G"
-  return "H+"
+  if (rating >= 80) return "B+"
+  if (rating >= 75) return "B"
+  if (rating >= 70) return "B-"
+  if (rating >= 65) return "C+"
+  if (rating >= 60) return "C"
+  if (rating >= 55) return "C-"
+  return "D"
 }
 
 // AAA+ Premium card styles with heavy textures
@@ -303,7 +305,7 @@ function FifaDisplayCard({
 }) {
   const style = getCardStyle(player.averageRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
-  const displayDivision = player.division || getDivisionFromRating(player.averageRating)
+  const playerTier = getTierFromRating(player.averageRating)
   const clanLogo = (player as any).clanLogo || null
   
   const rankLabels = { 1: "#1", 2: "#2", 3: "#3" }
@@ -418,18 +420,18 @@ function FifaDisplayCard({
             </div>
           </div>
 
-          {/* Bottom Section: Division & Clan */}
+          {/* Bottom Section: Tier & Clan */}
           <div className="mt-auto pt-3">
             <div className={`h-0.5 w-full bg-gradient-to-r ${style.accent} mb-2 rounded-full opacity-40`} />
             
             <div className="flex justify-between items-end">
-              {/* Division */}
+              {/* Tier */}
               <div className="flex flex-col">
                 <span className={`text-[8px] font-bold ${style.subtext} opacity-60 uppercase tracking-widest`}>
-                  Division
+                  Tier
                 </span>
                 <span className={`text-sm font-black ${style.text} drop-shadow-sm`}>
-                  {displayDivision}
+                  {playerTier}
                 </span>
               </div>
 

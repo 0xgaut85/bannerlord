@@ -143,3 +143,29 @@ export const COUNTRY_NAMES: Record<string, string> = {
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ')
 }
+
+// Calculate division from rating (for filtering purposes)
+export function getDivisionFromRating(rating: number): Division {
+  if (rating >= 85) return "A" as Division
+  if (rating >= 80) return "B" as Division
+  if (rating >= 75) return "C" as Division
+  if (rating >= 70) return "D" as Division
+  if (rating >= 65) return "E" as Division
+  if (rating >= 60) return "F" as Division
+  if (rating >= 55) return "G" as Division
+  return "H" as Division // 50 and below
+}
+
+// Calculate tier from rating (for FIFA card display)
+export function getTierFromRating(rating: number): string {
+  if (rating >= 95) return "S"
+  if (rating >= 90) return "A+"
+  if (rating >= 85) return "A"
+  if (rating >= 80) return "B+"
+  if (rating >= 75) return "B"
+  if (rating >= 70) return "B-"
+  if (rating >= 65) return "C+"
+  if (rating >= 60) return "C"
+  if (rating >= 55) return "C-"
+  return "D" // 50 and below
+}
