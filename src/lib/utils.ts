@@ -32,14 +32,14 @@ export const DIVISION_DEFAULT_RATINGS: Record<Division, number> = {
 export const MIN_RATINGS = {
   INFANTRY: 20,
   CAVALRY: 10,
-  ARCHER: 5,
+  ARCHER: 10,
 } as const
 
 // Minimum ratings for a player to appear in global ranking
 export const MIN_PLAYER_RATINGS = 5
 
-// Maximum deviation from current average for established players (±10)
-export const MAX_RATING_DEVIATION = 10
+// Maximum deviation from current average for established players (±15)
+export const MAX_RATING_DEVIATION = 15
 
 // Check if user can edit (24h cooldown)
 export function canUserEdit(lastEditAt: Date | null): boolean {

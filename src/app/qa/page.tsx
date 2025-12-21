@@ -78,7 +78,7 @@ export default function QAPage() {
                 <div className="text-xs text-[#8a8a8a]">Infantry</div>
               </div>
               <div>
-                <div className="text-2xl font-display font-semibold text-[#c9a962]">20</div>
+                <div className="text-2xl font-display font-semibold text-[#c9a962]">10</div>
                 <div className="text-xs text-[#8a8a8a]">Cavalry</div>
               </div>
               <div>
