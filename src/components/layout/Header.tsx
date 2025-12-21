@@ -11,6 +11,7 @@ const navigation = [
   { name: "Global Ranking", href: "/community" },
   { name: "Users Ranking", href: "/players" },
   { name: "Make your Ranking", href: "/rate" },
+  { name: "Q&A", href: "/qa" },
   { name: "Edit Player", href: "/edit-player" },
   { name: "Admin", href: "/admin" },
 ]

@@ -1,26 +1,29 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui"
 import { RankingTable } from "@/components/community"
 import { PlayerWithRating } from "@/types"
 
-type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
-
 export default function CommunityPage() {
-  const [category, setCategory] = useState<Category>("INFANTRY")
-  const [players, setPlayers] = useState<PlayerWithRating[]>([])
+  const [infantryPlayers, setInfantryPlayers] = useState<PlayerWithRating[]>([])
+  const [cavalryPlayers, setCavalryPlayers] = useState<PlayerWithRating[]>([])
+  const [archerPlayers, setArcherPlayers] = useState<PlayerWithRating[]>([])
   const [isLoading, setIsLoading] = useState(true)
   
   useEffect(() => {
-    async function fetchRankings() {
+    async function fetchAllRankings() {
       setIsLoading(true)
       try {
-        const res = await fetch(`/api/community?category=${category}`)
-        if (res.ok) {
-          const data = await res.json()
-          setPlayers(data)
-        }
+        const [infantryRes, cavalryRes, archerRes] = await Promise.all([
+          fetch(`/api/community?category=INFANTRY`),
+          fetch(`/api/community?category=CAVALRY`),
+          fetch(`/api/community?category=ARCHER`)
+        ])
+        
+        if (infantryRes.ok) setInfantryPlayers(await infantryRes.json())
+        if (cavalryRes.ok) setCavalryPlayers(await cavalryRes.json())
+        if (archerRes.ok) setArcherPlayers(await archerRes.json())
+        
       } catch (error) {
         console.error("Error fetching rankings:", error)
       } finally {
@@ -28,11 +31,11 @@ export default function CommunityPage() {
       }
     }
     
-    fetchRankings()
-  }, [category])
+    fetchAllRankings()
+  }, [])
   
   return (
-    <div className="page-transition max-w-4xl mx-auto px-6 lg:px-8 py-12 sm:py-16">
+    <div className="page-transition max-w-[1400px] mx-auto px-4 lg:px-8 py-12 sm:py-16">
       {/* Header */}
       <div className="text-center mb-12">
         <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#c9a962] mb-4">
@@ -46,50 +49,30 @@ export default function CommunityPage() {
         </p>
       </div>
       
-      {/* Category Tabs */}
-      <Tabs 
-        defaultValue="INFANTRY" 
-        onChange={(value) => setCategory(value as Category)}
-        className="mb-8"
-      >
-        <TabsList className="w-full grid grid-cols-3 p-1.5">
-          <TabsTrigger value="INFANTRY">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Infantry Column */}
+        <div>
+          <h2 className="text-xl font-display font-semibold text-[#1a1a1a] mb-6 flex items-center gap-3 justify-center border-b border-[#e5e5e5] pb-4">
             Infantry
-          </TabsTrigger>
-          <TabsTrigger value="CAVALRY">
-            Cavalry
-          </TabsTrigger>
-          <TabsTrigger value="ARCHER">
-            Archers
-          </TabsTrigger>
-        </TabsList>
-        
-        <div className="mt-8">
-          <TabsContent value="INFANTRY">
-            <RankingTable players={players} isLoading={isLoading} />
-          </TabsContent>
-          <TabsContent value="CAVALRY">
-            <RankingTable players={players} isLoading={isLoading} />
-          </TabsContent>
-          <TabsContent value="ARCHER">
-            <RankingTable players={players} isLoading={isLoading} />
-          </TabsContent>
+          </h2>
+          <RankingTable players={infantryPlayers} isLoading={isLoading} />
         </div>
-      </Tabs>
-      
-      {/* Info */}
-      <div className="mt-12 glass rounded-xl p-6 text-sm text-[#5a5a5a]">
-        <p className="mb-3">
-          <span className="font-medium text-[#1a1a1a]">How rankings work:</span>{" "}
-          Each player&apos;s score is calculated from the weighted average of all eligible votes.
-        </p>
-        <p className="mb-3">
-          <span className="font-medium text-[#1a1a1a]">Vote weight:</span>{" "}
-          Division A (100%) · Division B (90%) · Division C (80%) · Division D (70%) · Division E (60%) · Division F (50%).
-        </p>
-        <p>
-          Only users&apos; lists who have rated at least 20 Infantry, 20 Cavalry, and 10 Archers are counted.
-        </p>
+
+        {/* Cavalry Column */}
+        <div>
+          <h2 className="text-xl font-display font-semibold text-[#1a1a1a] mb-6 flex items-center gap-3 justify-center border-b border-[#e5e5e5] pb-4">
+            Cavalry
+          </h2>
+          <RankingTable players={cavalryPlayers} isLoading={isLoading} />
+        </div>
+
+        {/* Archer Column */}
+        <div>
+          <h2 className="text-xl font-display font-semibold text-[#1a1a1a] mb-6 flex items-center gap-3 justify-center border-b border-[#e5e5e5] pb-4">
+            Archer
+          </h2>
+          <RankingTable players={archerPlayers} isLoading={isLoading} />
+        </div>
       </div>
     </div>
   )
