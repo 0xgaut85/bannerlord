@@ -30,7 +30,7 @@ interface Clan {
 
 export default function EditPlayerPage() {
   const { data: session, status } = useSession()
-  const [activeTab, setActiveTab] = useState<"player" | "clan">("player")
+  const [activeTab, setActiveTab] = useState<"player" | "clan" | "create">("player")
   
   // Left side - Edit existing player
   const [searchQuery, setSearchQuery] = useState("")
@@ -97,6 +97,25 @@ export default function EditPlayerPage() {
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const editAvatarInputRef = useRef<HTMLInputElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
+  const createPlayerAvatarInputRef = useRef<HTMLInputElement>(null)
+  
+  // Create new player (with admin review)
+  const [createPlayerName, setCreatePlayerName] = useState("")
+  const [createPlayerCategory, setCreatePlayerCategory] = useState<PlayerCategory>("INFANTRY")
+  const [createPlayerDivision, setCreatePlayerDivision] = useState<Division | "">("")
+  const [createPlayerNationality, setCreatePlayerNationality] = useState("")
+  const [createPlayerClan, setCreatePlayerClan] = useState("")
+  const [createPlayerBio, setCreatePlayerBio] = useState("")
+  const [createPlayerAvatar, setCreatePlayerAvatar] = useState<string | null>(null)
+  const [isSubmittingCreate, setIsSubmittingCreate] = useState(false)
+  const [createPlayerSuccess, setCreatePlayerSuccess] = useState(false)
+  const [createPlayerError, setCreatePlayerError] = useState<string | null>(null)
+  const [isUploadingCreateAvatar, setIsUploadingCreateAvatar] = useState(false)
+  
+  // Create player clan autocomplete
+  const [createPlayerClanOptions, setCreatePlayerClanOptions] = useState<Clan[]>([])
+  const [showCreatePlayerClanDropdown, setShowCreatePlayerClanDropdown] = useState(false)
+  const debouncedCreatePlayerClan = useDebounce(createPlayerClan, 300)
   
   const debouncedSearch = useDebounce(searchQuery, 300)
   const debouncedClanSearch = useDebounce(clanSearch, 300)
@@ -169,6 +188,28 @@ export default function EditPlayerPage() {
     
     fetchClans()
   }, [debouncedNewPlayerClan])
+  
+  // Fetch clans for create player form
+  useEffect(() => {
+    async function fetchClans() {
+      if (debouncedCreatePlayerClan.length < 1) {
+        setCreatePlayerClanOptions([])
+        return
+      }
+      
+      try {
+        const res = await fetch(`/api/clans?search=${encodeURIComponent(debouncedCreatePlayerClan)}`)
+        if (res.ok) {
+          const data = await res.json()
+          setCreatePlayerClanOptions(data)
+        }
+      } catch (err) {
+        console.error("Clan fetch error:", err)
+      }
+    }
+    
+    fetchClans()
+  }, [debouncedCreatePlayerClan])
   
   // Search clans for clan tab
   useEffect(() => {
@@ -454,6 +495,90 @@ export default function EditPlayerPage() {
     }
   }
   
+  // Handle create player avatar upload
+  const handleCreatePlayerAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    setIsUploadingCreateAvatar(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("type", "avatar")
+      
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+      
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to upload")
+      }
+      
+      const { url } = await res.json()
+      setCreatePlayerAvatar(url)
+    } catch (err) {
+      setCreatePlayerError(err instanceof Error ? err.message : "Failed to upload avatar")
+    } finally {
+      setIsUploadingCreateAvatar(false)
+    }
+  }
+  
+  // Submit create player request (with admin review)
+  const handleSubmitCreatePlayer = async () => {
+    if (!createPlayerName.trim()) {
+      setCreatePlayerError("Player name is required")
+      return
+    }
+    
+    if (!session?.user?.id) {
+      setCreatePlayerError("You must be logged in")
+      return
+    }
+    
+    setIsSubmittingCreate(true)
+    setCreatePlayerError(null)
+    setCreatePlayerSuccess(false)
+    
+    try {
+      const res = await fetch("/api/player-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          playerName: createPlayerName.trim(),
+          category: createPlayerCategory,
+          division: createPlayerDivision || null,
+          nationality: createPlayerNationality || null,
+          clan: createPlayerClan || null,
+          bio: createPlayerBio || null,
+          avatar: createPlayerAvatar,
+        }),
+      })
+      
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to submit request")
+      }
+      
+      setCreatePlayerSuccess(true)
+      // Reset form
+      setCreatePlayerName("")
+      setCreatePlayerCategory("INFANTRY")
+      setCreatePlayerDivision("")
+      setCreatePlayerNationality("")
+      setCreatePlayerClan("")
+      setCreatePlayerBio("")
+      setCreatePlayerAvatar(null)
+      
+      setTimeout(() => setCreatePlayerSuccess(false), 3000)
+    } catch (err) {
+      setCreatePlayerError(err instanceof Error ? err.message : "Failed to submit request")
+    } finally {
+      setIsSubmittingCreate(false)
+    }
+  }
+  
   const handleCreatePlayer = async () => {
     if (!newPlayerName.trim()) {
       setCreateError("Please enter a name")
@@ -614,10 +739,204 @@ export default function EditPlayerPage() {
           >
             Clans
           </button>
+          <button
+            onClick={() => setActiveTab("create")}
+            className={cn(
+              "px-6 py-2 rounded-lg font-medium transition-all",
+              activeTab === "create"
+                ? "bg-amber-500 text-black"
+                : "bg-white/10 text-white/70 hover:bg-white/20"
+            )}
+          >
+            Add Player
+          </button>
         </div>
       </div>
       
-      {activeTab === "player" ? (
+      {activeTab === "create" ? (
+        /* CREATE PLAYER TAB */
+        <div className="max-w-2xl mx-auto px-6 pb-20">
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <h2 className="text-xl font-display font-bold text-white mb-2">
+              Add New Player
+            </h2>
+            <p className="text-white/50 text-sm mb-6">
+              Submit a player to be added to the database. Requires admin approval.
+            </p>
+            
+            <div className="space-y-4">
+              {/* Player Name */}
+              <div>
+                <label className="block text-white/70 text-sm mb-2">Player Name *</label>
+                <input
+                  type="text"
+                  placeholder="Enter player name..."
+                  value={createPlayerName}
+                  onChange={(e) => setCreatePlayerName(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                />
+              </div>
+              
+              {/* Category */}
+              <div>
+                <label className="block text-white/70 text-sm mb-2">Category *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.value}
+                      type="button"
+                      onClick={() => setCreatePlayerCategory(cat.value)}
+                      className={cn(
+                        "px-4 py-3 rounded-xl font-medium transition-all",
+                        createPlayerCategory === cat.value
+                          ? "bg-amber-500 text-black"
+                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                      )}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Division */}
+              <div>
+                <label className="block text-white/70 text-sm mb-2">Division</label>
+                <div className="grid grid-cols-10 gap-2">
+                  {divisions.map((div) => (
+                    <button
+                      key={div}
+                      type="button"
+                      onClick={() => setCreatePlayerDivision(createPlayerDivision === div ? "" : div)}
+                      className={cn(
+                        "px-3 py-2 rounded-lg font-medium transition-all text-sm",
+                        createPlayerDivision === div
+                          ? "bg-amber-500 text-black"
+                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                      )}
+                    >
+                      {div}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Clan */}
+              <div className="relative">
+                <label className="block text-white/70 text-sm mb-2">Clan</label>
+                <input
+                  type="text"
+                  placeholder="Search clan or type FA for Free Agent..."
+                  value={createPlayerClan}
+                  onChange={(e) => {
+                    setCreatePlayerClan(e.target.value)
+                    setShowCreatePlayerClanDropdown(true)
+                  }}
+                  onFocus={() => setShowCreatePlayerClanDropdown(true)}
+                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                />
+                {showCreatePlayerClanDropdown && createPlayerClanOptions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-40 overflow-y-auto">
+                    {createPlayerClanOptions.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setCreatePlayerClan(c.shortName)
+                          setShowCreatePlayerClanDropdown(false)
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-lg text-white hover:bg-white/10"
+                      >
+                        {c.shortName} - {c.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Nationality */}
+              <div>
+                <label className="block text-white/70 text-sm mb-2">Nationality</label>
+                <select
+                  value={createPlayerNationality}
+                  onChange={(e) => setCreatePlayerNationality(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-800 [&>option]:text-white"
+                >
+                  <option value="">Select nationality...</option>
+                  {countries.map((c) => (
+                    <option key={c.code} value={c.code}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Bio */}
+              <div>
+                <label className="block text-white/70 text-sm mb-2">Bio <span className="text-white/40">({createPlayerBio.length}/50)</span></label>
+                <input
+                  type="text"
+                  placeholder="Short bio..."
+                  value={createPlayerBio}
+                  onChange={(e) => setCreatePlayerBio(e.target.value.slice(0, 50))}
+                  maxLength={50}
+                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                />
+              </div>
+              
+              {/* Avatar */}
+              <div>
+                <label className="block text-white/70 text-sm mb-2">Avatar</label>
+                <div className="flex items-center gap-4">
+                  <input
+                    ref={createPlayerAvatarInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    onChange={handleCreatePlayerAvatarUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => createPlayerAvatarInputRef.current?.click()}
+                    disabled={isUploadingCreateAvatar}
+                    className="w-20 h-20 rounded-xl bg-white/10 border-2 border-dashed border-white/30 flex items-center justify-center hover:bg-white/20 overflow-hidden"
+                  >
+                    {createPlayerAvatar ? (
+                      <Image src={createPlayerAvatar} alt="Avatar" width={80} height={80} className="w-full h-full object-cover" />
+                    ) : isUploadingCreateAvatar ? (
+                      <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <span className="text-white/40 text-2xl">+</span>
+                    )}
+                  </button>
+                  <span className="text-white/40 text-xs">PNG or JPEG, square</span>
+                </div>
+              </div>
+              
+              {/* Error/Success Messages */}
+              {createPlayerError && (
+                <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300 text-sm">
+                  {createPlayerError}
+                </div>
+              )}
+              
+              {createPlayerSuccess && (
+                <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-xl text-green-300 text-sm">
+                  Player submitted for admin review!
+                </div>
+              )}
+              
+              {/* Submit Button */}
+              <Button
+                onClick={handleSubmitCreatePlayer}
+                isLoading={isSubmittingCreate}
+                disabled={!createPlayerName.trim()}
+                className="w-full !bg-amber-500 !text-black hover:!bg-amber-400 disabled:opacity-50"
+              >
+                Submit for Review
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : activeTab === "player" ? (
         /* PLAYER TAB */
         <div className="max-w-7xl mx-auto px-6 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* LEFT SIDE - Edit Players */}

@@ -47,11 +47,12 @@ model User {
   isProfileComplete Boolean       @default(false)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
-  accounts          Account[]
-  editRequests      EditRequest[]
-  clanEditRequests  ClanEditRequest[]
-  ratings           Rating[]
-  sessions          Session[]
+  accounts              Account[]
+  editRequests          EditRequest[]
+  clanEditRequests      ClanEditRequest[]
+  playerCreateRequests  PlayerCreateRequest[]
+  ratings               Rating[]
+  sessions              Session[]
 }
 
 model VerificationToken {
@@ -128,6 +129,22 @@ model ClanEditRequest {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PlayerCreateRequest {
+  id          String          @id @default(cuid())
+  userId      String
+  playerName  String
+  category    PlayerCategory
+  division    Division?
+  nationality String?
+  clan        String?
+  bio         String?
+  avatar      String?
+  status      RequestStatus   @default(PENDING)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Division {
