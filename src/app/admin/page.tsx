@@ -21,6 +21,7 @@ export default function AdminPage() {
   const [playerRequests, setPlayerRequests] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
   const [selectedUser, setSelectedUser] = useState<any | null>(null)
+  const [anomalies, setAnomalies] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState("players")
   const [editingPlayer, setEditingPlayer] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
@@ -44,8 +45,38 @@ export default function AdminPage() {
       fetchClanRequests()
       fetchPlayerRequests()
       fetchUsers()
+      fetchAnomalies()
     } else {
       alert("Invalid credentials")
+    }
+  }
+
+  const fetchAnomalies = async () => {
+    try {
+      const res = await fetch("/api/admin/anomalies")
+      if (res.ok) {
+        const data = await res.json()
+        setAnomalies(data)
+      }
+    } catch (error) {
+      console.error("Error fetching anomalies:", error)
+    }
+  }
+
+  const handleDeleteAnomaly = async (ratingId: string) => {
+    if (!confirm("Are you sure you want to delete this rating?")) return
+    
+    try {
+      const res = await fetch(`/api/admin/ratings/${ratingId}`, {
+        method: "DELETE"
+      })
+      if (res.ok) {
+        setAnomalies(anomalies.filter(a => a.id !== ratingId))
+      } else {
+        alert("Failed to delete rating")
+      }
+    } catch (error) {
+      alert("Error deleting rating")
     }
   }
 
@@ -338,6 +369,18 @@ export default function AdminPage() {
                 {playerRequests.length > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
                     {playerRequests.length}
+                  </span>
+                )}
+              </Button>
+              <Button 
+                variant={activeTab === "anomalies" ? "primary" : "ghost"} 
+                onClick={() => { setActiveTab("anomalies"); fetchAnomalies(); }}
+                className={`relative ${activeTab === "anomalies" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+              >
+                Anomalies
+                {anomalies.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full text-xs flex items-center justify-center text-white">
+                    {anomalies.length}
                   </span>
                 )}
               </Button>
@@ -790,6 +833,62 @@ export default function AdminPage() {
             ))}
             {playerRequests.length === 0 && (
               <div className="text-center text-white/40 py-12">No pending player requests</div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "anomalies" && (
+          <div className="space-y-4">
+            <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 mb-6">
+              <h3 className="text-orange-400 font-semibold mb-2">Anomaly Detection</h3>
+              <p className="text-white/60 text-sm">
+                Ratings that deviate more than 10 points from the player&apos;s average are flagged as potential troll ratings.
+              </p>
+            </div>
+
+            {anomalies.map((anomaly) => (
+              <div key={anomaly.id} className="bg-white/5 p-4 rounded-xl border border-orange-500/30">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-medium text-white">
+                      {anomaly.playerName}
+                    </h3>
+                    <p className="text-sm text-white/50">
+                      Rated by: {anomaly.raterName} (Div {anomaly.raterDivision || "?"})
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-orange-400">{anomaly.score}</div>
+                    <div className="text-xs text-white/50">vs avg {anomaly.averageScore}</div>
+                  </div>
+                </div>
+                
+                <div className="bg-black/30 rounded-lg p-3 mb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-white/50 text-xs uppercase">Deviation</span>
+                    <span className={`font-bold ${anomaly.deviation >= 15 ? "text-red-400" : "text-orange-400"}`}>
+                      {anomaly.score > anomaly.averageScore ? "+" : "-"}{anomaly.deviation} points
+                    </span>
+                  </div>
+                  <div className="text-xs text-white/40">
+                    Other ratings: {anomaly.otherRatings.join(", ")}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    size="sm" 
+                    className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30"
+                    onClick={() => handleDeleteAnomaly(anomaly.id)}
+                  >
+                    Delete Rating
+                  </Button>
+                </div>
+              </div>
+            ))}
+            
+            {anomalies.length === 0 && (
+              <div className="text-center text-white/40 py-12">No anomalies detected</div>
             )}
           </div>
         )}
