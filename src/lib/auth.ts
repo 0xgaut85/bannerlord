@@ -39,31 +39,23 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     },
-    async signIn({ user, account, profile }) {
-      if (account?.provider === "discord") {
+  },
+  events: {
+    async signIn({ user, account }) {
+      // Update discordId after PrismaAdapter creates the user
+      if (account?.provider === "discord" && account.providerAccountId) {
         try {
-          // Use upsert to handle both new and existing users
-          await prisma.user.upsert({
+          await prisma.user.update({
             where: { id: user.id },
-            update: {
+            data: {
               discordId: account.providerAccountId,
-            },
-            create: {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              image: user.image,
-              discordId: account.providerAccountId,
-              discordName: null, // User will set this in onboarding
             }
           })
         } catch (error) {
-          console.error("Error updating user during sign-in:", error)
-          // Don't block sign-in if there's an error
+          console.error("Error updating discordId:", error)
         }
       }
-      return true
-    }
+    },
   },
   pages: {
     signIn: '/auth/signin',
@@ -71,6 +63,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database",
   },
+  debug: process.env.NODE_ENV === "development",
 }
 
 
