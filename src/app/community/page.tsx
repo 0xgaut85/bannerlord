@@ -35,43 +35,46 @@ export default function CommunityPage() {
   }, [])
   
   return (
-    <div className="page-transition w-full min-h-screen flex flex-col">
+    <div className="page-transition w-full min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <div className="text-center py-12 sm:py-16 bg-[#f5f5f5]">
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#c9a962] mb-4">
+      <div className="text-center py-12 sm:py-16 bg-gradient-to-b from-slate-900 to-slate-800">
+        <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
           Community Rankings
         </p>
-        <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[#1a1a1a] mb-3">
+        <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-3">
           Top Players
         </h1>
-        <p className="text-[#5a5a5a]">
+        <p className="text-white/60">
           Rankings based on weighted community votes
         </p>
       </div>
       
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3">
-        {/* Infantry Column - Black */}
-        <div className="bg-[#0a0a0a] p-8">
-          <h2 className="text-xl font-display font-semibold text-white mb-6 flex items-center gap-3 justify-center border-b border-white/10 pb-4">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-0">
+        {/* Infantry Column */}
+        <div className="bg-gradient-to-b from-amber-900 to-amber-950 p-6 lg:p-8">
+          <h2 className="text-xl font-display font-bold text-amber-500 mb-6 flex items-center gap-3 justify-center border-b border-amber-500/20 pb-4">
+            <span className="text-2xl">⚔️</span>
             Infantry
           </h2>
-          <RankingTable players={infantryPlayers} isLoading={isLoading} dark />
+          <RankingTable players={infantryPlayers} isLoading={isLoading} dark initialLimit={20} />
         </div>
 
-        {/* Cavalry Column - White */}
-        <div className="bg-white p-8 border-x border-[#e5e5e5]">
-          <h2 className="text-xl font-display font-semibold text-[#1a1a1a] mb-6 flex items-center gap-3 justify-center border-b border-[#e5e5e5] pb-4">
+        {/* Cavalry Column */}
+        <div className="bg-white p-6 lg:p-8 border-x border-gray-200">
+          <h2 className="text-xl font-display font-bold text-slate-700 mb-6 flex items-center gap-3 justify-center border-b border-gray-200 pb-4">
+            <span className="text-2xl">🐎</span>
             Cavalry
           </h2>
-          <RankingTable players={cavalryPlayers} isLoading={isLoading} />
+          <RankingTable players={cavalryPlayers} isLoading={isLoading} initialLimit={20} />
         </div>
 
-        {/* Archer Column - Black */}
-        <div className="bg-[#0a0a0a] p-8">
-          <h2 className="text-xl font-display font-semibold text-white mb-6 flex items-center gap-3 justify-center border-b border-white/10 pb-4">
-            Archer
+        {/* Archer Column */}
+        <div className="bg-gradient-to-b from-emerald-900 to-emerald-950 p-6 lg:p-8">
+          <h2 className="text-xl font-display font-bold text-emerald-500 mb-6 flex items-center gap-3 justify-center border-b border-emerald-500/20 pb-4">
+            <span className="text-2xl">🏹</span>
+            Archers
           </h2>
-          <RankingTable players={archerPlayers} isLoading={isLoading} dark />
+          <RankingTable players={archerPlayers} isLoading={isLoading} dark initialLimit={20} />
         </div>
       </div>
     </div>

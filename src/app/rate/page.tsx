@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react"
 import { useSession, signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Button, Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui"
-import { PlayerCard, EligibilityProgress, CooldownTimer } from "@/components/rating"
+import { Button, Tabs, TabsList, TabsTrigger } from "@/components/ui"
+import { FifaCard, EligibilityProgress, CooldownTimer } from "@/components/rating"
 import { canUserEdit, MIN_RATINGS } from "@/lib/utils"
 import { Player } from "@prisma/client"
 
@@ -12,6 +12,12 @@ type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
 interface RatingMap {
   [playerId: string]: number
+}
+
+const categoryGradients: Record<Category, string> = {
+  INFANTRY: "from-amber-900 via-amber-800 to-amber-700",
+  CAVALRY: "from-slate-900 via-slate-800 to-slate-700",
+  ARCHER: "from-emerald-900 via-emerald-800 to-emerald-700",
 }
 
 export default function RatePage() {
@@ -23,6 +29,7 @@ export default function RatePage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [ratings, setRatings] = useState<RatingMap>({})
   const [originalRatings, setOriginalRatings] = useState<RatingMap>({})
+  const [skippedPlayers, setSkippedPlayers] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -92,7 +99,7 @@ export default function RatePage() {
     }
   }, [session?.user?.id, status])
   
-  // Filter players by category
+  // Filter players by category (excluding skipped ones for current session)
   const filteredPlayers = players.filter(p => p.category === category)
   const currentCategoryPlayer = filteredPlayers[currentIndex]
   
@@ -109,6 +116,24 @@ export default function RatePage() {
       }))
     }
   }, [currentCategoryPlayer])
+  
+  const handleSkip = useCallback(() => {
+    if (currentCategoryPlayer) {
+      // Move to next player
+      if (currentIndex < filteredPlayers.length - 1) {
+        setCurrentIndex(i => i + 1)
+      } else {
+        // Wrap around or stay at last
+        setCurrentIndex(0)
+      }
+    }
+  }, [currentCategoryPlayer, currentIndex, filteredPlayers.length])
+  
+  const handlePrevious = useCallback(() => {
+    if (currentIndex > 0) {
+      setCurrentIndex(i => i - 1)
+    }
+  }, [currentIndex])
   
   const handleSave = async () => {
     if (!canEdit) {
@@ -149,19 +174,21 @@ export default function RatePage() {
   // Not logged in
   if (status === "unauthenticated") {
     return (
-      <div className="page-transition max-w-lg mx-auto px-6 lg:px-8 py-20 text-center">
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#c9a962] mb-4">
-          Authentication Required
-        </p>
-        <h1 className="font-display text-3xl font-semibold text-[#1a1a1a] mb-4">
-          Sign in to Rate Players
-        </h1>
-        <p className="text-[#5a5a5a] mb-10">
-          Connect your Discord account to create your own player rankings
-        </p>
-        <Button onClick={() => signIn("discord")} size="lg" variant="primary">
-          Sign in with Discord
-        </Button>
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
+        <div className="max-w-md w-full text-center">
+          <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
+            Authentication Required
+          </p>
+          <h1 className="font-display text-4xl font-bold text-white mb-4">
+            Sign in to Rate Players
+          </h1>
+          <p className="text-white/60 mb-10">
+            Connect your Discord account to create your own player rankings
+          </p>
+          <Button onClick={() => signIn("discord")} size="lg" variant="primary" className="!bg-amber-500 !text-black hover:!bg-amber-400">
+            Sign in with Discord
+          </Button>
+        </div>
       </div>
     )
   }
@@ -169,19 +196,21 @@ export default function RatePage() {
   // Profile not complete
   if (session && !session.user?.isProfileComplete) {
     return (
-      <div className="page-transition max-w-lg mx-auto px-6 lg:px-8 py-20 text-center">
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#c9a962] mb-4">
-          Profile Setup
-        </p>
-        <h1 className="font-display text-3xl font-semibold text-[#1a1a1a] mb-4">
-          Complete Your Profile
-        </h1>
-        <p className="text-[#5a5a5a] mb-10">
-          Please set your team and division before rating players
-        </p>
-        <Button onClick={() => router.push("/profile")} size="lg" variant="primary">
-          Go to Profile
-        </Button>
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
+        <div className="max-w-md w-full text-center">
+          <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
+            Profile Setup
+          </p>
+          <h1 className="font-display text-4xl font-bold text-white mb-4">
+            Complete Your Profile
+          </h1>
+          <p className="text-white/60 mb-10">
+            Please set your team and division before rating players
+          </p>
+          <Button onClick={() => router.push("/profile")} size="lg" variant="primary" className="!bg-amber-500 !text-black hover:!bg-amber-400">
+            Go to Profile
+          </Button>
+        </div>
       </div>
     )
   }
@@ -189,92 +218,86 @@ export default function RatePage() {
   // Loading
   if (status === "loading" || isLoading) {
     return (
-      <div className="page-transition max-w-lg mx-auto px-6 lg:px-8 py-20">
-        <div className="space-y-4">
-          <div className="h-24 glass rounded-xl animate-pulse" />
-          <div className="h-96 glass rounded-xl animate-pulse" />
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
   }
   
+  const gradient = categoryGradients[category]
+  
   return (
-    <div className="page-transition max-w-2xl mx-auto px-6 lg:px-8 py-12 sm:py-16">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#c9a962] mb-4">
-          Rate Players
-        </p>
-        <h1 className="font-display text-4xl font-semibold text-[#1a1a1a]">
-          Create Your List
-        </h1>
+    <div className={`min-h-screen bg-gradient-to-b ${gradient} flex flex-col`}>
+      {/* Top Bar */}
+      <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* Category Tabs */}
+            <Tabs 
+              defaultValue="INFANTRY" 
+              onChange={(value) => setCategory(value as Category)}
+            >
+              <TabsList className="!bg-white/10 !border-white/20">
+                <TabsTrigger value="INFANTRY" className="!text-white/70 data-[active=true]:!bg-white/20 data-[active=true]:!text-white">
+                  ⚔️ Infantry
+                </TabsTrigger>
+                <TabsTrigger value="CAVALRY" className="!text-white/70 data-[active=true]:!bg-white/20 data-[active=true]:!text-white">
+                  🐎 Cavalry
+                </TabsTrigger>
+                <TabsTrigger value="ARCHER" className="!text-white/70 data-[active=true]:!bg-white/20 data-[active=true]:!text-white">
+                  🏹 Archers
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
+            {/* Save Button */}
+            {isModified && canEdit && (
+              <Button
+                onClick={handleSave}
+                isLoading={isSaving}
+                className="!bg-amber-500 !text-black hover:!bg-amber-400 font-semibold"
+              >
+                💾 Save All Ratings
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
       
-      {/* Cooldown Timer */}
-      <CooldownTimer lastEditAt={session?.user?.lastEditAt} />
-      
-      {/* Eligibility Progress */}
-      <EligibilityProgress status={eligibility} />
+      {/* Progress Bars */}
+      <div className="bg-black/10 px-6 py-3">
+        <div className="max-w-4xl mx-auto">
+          <EligibilityProgress status={eligibility} dark />
+          <CooldownTimer lastEditAt={session?.user?.lastEditAt} dark />
+        </div>
+      </div>
       
       {/* Error */}
       {error && (
-        <div className="mb-6 p-4 glass rounded-xl border border-red-200 text-red-700">
+        <div className="mx-6 mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-center max-w-lg mx-auto">
           {error}
         </div>
       )}
       
-      {/* Category Tabs */}
-      <Tabs 
-        defaultValue="INFANTRY" 
-        onChange={(value) => setCategory(value as Category)}
-        className="mb-6"
-      >
-        <TabsList className="w-full grid grid-cols-3">
-          <TabsTrigger value="INFANTRY">
-            Infantry
-          </TabsTrigger>
-          <TabsTrigger value="CAVALRY">
-            Cavalry
-          </TabsTrigger>
-          <TabsTrigger value="ARCHER">
-            Archers
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-      
-      {/* Player Card */}
-      {filteredPlayers.length > 0 && currentCategoryPlayer ? (
-        <PlayerCard
-          player={currentCategoryPlayer}
-          currentRating={ratings[currentCategoryPlayer.id] || 75}
-          onRatingChange={handleRatingChange}
-          onPrevious={() => setCurrentIndex(i => Math.max(0, i - 1))}
-          onNext={() => setCurrentIndex(i => Math.min(filteredPlayers.length - 1, i + 1))}
-          hasPrevious={currentIndex > 0}
-          hasNext={currentIndex < filteredPlayers.length - 1}
-          currentIndex={currentIndex}
-          totalPlayers={filteredPlayers.length}
-        />
-      ) : (
-        <div className="text-center py-16 text-[#8a8a8a]">
-          <p className="font-display text-xl">No players in this category yet</p>
-        </div>
-      )}
-      
-      {/* Save Button */}
-      {isModified && canEdit && (
-        <div className="mt-10 text-center">
-          <Button
-            onClick={handleSave}
-            isLoading={isSaving}
-            size="lg"
-            variant="primary"
-            className="min-w-[200px]"
-          >
-            Save All Ratings
-          </Button>
-        </div>
-      )}
+      {/* Main Card Area */}
+      <div className="flex-1 flex items-center justify-center px-6 py-8">
+        {filteredPlayers.length > 0 && currentCategoryPlayer ? (
+          <FifaCard
+            player={currentCategoryPlayer}
+            currentRating={ratings[currentCategoryPlayer.id] || 75}
+            onRatingChange={handleRatingChange}
+            onSkip={handleSkip}
+            onPrevious={handlePrevious}
+            hasPrevious={currentIndex > 0}
+            currentIndex={currentIndex}
+            totalPlayers={filteredPlayers.length}
+          />
+        ) : (
+          <div className="text-center py-16 text-white/60">
+            <p className="font-display text-2xl">No players in this category yet</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

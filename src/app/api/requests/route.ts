@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Unauthorized - please sign in" },
         { status: 401 }
       )
     }
@@ -21,6 +21,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Player ID required" },
         { status: 400 }
+      )
+    }
+
+    // Check if player exists
+    const player = await prisma.player.findUnique({
+      where: { id: playerId }
+    })
+
+    if (!player) {
+      return NextResponse.json(
+        { error: "Player not found" },
+        { status: 404 }
       )
     }
 
@@ -52,8 +64,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(editRequest)
   } catch (error) {
     console.error("Error creating edit request:", error)
+    // Return more specific error message
+    const message = error instanceof Error ? error.message : "Failed to create request"
     return NextResponse.json(
-      { error: "Failed to create request" },
+      { error: message },
       { status: 500 }
     )
   }

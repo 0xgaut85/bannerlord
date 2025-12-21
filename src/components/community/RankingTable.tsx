@@ -1,16 +1,23 @@
 "use client"
 
+import { useState } from "react"
 import { PlayerWithRating } from "@/types"
-import { Card, Badge } from "@/components/ui"
-import { cn } from "@/lib/utils"
+import { Card, Badge, Button } from "@/components/ui"
+import { cn, getFlagEmoji } from "@/lib/utils"
 
 interface RankingTableProps {
   players: PlayerWithRating[]
   isLoading?: boolean
   dark?: boolean
+  initialLimit?: number
 }
 
-export function RankingTable({ players, isLoading, dark }: RankingTableProps) {
+export function RankingTable({ players, isLoading, dark, initialLimit = 20 }: RankingTableProps) {
+  const [showAll, setShowAll] = useState(false)
+  
+  const displayedPlayers = showAll ? players : players.slice(0, initialLimit)
+  const hasMore = players.length > initialLimit
+  
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -19,7 +26,7 @@ export function RankingTable({ players, isLoading, dark }: RankingTableProps) {
             key={i} 
             className={cn(
               "h-16 rounded-xl animate-pulse",
-              dark ? "bg-white/5" : "glass"
+              dark ? "bg-white/5" : "bg-gray-100"
             )}
             style={{ animationDelay: `${i * 50}ms` }}
           />
@@ -32,7 +39,7 @@ export function RankingTable({ players, isLoading, dark }: RankingTableProps) {
     return (
       <div className={cn(
         "text-center py-16",
-        dark ? "text-white/40" : "text-[#8a8a8a]"
+        dark ? "text-white/40" : "text-gray-500"
       )}>
         <p className="font-display text-xl">No players found</p>
         <p className="text-sm mt-2">Check back later</p>
@@ -40,82 +47,109 @@ export function RankingTable({ players, isLoading, dark }: RankingTableProps) {
     )
   }
   
-  const getRankDisplay = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <span className="font-display text-2xl font-semibold text-[#c9a962]">1st</span>
-      case 2:
-        return <span className={cn("font-display text-2xl font-semibold", dark ? "text-white/60" : "text-[#8a8a8a]")}>2nd</span>
-      case 3:
-        return <span className="font-display text-2xl font-semibold text-[#a67c52]">3rd</span>
-      default:
-        return <span className={cn("text-lg font-medium", dark ? "text-white/40" : "text-[#8a8a8a]")}>{rank}</span>
-    }
-  }
-  
-  const getCardVariant = (rank: number): "default" | "gold" | "silver" | "bronze" => {
-    switch (rank) {
-      case 1: return "gold"
-      case 2: return "silver"
-      case 3: return "bronze"
-      default: return "default"
-    }
+  const getRankStyles = (rank: number, isDark: boolean) => {
+    if (rank === 1) return { text: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/30" }
+    if (rank === 2) return { text: isDark ? "text-gray-300" : "text-gray-600", bg: isDark ? "bg-white/5" : "bg-gray-100", border: isDark ? "border-white/10" : "border-gray-200" }
+    if (rank === 3) return { text: "text-orange-600", bg: "bg-orange-500/10", border: "border-orange-500/30" }
+    return { text: isDark ? "text-white" : "text-gray-900", bg: isDark ? "bg-white/5" : "bg-white", border: isDark ? "border-white/10" : "border-gray-200" }
   }
   
   return (
-    <div className="space-y-3">
-      {players.map((player) => (
-        <Card 
-          key={player.id} 
-          variant={getCardVariant(player.rank || 0)}
-          className={cn(
-            "flex items-center gap-4 p-4 hover-lift",
-            player.rank !== undefined && player.rank <= 3 && "py-5",
-            dark && !player.rank && "bg-[#111] border-[#222]",
-            dark && (player.rank || 0) > 3 && "bg-[#111] border-[#222]"
-          )}
-        >
-          {/* Rank */}
-          <div className="flex items-center justify-center w-16">
-            {getRankDisplay(player.rank || 0)}
-          </div>
-          
-          {/* Name */}
-          <div className="flex-1">
-            <h3 className={cn(
-              "font-medium",
-              player.rank === 1 && "text-lg text-[#a68b47]",
-              player.rank === 2 && "text-lg text-[#5a5a5a]",
-              player.rank === 3 && "text-lg text-[#8b5a2b]",
-              (!player.rank || player.rank > 3) && (dark ? "text-white" : "text-[#1a1a1a]")
-            )}>
-              {player.name}
-            </h3>
-            <p className={cn("text-xs mt-0.5", dark ? "text-white/40" : "text-[#8a8a8a]")}>
-              {player.nationality}
-            </p>
-          </div>
-          
-          {/* Rating */}
-          <div className="flex items-center gap-4">
-            <Badge variant={player.rank && player.rank <= 3 
-              ? (["gold", "silver", "bronze"] as const)[player.rank - 1] 
-              : "default"
-            }>
-              {player.totalRatings} votes
-            </Badge>
+    <div className="space-y-2">
+      {displayedPlayers.map((player) => {
+        const styles = getRankStyles(player.rank || 0, dark || false)
+        const flag = player.nationality ? getFlagEmoji(player.nationality) : "🇪🇺"
+        
+        return (
+          <div 
+            key={player.id} 
+            className={cn(
+              "flex items-center gap-3 p-3 rounded-xl border transition-all hover:scale-[1.01]",
+              styles.bg,
+              styles.border,
+              player.rank && player.rank <= 3 && "p-4"
+            )}
+          >
+            {/* Rank */}
             <div className={cn(
-              "font-display text-3xl font-semibold min-w-[70px] text-right",
-              player.rank === 1 && "text-[#c9a962]",
-              player.rank === 2 && "text-[#5a5a5a]",
-              player.rank === 3 && "text-[#a67c52]",
-              (!player.rank || player.rank > 3) && (dark ? "text-white" : "text-[#1a1a1a]")
+              "w-10 text-center font-bold",
+              player.rank === 1 && "text-2xl text-amber-500",
+              player.rank === 2 && "text-2xl",
+              player.rank === 3 && "text-2xl text-orange-600",
+              (!player.rank || player.rank > 3) && "text-lg",
+              dark && player.rank !== 1 && player.rank !== 3 ? "text-white/60" : "",
+              !dark && player.rank !== 1 && player.rank !== 3 ? "text-gray-500" : ""
+            )}>
+              {player.rank === 1 && "🥇"}
+              {player.rank === 2 && "🥈"}
+              {player.rank === 3 && "🥉"}
+              {(!player.rank || player.rank > 3) && `#${player.rank}`}
+            </div>
+            
+            {/* Flag */}
+            <div className="text-2xl">
+              {flag}
+            </div>
+            
+            {/* Name & Clan */}
+            <div className="flex-1 min-w-0">
+              <h3 className={cn(
+                "font-semibold truncate",
+                styles.text,
+                player.rank && player.rank <= 3 && "text-lg"
+              )}>
+                {player.name}
+              </h3>
+              {player.clan && (
+                <p className={cn(
+                  "text-xs truncate",
+                  dark ? "text-white/50" : "text-gray-500"
+                )}>
+                  {player.clan}
+                </p>
+              )}
+            </div>
+            
+            {/* Rating */}
+            <div className={cn(
+              "font-bold text-xl tabular-nums",
+              player.rank === 1 && "text-amber-500 text-2xl",
+              player.rank === 2 && (dark ? "text-gray-300" : "text-gray-600") + " text-2xl",
+              player.rank === 3 && "text-orange-600 text-2xl",
+              (!player.rank || player.rank > 3) && (dark ? "text-white" : "text-gray-900")
             )}>
               {player.averageRating > 0 ? player.averageRating.toFixed(1) : "—"}
             </div>
           </div>
-        </Card>
-      ))}
+        )
+      })}
+      
+      {/* Show More Button */}
+      {hasMore && !showAll && (
+        <Button
+          onClick={() => setShowAll(true)}
+          variant="ghost"
+          className={cn(
+            "w-full mt-4",
+            dark ? "!text-white/70 hover:!bg-white/10" : "!text-gray-600 hover:!bg-gray-100"
+          )}
+        >
+          Show {players.length - initialLimit} more players
+        </Button>
+      )}
+      
+      {showAll && hasMore && (
+        <Button
+          onClick={() => setShowAll(false)}
+          variant="ghost"
+          className={cn(
+            "w-full mt-4",
+            dark ? "!text-white/70 hover:!bg-white/10" : "!text-gray-600 hover:!bg-gray-100"
+          )}
+        >
+          Show less
+        </Button>
+      )}
     </div>
   )
 }

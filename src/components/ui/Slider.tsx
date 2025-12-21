@@ -10,10 +10,11 @@ interface SliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onCha
   value: number
   onChange: (value: number) => void
   showValue?: boolean
+  dark?: boolean
 }
 
 export const Slider = forwardRef<HTMLInputElement, SliderProps>(
-  ({ className, label, min = 50, max = 99, value, onChange, showValue = true, ...props }, ref) => {
+  ({ className, label, min = 50, max = 99, value, onChange, showValue = true, dark = false, ...props }, ref) => {
     const percentage = ((value - min) / (max - min)) * 100
     
     // Premium gold gradient
@@ -31,7 +32,7 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
       <div className={cn("w-full", className)}>
         {(label || showValue) && (
           <div className="flex justify-between items-center mb-4">
-            {label && <span className="text-sm font-medium text-[#5a5a5a]">{label}</span>}
+            {label && <span className={cn("text-sm font-medium", dark ? "text-white/70" : "text-[#5a5a5a]")}>{label}</span>}
             {showValue && (
               <span 
                 className="font-display text-4xl font-semibold transition-colors duration-300"
@@ -51,7 +52,8 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
             value={value}
             onChange={(e) => onChange(parseInt(e.target.value))}
             className={cn(
-              "w-full h-2 bg-[#e5e5e5] rounded-full appearance-none cursor-pointer",
+              "w-full h-2 rounded-full appearance-none cursor-pointer",
+              dark ? "bg-white/20" : "bg-[#e5e5e5]",
               "focus:outline-none",
               "[&::-webkit-slider-thumb]:appearance-none",
               "[&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6",
@@ -64,12 +66,12 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
               "[&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:hover:shadow-xl"
             )}
             style={{
-              background: `linear-gradient(to right, ${getColor(value)} 0%, ${getColor(value)} ${percentage}%, #e5e5e5 ${percentage}%, #e5e5e5 100%)`
+              background: `linear-gradient(to right, ${getColor(value)} 0%, ${getColor(value)} ${percentage}%, ${dark ? 'rgba(255,255,255,0.2)' : '#e5e5e5'} ${percentage}%, ${dark ? 'rgba(255,255,255,0.2)' : '#e5e5e5'} 100%)`
             }}
             {...props}
           />
         </div>
-        <div className="flex justify-between text-xs text-[#8a8a8a] mt-2">
+        <div className={cn("flex justify-between text-xs mt-2", dark ? "text-white/50" : "text-[#8a8a8a]")}>
           <span>{min}</span>
           <span>{max}</span>
         </div>

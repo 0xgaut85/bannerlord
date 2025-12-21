@@ -6,29 +6,58 @@ import { cn } from "@/lib/utils"
 
 interface EligibilityProgressProps {
   status: EligibilityStatus
+  dark?: boolean
 }
 
-export function EligibilityProgress({ status }: EligibilityProgressProps) {
+export function EligibilityProgress({ status, dark }: EligibilityProgressProps) {
   const categories = [
     { 
       key: "infantry" as const, 
       label: "Infantry", 
-      color: "text-[#c9a962]",
-      bgColor: "bg-[#c9a962]"
+      color: "text-amber-500",
+      bgColor: "bg-amber-500"
     },
     { 
       key: "cavalry" as const, 
       label: "Cavalry", 
-      color: "text-[#5a5a5a]",
-      bgColor: "bg-[#5a5a5a]"
+      color: "text-slate-400",
+      bgColor: "bg-slate-400"
     },
     { 
       key: "archer" as const, 
       label: "Archers", 
-      color: "text-[#a67c52]",
-      bgColor: "bg-[#a67c52]"
+      color: "text-emerald-500",
+      bgColor: "bg-emerald-500"
     },
   ]
+  
+  if (dark) {
+    return (
+      <div className="flex items-center gap-6 text-sm">
+        {categories.map((cat) => {
+          const data = status[cat.key]
+          const isComplete = data.current >= data.required
+          
+          return (
+            <div key={cat.key} className="flex items-center gap-2">
+              <span className={cn("font-medium", isComplete ? cat.color : "text-white/50")}>
+                {cat.label}:
+              </span>
+              <span className={cn("font-semibold", isComplete ? cat.color : "text-white/70")}>
+                {data.current}/{data.required}
+              </span>
+              {isComplete && <span className="text-green-400">✓</span>}
+            </div>
+          )
+        })}
+        {status.isEligible && (
+          <span className="text-green-400 font-medium ml-auto">
+            ✨ Your list counts!
+          </span>
+        )}
+      </div>
+    )
+  }
   
   return (
     <Card className="mb-6">

@@ -6,9 +6,10 @@ import { getTimeUntilEdit, formatTimeRemaining } from "@/lib/utils"
 
 interface CooldownTimerProps {
   lastEditAt: Date | null | undefined
+  dark?: boolean
 }
 
-export function CooldownTimer({ lastEditAt }: CooldownTimerProps) {
+export function CooldownTimer({ lastEditAt, dark }: CooldownTimerProps) {
   const [timeRemaining, setTimeRemaining] = useState<number>(0)
   
   useEffect(() => {
@@ -25,6 +26,17 @@ export function CooldownTimer({ lastEditAt }: CooldownTimerProps) {
   
   if (timeRemaining <= 0) {
     return null
+  }
+  
+  if (dark) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-amber-400 mt-2">
+        <span>⏱️ Cooldown:</span>
+        <span className="font-mono font-semibold">
+          {formatTimeRemaining(timeRemaining)}
+        </span>
+      </div>
+    )
   }
   
   return (
