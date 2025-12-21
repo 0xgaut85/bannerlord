@@ -9,9 +9,10 @@ import { Button } from "@/components/ui"
 import { cn } from "@/lib/utils"
 
 const navigation = [
-  { name: "Global Ranking", href: "/community" },
-  { name: "Users Ranking", href: "/players" },
-  { name: "Make your Ranking", href: "/rate" },
+  { name: "Current Ranking", href: "/community" },
+  { name: "All Time", href: "/alltime" },
+  { name: "History", href: "/history" },
+  { name: "Rate", href: "/rate" },
   { name: "Q&A", href: "/qa" },
   { name: "Edit", href: "/edit-player" },
   { name: "Admin", href: "/admin" },

@@ -172,3 +172,36 @@ enum RequestStatus {
   APPROVED
   REJECTED
 }
+
+// Historical ranking snapshots
+model RankingPeriod {
+  id          String              @id @default(cuid())
+  name        String              @unique // e.g., "December 2025"
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime            @default(now())
+  rankings    HistoricalRanking[]
+}
+
+model HistoricalRanking {
+  id            String        @id @default(cuid())
+  periodId      String
+  playerId      String
+  playerName    String        // Denormalized for history
+  category      PlayerCategory
+  clan          String?
+  nationality   String?
+  averageRating Float
+  totalRatings  Int
+  rank          Int
+  period        RankingPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  @@unique([periodId, playerId])
+}
+
+// Settings for ranking period timer
+model SiteSettings {
+  id                  String    @id @default("settings")
+  currentPeriodEnd    DateTime?
+  currentPeriodName   String?
+}

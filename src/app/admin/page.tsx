@@ -23,6 +23,11 @@ export default function AdminPage() {
   const [selectedUser, setSelectedUser] = useState<any | null>(null)
   const [anomalies, setAnomalies] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState("players")
+  
+  // Period management
+  const [periodName, setPeriodName] = useState("")
+  const [periodEndDate, setPeriodEndDate] = useState("")
+  const [savingPeriod, setSavingPeriod] = useState(false)
   const [editingPlayer, setEditingPlayer] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
   
@@ -478,6 +483,13 @@ export default function AdminPage() {
                     {anomalies.length}
                   </span>
                 )}
+              </Button>
+              <Button 
+                variant={activeTab === "periods" ? "primary" : "ghost"} 
+                onClick={() => setActiveTab("periods")}
+                className={activeTab === "periods" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}
+              >
+                Periods
               </Button>
             </div>
             <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/10 !text-white hover:!bg-white/20">
@@ -1058,6 +1070,118 @@ export default function AdminPage() {
             {anomalies.length === 0 && (
               <div className="text-center text-white/40 py-12">No anomalies detected</div>
             )}
+          </div>
+        )}
+
+        {activeTab === "periods" && (
+          <div className="space-y-6">
+            {/* Set Timer */}
+            <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+              <h3 className="text-white font-semibold mb-4">Set Ranking Period Timer</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-white/70 text-sm mb-2">Period Name</label>
+                  <input
+                    type="text"
+                    value={periodName}
+                    onChange={(e) => setPeriodName(e.target.value)}
+                    placeholder="e.g., December 2025"
+                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-white/70 text-sm mb-2">End Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    value={periodEndDate}
+                    onChange={(e) => setPeriodEndDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white"
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={async () => {
+                  if (!periodName || !periodEndDate) {
+                    alert("Please fill in both fields")
+                    return
+                  }
+                  try {
+                    const res = await fetch("/api/settings", {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        currentPeriodName: periodName,
+                        currentPeriodEnd: new Date(periodEndDate).toISOString()
+                      })
+                    })
+                    if (res.ok) {
+                      alert("Timer updated successfully!")
+                    } else {
+                      alert("Failed to update timer")
+                    }
+                  } catch (error) {
+                    alert("Error updating timer")
+                  }
+                }}
+                className="!bg-amber-500 !text-black"
+              >
+                Update Timer
+              </Button>
+            </div>
+
+            {/* Save Rankings Snapshot */}
+            <div className="bg-green-500/10 p-6 rounded-xl border border-green-500/30">
+              <h3 className="text-green-400 font-semibold mb-4">Save Rankings Snapshot</h3>
+              <p className="text-white/60 text-sm mb-4">
+                This will save the current rankings to history. Use this when a period ends.
+              </p>
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <label className="block text-white/70 text-sm mb-2">Snapshot Name</label>
+                  <input
+                    type="text"
+                    value={periodName}
+                    onChange={(e) => setPeriodName(e.target.value)}
+                    placeholder="e.g., December 2025"
+                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/30"
+                  />
+                </div>
+                <Button
+                  onClick={async () => {
+                    if (!periodName) {
+                      alert("Please enter a period name")
+                      return
+                    }
+                    if (!confirm(`Save current rankings as "${periodName}"? This cannot be undone.`)) {
+                      return
+                    }
+                    setSavingPeriod(true)
+                    try {
+                      const res = await fetch("/api/rankings/snapshot", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ periodName })
+                      })
+                      if (res.ok) {
+                        alert(`Rankings saved as "${periodName}"!`)
+                        setPeriodName("")
+                      } else {
+                        const data = await res.json()
+                        alert(data.error || "Failed to save rankings")
+                      }
+                    } catch (error) {
+                      alert("Error saving rankings")
+                    } finally {
+                      setSavingPeriod(false)
+                    }
+                  }}
+                  disabled={savingPeriod}
+                  className="!bg-green-500 !text-black"
+                >
+                  {savingPeriod ? "Saving..." : "Save Snapshot"}
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>

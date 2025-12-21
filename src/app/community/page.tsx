@@ -189,6 +189,56 @@ export default function CommunityPage() {
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerRatingsDetails | null>(null)
   const [loadingPlayerRatings, setLoadingPlayerRatings] = useState(false)
   
+  // Timer state
+  const [periodEnd, setPeriodEnd] = useState<Date | null>(null)
+  const [periodName, setPeriodName] = useState<string>("")
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null)
+  
+  // Fetch timer settings
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch("/api/settings")
+        if (res.ok) {
+          const data = await res.json()
+          if (data.currentPeriodEnd) {
+            setPeriodEnd(new Date(data.currentPeriodEnd))
+            setPeriodName(data.currentPeriodName || "")
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error)
+      }
+    }
+    fetchSettings()
+  }, [])
+  
+  // Update countdown timer
+  useEffect(() => {
+    if (!periodEnd) return
+    
+    const updateTimer = () => {
+      const now = new Date()
+      const diff = periodEnd.getTime() - now.getTime()
+      
+      if (diff <= 0) {
+        setTimeLeft(null)
+        return
+      }
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+      
+      setTimeLeft({ days, hours, minutes, seconds })
+    }
+    
+    updateTimer()
+    const interval = setInterval(updateTimer, 1000)
+    return () => clearInterval(interval)
+  }, [periodEnd])
+  
   useEffect(() => {
     async function fetchRankings() {
       setIsLoading(true)
@@ -268,9 +318,36 @@ export default function CommunityPage() {
         <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
           Community Rankings
         </p>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-6">
-          Global Rankings
+        <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
+          Current Rankings
         </h1>
+        
+        {/* Countdown Timer */}
+        {timeLeft && periodName && (
+          <div className="mb-8">
+            <p className="text-white/50 text-sm mb-3">
+              {periodName} period closes in:
+            </p>
+            <div className="flex justify-center gap-3">
+              <div className="bg-black/40 rounded-lg px-4 py-2 border border-amber-500/30">
+                <div className="text-2xl font-bold text-amber-400">{timeLeft.days}</div>
+                <div className="text-xs text-white/50 uppercase">Days</div>
+              </div>
+              <div className="bg-black/40 rounded-lg px-4 py-2 border border-amber-500/30">
+                <div className="text-2xl font-bold text-amber-400">{String(timeLeft.hours).padStart(2, '0')}</div>
+                <div className="text-xs text-white/50 uppercase">Hours</div>
+              </div>
+              <div className="bg-black/40 rounded-lg px-4 py-2 border border-amber-500/30">
+                <div className="text-2xl font-bold text-amber-400">{String(timeLeft.minutes).padStart(2, '0')}</div>
+                <div className="text-xs text-white/50 uppercase">Min</div>
+              </div>
+              <div className="bg-black/40 rounded-lg px-4 py-2 border border-amber-500/30">
+                <div className="text-2xl font-bold text-amber-400">{String(timeLeft.seconds).padStart(2, '0')}</div>
+                <div className="text-xs text-white/50 uppercase">Sec</div>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Category Tabs */}
         <div className="flex justify-center gap-2 mt-8">
