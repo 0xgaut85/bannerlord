@@ -41,12 +41,14 @@ export const authOptions: NextAuthOptions = {
     },
     async signIn({ user, account, profile }) {
       if (account?.provider === "discord" && profile) {
-        // Update Discord-specific info
+        // Only link the account, don't auto-fill profile data
+        // User will fill this in via the onboarding flow
         await prisma.user.update({
           where: { id: user.id },
           data: {
             discordId: account.providerAccountId,
-            discordName: (profile as { username?: string }).username || user.name,
+            // We use the ID as a fallback name initially, user must set their real in-game name
+            discordName: null, 
           }
         }).catch(() => {
           // User might not exist yet, that's fine

@@ -66,12 +66,12 @@ export default function CommunityPage() {
           <RankingTable players={cavalryPlayers} isLoading={isLoading} />
         </div>
 
-        {/* Archer Column - Light Gray */}
-        <div className="bg-[#f5f5f5] p-8">
-          <h2 className="text-xl font-display font-semibold text-[#1a1a1a] mb-6 flex items-center gap-3 justify-center border-b border-[#e5e5e5] pb-4">
+        {/* Archer Column - Black */}
+        <div className="bg-[#0a0a0a] p-8">
+          <h2 className="text-xl font-display font-semibold text-white mb-6 flex items-center gap-3 justify-center border-b border-white/10 pb-4">
             Archer
           </h2>
-          <RankingTable players={archerPlayers} isLoading={isLoading} />
+          <RankingTable players={archerPlayers} isLoading={isLoading} dark />
         </div>
       </div>
     </div>
