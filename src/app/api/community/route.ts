@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
           },
           include: {
             rater: {
-              select: { division: true }
+              select: { division: true, discordId: true }
             }
           }
         }
@@ -77,16 +77,21 @@ export async function GET(request: NextRequest) {
     
     // Calculate weighted average for each player
     const rankedPlayers = players.map(player => {
-      const hasRatings = player.ratings.length > 0
+      // Separate real user ratings from system ratings
+      // System ratings are just defaults and should be ignored when real ratings exist
+      const realRatings = player.ratings.filter(r => 
+        !r.rater.discordId?.startsWith("system_")
+      )
+      const hasRealRatings = realRatings.length > 0
       
       let averageRating: number
       
-      if (hasRatings) {
-        // Calculate weighted average from actual ratings (even if just 1 rating)
+      if (hasRealRatings) {
+        // Calculate weighted average from ONLY real user ratings (ignore system defaults)
         let weightedSum = 0
         let totalWeight = 0
         
-        for (const rating of player.ratings) {
+        for (const rating of realRatings) {
           const weight = rating.rater.division 
             ? DIVISION_WEIGHTS[rating.rater.division] 
             : 0.5
@@ -96,7 +101,7 @@ export async function GET(request: NextRequest) {
         
         averageRating = totalWeight > 0 ? weightedSum / totalWeight : 0
       } else if (player.division) {
-        // No ratings yet - use default rating based on division
+        // No real ratings yet - use default rating based on division
         averageRating = DIVISION_DEFAULT_RATINGS[player.division as Division]
       } else {
         // No division set and no ratings - use 70 as default
@@ -117,8 +122,8 @@ export async function GET(request: NextRequest) {
         avatar: player.avatar,
         division: displayDivision,
         averageRating: Math.round(averageRating * 100) / 100,
-        totalRatings: player.ratings.length,
-        hasRatings,
+        totalRatings: realRatings.length, // Only count real user ratings
+        hasRatings: hasRealRatings,
       }
     })
     
