@@ -22,6 +22,12 @@ enum PlayerCategory {
   ARCHER
 }
 
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -67,6 +73,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   ratings       Rating[]
+  editRequests  EditRequest[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -88,6 +95,7 @@ model Player {
   clan        String?        // Player's clan/team
   
   ratings     Rating[]
+  editRequests EditRequest[]
   
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -107,4 +115,20 @@ model Rating {
   updatedAt DateTime @updatedAt
   
   @@unique([raterId, playerId])
+}
+
+model EditRequest {
+  id          String        @id @default(cuid())
+  playerId    String
+  player      Player        @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  suggestedClan        String?
+  suggestedNationality String?
+  
+  status      RequestStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }

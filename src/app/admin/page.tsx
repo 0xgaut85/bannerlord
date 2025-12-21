@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
@@ -14,6 +14,8 @@ export default function AdminPage() {
   const [password, setPassword] = useState("")
   const [search, setSearch] = useState("")
   const [players, setPlayers] = useState<any[]>([])
+  const [requests, setRequests] = useState<any[]>([])
+  const [activeTab, setActiveTab] = useState("players")
   const [editingPlayer, setEditingPlayer] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -24,8 +26,36 @@ export default function AdminPage() {
     if (username === "godmode" && password === "godmode123*") {
       setIsAuthenticated(true)
       fetchPlayers()
+      fetchRequests()
     } else {
       alert("Invalid credentials")
+    }
+  }
+
+  const fetchRequests = async () => {
+    try {
+      const res = await fetch("/api/admin/requests?status=PENDING")
+      if (res.ok) {
+        const data = await res.json()
+        setRequests(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch requests", error)
+    }
+  }
+
+  const handleRequestAction = async (requestId: string, action: "approve" | "reject") => {
+    try {
+      const res = await fetch(`/api/admin/requests/${requestId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action })
+      })
+      if (res.ok) {
+        setRequests(requests.filter(r => r.id !== requestId))
+      }
+    } catch (error) {
+      alert("Action failed")
     }
   }
 
@@ -45,7 +75,7 @@ export default function AdminPage() {
   }
 
   // Effect to refetch when search changes
-  useState(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       fetchPlayers()
     }
@@ -133,21 +163,102 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-display text-white">Admin Panel</h1>
-          <Button onClick={() => setIsAuthenticated(false)} variant="outline">
-            Logout
-          </Button>
+          <div className="flex gap-4">
+            <div className="flex gap-2">
+              <Button 
+                variant={activeTab === "players" ? "primary" : "outline"} 
+                onClick={() => setActiveTab("players")}
+              >
+                Players
+              </Button>
+              <Button 
+                variant={activeTab === "requests" ? "primary" : "outline"} 
+                onClick={() => setActiveTab("requests")}
+                className="relative"
+              >
+                Requests
+                {requests.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white">
+                    {requests.length}
+                  </span>
+                )}
+              </Button>
+            </div>
+            <Button onClick={() => setIsAuthenticated(false)} variant="outline">
+              Logout
+            </Button>
+          </div>
         </div>
 
-        <div className="mb-6">
-          <Input
-            placeholder="Search players..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-md"
-          />
-        </div>
+        {activeTab === "requests" && (
+          <div className="grid gap-4">
+            {requests.map((request) => (
+              <div key={request.id} className="bg-[#111] p-4 rounded-lg border border-[#222]">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-medium text-white text-lg">
+                      Edit for: {request.player.name}
+                    </h3>
+                    <p className="text-sm text-[#8a8a8a]">
+                      Submitted by: {request.user.discordName || request.user.name}
+                    </p>
+                  </div>
+                  <Badge variant="outline">PENDING</Badge>
+                </div>
 
-        {editingPlayer && (
+                <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                  <div>
+                    <span className="block text-[#8a8a8a] mb-1">Current</span>
+                    <div className="text-white">
+                      <p>Nationality: {request.player.nationality || "None"}</p>
+                      <p>Clan: {request.player.clan || "None"}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="block text-[#c9a962] mb-1">Suggested</span>
+                    <div className="text-white">
+                      <p>Nationality: {request.suggestedNationality || "No Change"}</p>
+                      <p>Clan: {request.suggestedClan || "No Change"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <Button 
+                    size="sm" 
+                    className="bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                    onClick={() => handleRequestAction(request.id, "reject")}
+                  >
+                    Reject
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                    onClick={() => handleRequestAction(request.id, "approve")}
+                  >
+                    Approve
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {requests.length === 0 && (
+              <div className="text-center text-[#555] py-8">No pending requests</div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "players" && (
+          <>
+            <div className="mb-6">
+              <Input
+                placeholder="Search players..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="max-w-md"
+              />
+            </div>
+
+            {editingPlayer && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <Card className="w-full max-w-lg p-6">
               <h2 className="text-xl font-display text-white mb-4">Edit Player: {editingPlayer.name}</h2>
@@ -218,6 +329,8 @@ export default function AdminPage() {
             <div className="text-center text-[#555] py-8">No players found</div>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   )

@@ -76,22 +76,24 @@ export default function EditPlayerPage() {
     setError(null)
     setSaveSuccess(false)
     
-    try {
-      const res = await fetch(`/api/players/${selectedPlayer.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nationality, clan }),
-      })
-      
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Failed to update player")
-      }
-      
-      const updatedPlayer = await res.json()
-      setSelectedPlayer(updatedPlayer)
-      setSaveSuccess(true)
-    } catch (err) {
+      try {
+        const res = await fetch(`/api/requests`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            playerId: selectedPlayer.id,
+            nationality, 
+            clan 
+          }),
+        })
+        
+        if (!res.ok) {
+          const data = await res.json()
+          throw new Error(data.error || "Failed to submit request")
+        }
+        
+        setSaveSuccess(true)
+      } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save")
     } finally {
       setIsSaving(false)
@@ -234,21 +236,21 @@ export default function EditPlayerPage() {
             )}
             
             {/* Success */}
-            {saveSuccess && (
-              <div className="p-4 glass rounded-xl border border-[#c9a962]/30 text-[#a68b47] text-sm">
-                Player updated successfully
-              </div>
-            )}
-            
-            <Button
-              onClick={handleSave}
-              isLoading={isSaving}
-              className="w-full"
-              size="lg"
-              variant="primary"
-            >
-              Save Changes
-            </Button>
+          {saveSuccess && (
+            <div className="p-4 glass rounded-xl border border-[#c9a962]/30 text-[#a68b47] text-sm">
+              Request submitted successfully! An admin will review your changes.
+            </div>
+          )}
+          
+          <Button
+            onClick={handleSave}
+            isLoading={isSaving}
+            className="w-full"
+            size="lg"
+            variant="primary"
+          >
+            Submit Request
+          </Button>
           </div>
         </Card>
       ) : (
