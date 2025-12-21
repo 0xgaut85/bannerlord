@@ -26,9 +26,7 @@ function getCardStyle(rating: number) {
     accent: "from-cyan-400 via-white to-cyan-400",
     text: "text-white",
     subtext: "text-cyan-100",
-    overlay: "mix-blend-overlay opacity-30",
     noiseOpacity: "0.15",
-    // Intricate geometric pattern for high tier
     pattern: `radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%), 
               repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px),
               repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px)`,
@@ -40,7 +38,6 @@ function getCardStyle(rating: number) {
     accent: "from-amber-300 via-yellow-200 to-amber-300",
     text: "text-amber-50",
     subtext: "text-amber-200",
-    overlay: "mix-blend-overlay opacity-20",
     noiseOpacity: "0.12",
     pattern: `radial-gradient(circle at 50% 0%, rgba(255,215,0,0.2) 0%, transparent 70%),
               repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 12px)`,
@@ -52,7 +49,6 @@ function getCardStyle(rating: number) {
     accent: "from-yellow-200 via-white to-yellow-200",
     text: "text-white",
     subtext: "text-yellow-50",
-    overlay: "mix-blend-overlay opacity-10",
     noiseOpacity: "0.10",
     pattern: `linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%)`,
   }
@@ -63,7 +59,6 @@ function getCardStyle(rating: number) {
     accent: "from-white via-slate-100 to-white",
     text: "text-slate-900",
     subtext: "text-slate-700",
-    overlay: "mix-blend-overlay opacity-10",
     noiseOpacity: "0.08",
     pattern: `linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, transparent 100%)`,
   }
@@ -74,7 +69,6 @@ function getCardStyle(rating: number) {
     accent: "from-slate-200 via-white to-slate-200",
     text: "text-slate-900",
     subtext: "text-slate-800",
-    overlay: "mix-blend-overlay opacity-10",
     noiseOpacity: "0.10",
     pattern: `linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 100%)`,
   }
@@ -85,7 +79,6 @@ function getCardStyle(rating: number) {
     accent: "from-orange-300 via-orange-200 to-orange-300",
     text: "text-orange-50",
     subtext: "text-orange-200",
-    overlay: "mix-blend-overlay opacity-15",
     noiseOpacity: "0.12",
     pattern: `radial-gradient(circle at 100% 100%, rgba(0,0,0,0.2) 0%, transparent 50%)`,
   }
@@ -96,7 +89,6 @@ function getCardStyle(rating: number) {
     accent: "from-orange-400 via-orange-300 to-orange-400",
     text: "text-orange-100",
     subtext: "text-orange-300",
-    overlay: "mix-blend-overlay opacity-20",
     noiseOpacity: "0.15",
     pattern: `radial-gradient(circle at 0% 0%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
   }
@@ -107,8 +99,7 @@ function getCardStyle(rating: number) {
     accent: "from-[#8b7355] via-[#a68a6d] to-[#8b7355]",
     text: "text-[#e8dcc5]",
     subtext: "text-[#c2b299]",
-    overlay: "mix-blend-overlay opacity-40",
-    noiseOpacity: "0.30", // Heavy grain for wood
+    noiseOpacity: "0.30",
     pattern: `repeating-linear-gradient(90deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px),
               linear-gradient(to bottom, rgba(0,0,0,0.2), transparent)`,
   }
@@ -145,6 +136,9 @@ export function FifaCard({
   const style = getCardStyle(currentRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   
+  // Get division from player - it's stored directly on the player
+  const playerDivision = player.division || null
+  
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
       {/* Progress indicator */}
@@ -154,8 +148,8 @@ export function FifaCard({
         </span>
       </div>
       
-      {/* FIFA Card - Premium Design */}
-      <div className={`relative w-64 sm:w-72 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 transform hover:scale-[1.02] border-4 ${style.border}`}>
+      {/* FIFA Card - Static Premium Design (no animations) */}
+      <div className={`relative w-64 sm:w-72 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border}`}>
         {/* Background Base */}
         <div className={`absolute inset-0 ${style.bg}`} />
         
@@ -205,7 +199,7 @@ export function FifaCard({
           {/* Middle Section: Avatar & Flag */}
           <div className="flex-1 relative flex items-center justify-center my-2">
             {/* Background Glow behind avatar */}
-            <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-20 blur-xl rounded-full transform scale-75`} />
+            <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-20 blur-xl rounded-full`} style={{ transform: 'scale(0.75)' }} />
             
             {/* Player Avatar */}
             <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/20">
@@ -217,11 +211,9 @@ export function FifaCard({
               />
             </div>
 
-            {/* Floating Country Flag - Larger now */}
-            <div className="absolute -bottom-2 -right-2 transform rotate-3 shadow-xl hover:rotate-0 transition-transform duration-300">
-              <div className="relative w-14 h-10 rounded overflow-hidden border-2 border-white/20">
-                <Flag code={player.nationality} size="xl" className="w-full h-full object-cover scale-150" />
-              </div>
+            {/* Country Flag - Full display, no crop */}
+            <div className="absolute -bottom-2 -right-2 shadow-xl">
+              <Flag code={player.nationality} size="xl" />
             </div>
           </div>
 
@@ -236,7 +228,7 @@ export function FifaCard({
                   Division
                 </span>
                 <span className={`text-lg font-black ${style.text} drop-shadow-sm`}>
-                  {player.division || "-"}
+                  {playerDivision || "-"}
                 </span>
               </div>
 

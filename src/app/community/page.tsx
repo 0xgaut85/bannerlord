@@ -292,7 +292,7 @@ export default function CommunityPage() {
   )
 }
 
-// FIFA-style display card for Top 3 (same design as rate page)
+// FIFA-style display card for Top 3 (same design as rate page, no animations)
 function FifaDisplayCard({ 
   player, 
   rank, 
@@ -309,10 +309,10 @@ function FifaDisplayCard({
   
   return (
     <div className={cn(
-      "flex justify-center transition-all duration-300",
+      "flex justify-center",
       isCenter ? "md:scale-110 z-10" : ""
     )}>
-      {/* FIFA Card - Premium Design */}
+      {/* FIFA Card - Static Premium Design */}
       <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border}`}>
         {/* Background Base */}
         <div className={`absolute inset-0 ${style.bg}`} />
@@ -366,7 +366,7 @@ function FifaDisplayCard({
           {/* Middle Section: Avatar & Flag */}
           <div className="flex-1 relative flex items-center justify-center my-1">
             {/* Background Glow behind avatar */}
-            <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-20 blur-xl rounded-full transform scale-75`} />
+            <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-20 blur-xl rounded-full`} style={{ transform: 'scale(0.75)' }} />
             
             {/* Player Avatar */}
             <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/20">
@@ -378,11 +378,9 @@ function FifaDisplayCard({
               />
             </div>
 
-            {/* Floating Country Flag - Larger now */}
-            <div className="absolute -bottom-1 -right-1 transform rotate-3 shadow-xl hover:rotate-0 transition-transform duration-300">
-              <div className="relative w-10 h-7 rounded overflow-hidden border-2 border-white/20">
-                <Flag code={player.nationality} size="lg" className="w-full h-full object-cover scale-150" />
-              </div>
+            {/* Country Flag - Full display, no crop */}
+            <div className="absolute -bottom-1 -right-1 shadow-xl">
+              <Flag code={player.nationality} size="lg" />
             </div>
           </div>
 

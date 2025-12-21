@@ -6,13 +6,20 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get("search") || ""
 
+    // Base filter: exclude system users and only show users with ratings
+    const baseWhere = {
+      NOT: { discordId: { startsWith: "system_" } },
+      ratings: { some: {} } // Only users who have at least one rating
+    }
+
     const users = await prisma.user.findMany({
       where: search ? {
+        ...baseWhere,
         OR: [
           { discordName: { contains: search, mode: "insensitive" } },
           { name: { contains: search, mode: "insensitive" } },
         ]
-      } : {},
+      } : baseWhere,
       select: {
         id: true,
         name: true,

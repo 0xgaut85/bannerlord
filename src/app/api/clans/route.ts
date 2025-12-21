@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get("search")
     
+    // First try the Clan table
     const where = search ? {
       OR: [
         { name: { contains: search, mode: "insensitive" as const } },
@@ -15,12 +16,38 @@ export async function GET(request: NextRequest) {
       ]
     } : {}
     
-    const clans = await prisma.clan.findMany({
+    const clansFromTable = await prisma.clan.findMany({
       where,
       orderBy: { name: "asc" },
     })
     
-    return NextResponse.json(clans)
+    // Also get unique clans from Player table (in case Clan table is empty)
+    const playersWithClans = await prisma.player.findMany({
+      where: search ? {
+        clan: { contains: search, mode: "insensitive" as const }
+      } : {
+        clan: { not: null }
+      },
+      select: { clan: true },
+      distinct: ["clan"],
+    })
+    
+    // Merge results - prefer Clan table entries
+    const clanTableNames = clansFromTable.map(c => c.shortName.toUpperCase())
+    
+    // Add player clans that aren't in the Clan table
+    const uniquePlayerClans = playersWithClans
+      .filter(p => p.clan && !clanTableNames.includes(p.clan.toUpperCase()))
+      .map(p => ({
+        id: `player-clan-${p.clan}`,
+        name: p.clan,
+        shortName: p.clan!,
+        logo: null,
+      }))
+    
+    const allClans = [...clansFromTable, ...uniquePlayerClans]
+    
+    return NextResponse.json(allClans)
   } catch (error) {
     console.error("Clans GET error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -70,4 +97,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to create clan" }, { status: 500 })
   }
 }
-
