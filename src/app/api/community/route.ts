@@ -67,12 +67,12 @@ export async function GET(request: NextRequest) {
     
     // Calculate weighted average for each player
     const rankedPlayers = players.map(player => {
-      const hasEnoughRatings = player.ratings.length >= MIN_PLAYER_RATINGS
+      const hasRatings = player.ratings.length > 0
       
       let averageRating: number
       
-      if (hasEnoughRatings) {
-        // Calculate weighted average from actual ratings
+      if (hasRatings) {
+        // Calculate weighted average from actual ratings (even if just 1 rating)
         let weightedSum = 0
         let totalWeight = 0
         
@@ -86,10 +86,10 @@ export async function GET(request: NextRequest) {
         
         averageRating = totalWeight > 0 ? weightedSum / totalWeight : 0
       } else if (player.division) {
-        // Use default rating based on division
+        // No ratings yet - use default rating based on division
         averageRating = DIVISION_DEFAULT_RATINGS[player.division as Division]
       } else {
-        // No division set and not enough ratings - use 70 as default
+        // No division set and no ratings - use 70 as default
         averageRating = 70
       }
       
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         division: displayDivision,
         averageRating: Math.round(averageRating * 100) / 100,
         totalRatings: player.ratings.length,
-        hasEnoughRatings,
+        hasRatings,
       }
     })
     

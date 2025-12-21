@@ -239,27 +239,10 @@ export function FifaCard({
             </div>
           </div>
 
-          {/* Middle Section: Clan Logo (left), Avatar (center), Flag (right) */}
+          {/* Middle Section: Avatar (center) */}
           <div className="flex-1 relative flex items-center justify-center my-2">
             {/* Background Glow behind avatar */}
             <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} style={{ transform: 'scale(0.6)' }} />
-            
-            {/* Clan Logo on left - black square if no logo */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 shadow-xl z-20">
-              <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-white/20 bg-black">
-                {clanLogo ? (
-                  <Image
-                    src={clanLogo}
-                    alt="Clan"
-                    width={40}
-                    height={40}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-black" />
-                )}
-              </div>
-            </div>
             
             {/* Player Avatar */}
             <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30">
@@ -271,8 +254,22 @@ export function FifaCard({
               />
             </div>
 
-            {/* Country Flag on right - moved more left to avoid border */}
-            <div className="absolute right-2 bottom-0 shadow-xl z-20">
+            {/* Bottom row: Clan Logo (left) and Flag (right) */}
+            <div className="absolute bottom-0 left-4 z-20">
+              <div className="w-8 h-8 bg-black">
+                {clanLogo && (
+                  <Image
+                    src={clanLogo}
+                    alt="Clan"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            </div>
+            
+            <div className="absolute right-4 bottom-0 z-20">
               <Flag code={player.nationality} size="lg" />
             </div>
           </div>
