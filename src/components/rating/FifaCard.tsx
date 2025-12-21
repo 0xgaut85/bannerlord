@@ -5,7 +5,7 @@ import { Button, Slider, Flag } from "@/components/ui"
 import Image from "next/image"
 
 interface FifaCardProps {
-  player: Player & { avatar?: string | null }
+  player: Player & { avatar?: string | null; division?: string | null }
   currentRating: number
   onRatingChange: (rating: number) => void
   onSkip: () => void
@@ -193,31 +193,13 @@ export function FifaCard({
             </span>
           </div>
           
-          {/* Main content area - clan/flag on left, avatar on right */}
-          <div className="absolute top-24 bottom-3 left-3 right-3 flex">
-            {/* Left side - Clan logo and Flag */}
-            <div className="flex flex-col items-start gap-2 w-14">
-              {/* Clan logo */}
-              <div className="w-12 h-12 rounded-lg bg-black/80 flex items-center justify-center overflow-hidden shadow-lg">
-                {player.clan ? (
-                  <span className="text-white text-xs font-bold text-center px-1 leading-tight">
-                    {player.clan}
-                  </span>
-                ) : (
-                  <div className="w-full h-full bg-black" />
-                )}
-              </div>
-              
-              {/* Country flag */}
-              <div className="w-12 h-8 rounded overflow-hidden shadow-lg bg-white/20 flex items-center justify-center">
-                <Flag code={player.nationality} size="md" />
-              </div>
-              
-              {/* Division badge */}
-              <div className={`px-2 py-0.5 rounded ${style.labelBg}`}>
-                <span className="text-white text-[10px] font-bold">
-                  DIV {player.division || "-"}
-                </span>
+          {/* Main content area - flag on left, avatar on right */}
+          <div className="absolute top-24 bottom-12 left-3 right-3 flex">
+            {/* Left side - Large Flag */}
+            <div className="flex flex-col items-start gap-2 w-16">
+              {/* Large Country flag */}
+              <div className="w-16 h-12 rounded-lg shadow-xl">
+                <Flag code={player.nationality} size="xl" />
               </div>
             </div>
             
@@ -233,6 +215,27 @@ export function FifaCard({
                 />
               </div>
             </div>
+          </div>
+          
+          {/* Bottom info - Division left, Clan right */}
+          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+            {/* Division badge */}
+            {player.division && (
+              <div className={`px-2 py-0.5 rounded ${style.labelBg}`}>
+                <span className="text-white text-[10px] font-bold">
+                  DIV {player.division}
+                </span>
+              </div>
+            )}
+            
+            {/* Clan name */}
+            {player.clan && (
+              <div className={`px-2 py-0.5 rounded-lg bg-black/40`}>
+                <span className="text-white text-xs font-bold">
+                  {player.clan}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -17,6 +17,8 @@ export default function AdminPage() {
   const [search, setSearch] = useState("")
   const [players, setPlayers] = useState<any[]>([])
   const [requests, setRequests] = useState<any[]>([])
+  const [users, setUsers] = useState<any[]>([])
+  const [selectedUser, setSelectedUser] = useState<any | null>(null)
   const [activeTab, setActiveTab] = useState("players")
   const [editingPlayer, setEditingPlayer] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
@@ -37,6 +39,7 @@ export default function AdminPage() {
       setIsAuthenticated(true)
       fetchPlayers()
       fetchRequests()
+      fetchUsers()
     } else {
       alert("Invalid credentials")
     }
@@ -51,6 +54,49 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error("Failed to fetch requests", error)
+    }
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("/api/admin/users")
+      if (res.ok) {
+        const data = await res.json()
+        setUsers(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch users", error)
+    }
+  }
+
+  const fetchUserRatings = async (userId: string) => {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`)
+      if (res.ok) {
+        const data = await res.json()
+        setSelectedUser(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch user ratings", error)
+    }
+  }
+
+  const deleteUserRatings = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete ALL ratings from this user? This cannot be undone.")) return
+    
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE"
+      })
+      if (res.ok) {
+        alert("All ratings deleted successfully")
+        setSelectedUser(null)
+        fetchUsers()
+      } else {
+        alert("Failed to delete ratings")
+      }
+    } catch (error) {
+      alert("Error deleting ratings")
     }
   }
 
@@ -202,6 +248,13 @@ export default function AdminPage() {
                     {requests.length}
                   </span>
                 )}
+              </Button>
+              <Button 
+                variant={activeTab === "users" ? "primary" : "ghost"} 
+                onClick={() => setActiveTab("users")}
+                className={activeTab === "users" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}
+              >
+                User Lists
               </Button>
             </div>
             <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/10 !text-white hover:!bg-white/20">
@@ -386,6 +439,83 @@ export default function AdminPage() {
                 <div className="text-center text-white/40 py-12">No players found</div>
               )}
             </div>
+          </>
+        )}
+
+        {activeTab === "users" && (
+          <>
+            {selectedUser ? (
+              <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h2 className="text-2xl font-display text-white mb-2">
+                      {selectedUser.discordName || selectedUser.name}
+                    </h2>
+                    <p className="text-white/50">
+                      Division: {selectedUser.division || "N/A"} | Total Ratings: {selectedUser.ratings.length}
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button 
+                      className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30"
+                      onClick={() => deleteUserRatings(selectedUser.id)}
+                    >
+                      Delete All Ratings
+                    </Button>
+                    <Button 
+                      className="!bg-white/10 !text-white hover:!bg-white/20"
+                      onClick={() => setSelectedUser(null)}
+                    >
+                      Back
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {selectedUser.ratings.map((rating: any) => (
+                    <div key={rating.id} className="bg-black/20 p-4 rounded-lg flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <Flag code={rating.player.nationality} size="md" />
+                        <div>
+                          <h3 className="text-white font-medium">{rating.player.name}</h3>
+                          <p className="text-white/40 text-sm">
+                            {rating.player.category} {rating.player.clan && `• ${rating.player.clan}`}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold text-amber-500">
+                        {rating.score}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {users.map((user) => (
+                  <div key={user.id} className="bg-white/5 p-6 rounded-xl border border-white/10 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium text-lg">
+                        {user.discordName || user.name || "Unknown User"}
+                      </h3>
+                      <p className="text-white/50 text-sm">
+                        Division: {user.division || "N/A"} | Ratings: {user._count.ratings}
+                      </p>
+                    </div>
+                    <Button 
+                      size="sm"
+                      className="!bg-amber-500/20 !text-amber-400 hover:!bg-amber-500/30"
+                      onClick={() => fetchUserRatings(user.id)}
+                    >
+                      View List
+                    </Button>
+                  </div>
+                ))}
+                {users.length === 0 && (
+                  <div className="text-center text-white/40 py-12">No users found</div>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>

@@ -109,6 +109,8 @@ export default function HomePage() {
                 fill
                 className="object-contain object-bottom"
                 priority
+                quality={85}
+                sizes="(min-width: 1024px) 58vw, 0vw"
               />
             </div>
           </div>
@@ -123,6 +125,8 @@ export default function HomePage() {
             fill
             className="object-contain object-bottom"
             priority
+            quality={75}
+            sizes="100vw"
           />
         </div>
       </div>
