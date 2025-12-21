@@ -2,14 +2,25 @@
 
 import { useState } from "react"
 import { PlayerWithRating } from "@/types"
-import { Card, Badge, Button } from "@/components/ui"
-import { cn, getFlagEmoji } from "@/lib/utils"
+import { Button, Flag } from "@/components/ui"
+import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 interface RankingTableProps {
   players: PlayerWithRating[]
   isLoading?: boolean
   dark?: boolean
   initialLimit?: number
+}
+
+// Get default avatar based on category
+function getDefaultAvatar(category: string): string {
+  switch (category) {
+    case "INFANTRY": return "/inf.png"
+    case "CAVALRY": return "/cav.png"
+    case "ARCHER": return "/cav.png"
+    default: return "/inf.png"
+  }
 }
 
 export function RankingTable({ players, isLoading, dark, initialLimit = 20 }: RankingTableProps) {
@@ -48,17 +59,17 @@ export function RankingTable({ players, isLoading, dark, initialLimit = 20 }: Ra
   }
   
   const getRankStyles = (rank: number, isDark: boolean) => {
-    if (rank === 1) return { text: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/30" }
-    if (rank === 2) return { text: isDark ? "text-gray-300" : "text-gray-600", bg: isDark ? "bg-white/5" : "bg-gray-100", border: isDark ? "border-white/10" : "border-gray-200" }
-    if (rank === 3) return { text: "text-orange-600", bg: "bg-orange-500/10", border: "border-orange-500/30" }
-    return { text: isDark ? "text-white" : "text-gray-900", bg: isDark ? "bg-white/5" : "bg-white", border: isDark ? "border-white/10" : "border-gray-200" }
+    if (rank === 1) return { text: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/30", medal: "1st" }
+    if (rank === 2) return { text: isDark ? "text-gray-300" : "text-gray-600", bg: isDark ? "bg-white/5" : "bg-gray-100", border: isDark ? "border-white/10" : "border-gray-200", medal: "2nd" }
+    if (rank === 3) return { text: "text-orange-600", bg: "bg-orange-500/10", border: "border-orange-500/30", medal: "3rd" }
+    return { text: isDark ? "text-white" : "text-gray-900", bg: isDark ? "bg-white/5" : "bg-white", border: isDark ? "border-white/10" : "border-gray-200", medal: null }
   }
   
   return (
     <div className="space-y-2">
       {displayedPlayers.map((player) => {
         const styles = getRankStyles(player.rank || 0, dark || false)
-        const flag = player.nationality ? getFlagEmoji(player.nationality) : "🇪🇺"
+        const avatarSrc = (player as PlayerWithRating & { avatar?: string | null }).avatar || getDefaultAvatar(player.category)
         
         return (
           <div 
@@ -80,16 +91,22 @@ export function RankingTable({ players, isLoading, dark, initialLimit = 20 }: Ra
               dark && player.rank !== 1 && player.rank !== 3 ? "text-white/60" : "",
               !dark && player.rank !== 1 && player.rank !== 3 ? "text-gray-500" : ""
             )}>
-              {player.rank === 1 && "🥇"}
-              {player.rank === 2 && "🥈"}
-              {player.rank === 3 && "🥉"}
-              {(!player.rank || player.rank > 3) && `#${player.rank}`}
+              {styles.medal ? styles.medal : `#${player.rank}`}
+            </div>
+            
+            {/* Avatar */}
+            <div className="w-10 h-10 rounded-lg overflow-hidden bg-black/10 shrink-0">
+              <Image
+                src={avatarSrc}
+                alt={player.name}
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+              />
             </div>
             
             {/* Flag */}
-            <div className="text-2xl">
-              {flag}
-            </div>
+            <Flag code={player.nationality} size="md" />
             
             {/* Name & Clan */}
             <div className="flex-1 min-w-0">

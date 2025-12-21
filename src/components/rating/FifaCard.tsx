@@ -17,7 +17,7 @@ interface FifaCardProps {
   isSaving?: boolean
 }
 
-// Rating-based card styles
+// Rating-based card styles with texture patterns
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
     frame: "bg-gradient-to-b from-slate-200 via-white to-slate-300",
@@ -27,6 +27,7 @@ function getCardStyle(rating: number) {
     subtext: "text-slate-600",
     label: "ICON",
     labelBg: "bg-slate-800",
+    pattern: "radial-gradient(circle at 20% 20%, rgba(0,0,0,0.03) 1px, transparent 1px)",
   }
   if (rating >= 90) return {
     frame: "bg-gradient-to-b from-amber-300 via-yellow-200 to-amber-400",
@@ -36,6 +37,7 @@ function getCardStyle(rating: number) {
     subtext: "text-amber-700",
     label: "LEGEND",
     labelBg: "bg-amber-800",
+    pattern: "radial-gradient(circle at 30% 30%, rgba(180,130,0,0.08) 1px, transparent 1px)",
   }
   if (rating >= 85) return {
     frame: "bg-gradient-to-b from-amber-500 via-amber-400 to-amber-600",
@@ -45,6 +47,7 @@ function getCardStyle(rating: number) {
     subtext: "text-amber-700",
     label: "GOLD",
     labelBg: "bg-amber-700",
+    pattern: "radial-gradient(circle at 25% 25%, rgba(180,130,0,0.1) 1px, transparent 1px)",
   }
   if (rating >= 80) return {
     frame: "bg-gradient-to-b from-gray-300 via-gray-200 to-gray-400",
@@ -54,6 +57,7 @@ function getCardStyle(rating: number) {
     subtext: "text-gray-600",
     label: "SILVER",
     labelBg: "bg-gray-600",
+    pattern: "radial-gradient(circle at 20% 20%, rgba(100,100,100,0.06) 1px, transparent 1px)",
   }
   if (rating >= 75) return {
     frame: "bg-gradient-to-b from-gray-400 via-gray-300 to-gray-500",
@@ -63,6 +67,7 @@ function getCardStyle(rating: number) {
     subtext: "text-gray-600",
     label: "SILVER",
     labelBg: "bg-gray-600",
+    pattern: "radial-gradient(circle at 20% 20%, rgba(100,100,100,0.08) 1px, transparent 1px)",
   }
   if (rating >= 70) return {
     frame: "bg-gradient-to-b from-orange-400 via-orange-300 to-orange-500",
@@ -72,6 +77,7 @@ function getCardStyle(rating: number) {
     subtext: "text-orange-700",
     label: "BRONZE",
     labelBg: "bg-orange-700",
+    pattern: "radial-gradient(circle at 25% 25%, rgba(180,100,50,0.08) 1px, transparent 1px)",
   }
   if (rating >= 65) return {
     frame: "bg-gradient-to-b from-orange-600 via-orange-500 to-orange-700",
@@ -81,6 +87,7 @@ function getCardStyle(rating: number) {
     subtext: "text-orange-700",
     label: "BRONZE",
     labelBg: "bg-orange-800",
+    pattern: "radial-gradient(circle at 25% 25%, rgba(180,100,50,0.1) 1px, transparent 1px)",
   }
   return {
     frame: "bg-gradient-to-b from-amber-700 via-amber-600 to-amber-800",
@@ -90,6 +97,7 @@ function getCardStyle(rating: number) {
     subtext: "text-amber-700",
     label: "COMMON",
     labelBg: "bg-amber-900",
+    pattern: "radial-gradient(circle at 25% 25%, rgba(180,130,50,0.1) 1px, transparent 1px)",
   }
 }
 
@@ -97,6 +105,16 @@ const categoryShort: Record<string, string> = {
   INFANTRY: "INF",
   CAVALRY: "CAV",
   ARCHER: "ARC",
+}
+
+// Get default avatar based on category
+function getDefaultAvatar(category: string): string {
+  switch (category) {
+    case "INFANTRY": return "/inf.png"
+    case "CAVALRY": return "/cav.png"
+    case "ARCHER": return "/cav.png" // Use cav.png as fallback for archer
+    default: return "/inf.png"
+  }
 }
 
 export function FifaCard({
@@ -112,6 +130,7 @@ export function FifaCard({
   isSaving = false,
 }: FifaCardProps) {
   const style = getCardStyle(currentRating)
+  const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
@@ -122,95 +141,96 @@ export function FifaCard({
         </span>
       </div>
       
-      {/* FIFA Card - Premium Design */}
-      <div className={`relative w-60 sm:w-72 aspect-[2.5/4] rounded-2xl overflow-hidden shadow-2xl ${style.frame}`}>
+      {/* FIFA Card - Taller Premium Design */}
+      <div className={`relative w-56 sm:w-64 aspect-[2/3.5] rounded-2xl overflow-hidden shadow-2xl ${style.frame}`}>
         {/* Outer frame border effect */}
         <div className="absolute inset-[3px] rounded-xl overflow-hidden">
           {/* Inner card background */}
           <div className={`absolute inset-0 ${style.inner}`} />
           
+          {/* Pattern texture */}
+          <div 
+            className="absolute inset-0 opacity-40 pointer-events-none"
+            style={{
+              backgroundImage: style.pattern,
+              backgroundSize: "8px 8px",
+            }}
+          />
+          
+          {/* Noise texture overlay */}
+          <div 
+            className="absolute inset-0 opacity-[0.12] pointer-events-none mix-blend-overlay"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            }}
+          />
+          
           {/* Decorative lines */}
           <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${style.accent}`} />
           <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${style.accent}`} />
           
-          {/* Noise texture */}
-          <div 
-            className="absolute inset-0 opacity-[0.08] pointer-events-none mix-blend-overlay"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            }}
-          />
-          
-          {/* Top section - Rating and Category */}
-          <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-            {/* Rating */}
-            <div className="flex flex-col items-center">
-              <span className={`text-4xl font-black ${style.text} leading-none`}>
-                {currentRating}
-              </span>
-              <span className={`text-[10px] font-bold ${style.subtext} tracking-wider mt-0.5`}>
-                {categoryShort[player.category]}
-              </span>
-            </div>
-            
-            {/* Card type badge */}
+          {/* Card type badge - top right */}
+          <div className="absolute top-3 right-3">
             <div className={`${style.labelBg} px-2 py-0.5 rounded text-white text-[10px] font-bold tracking-wider`}>
               {style.label}
             </div>
           </div>
           
-          {/* Center content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center pt-8">
-            {/* Player avatar or flag */}
-            <div className="relative mb-3">
-              {player.avatar ? (
-                <div className="w-20 h-20 rounded-lg overflow-hidden shadow-lg ring-2 ring-white/30">
-                  <Image
-                    src={player.avatar}
-                    alt={player.name}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-20 h-20 rounded-lg overflow-hidden shadow-lg ring-2 ring-white/30 bg-black/10 flex items-center justify-center">
-                  <Flag code={player.nationality} size="xl" className="scale-125" />
-                </div>
-              )}
+          {/* Name at top center */}
+          <div className="absolute top-3 left-3 right-16">
+            <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-wide truncate`}>
+              {player.name}
+            </h2>
+          </div>
+          
+          {/* Rating and Class - below name, left side */}
+          <div className="absolute top-10 left-3 flex items-end gap-2">
+            <span className={`text-4xl sm:text-5xl font-black ${style.text} leading-none`}>
+              {currentRating}
+            </span>
+            <span className={`text-sm font-bold ${style.subtext} mb-1`}>
+              {categoryShort[player.category]}
+            </span>
+          </div>
+          
+          {/* Main content area - clan/flag on left, avatar on right */}
+          <div className="absolute top-24 bottom-3 left-3 right-3 flex">
+            {/* Left side - Clan logo and Flag */}
+            <div className="flex flex-col items-start gap-2 w-14">
+              {/* Clan logo */}
+              <div className="w-12 h-12 rounded-lg bg-black/80 flex items-center justify-center overflow-hidden shadow-lg">
+                {player.clan ? (
+                  <span className="text-white text-xs font-bold text-center px-1 leading-tight">
+                    {player.clan}
+                  </span>
+                ) : (
+                  <div className="w-full h-full bg-black" />
+                )}
+              </div>
               
-              {/* Small flag badge */}
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center">
-                <Flag code={player.nationality} size="sm" />
+              {/* Country flag */}
+              <div className="w-12 h-8 rounded overflow-hidden shadow-lg bg-white/20 flex items-center justify-center">
+                <Flag code={player.nationality} size="md" />
+              </div>
+              
+              {/* Division badge */}
+              <div className={`px-2 py-0.5 rounded ${style.labelBg}`}>
+                <span className="text-white text-[10px] font-bold">
+                  DIV {player.division || "-"}
+                </span>
               </div>
             </div>
             
-            {/* Player name */}
-            <h2 className={`text-lg sm:text-xl font-black ${style.text} text-center uppercase tracking-wide px-4`}>
-              {player.name}
-            </h2>
-            
-            {/* Clan badge */}
-            {player.clan && (
-              <div className={`mt-2 px-3 py-1 rounded-full bg-gradient-to-r ${style.accent}`}>
-                <span className="text-white text-xs font-bold tracking-wider">
-                  {player.clan}
-                </span>
-              </div>
-            )}
-          </div>
-          
-          {/* Bottom stats bar */}
-          <div className="absolute bottom-3 left-3 right-3">
-            <div className={`flex justify-center gap-4 text-[10px] font-bold ${style.subtext}`}>
-              <div className="flex items-center gap-1">
-                <span className="opacity-60">DIV</span>
-                <span>{player.division || "-"}</span>
-              </div>
-              <div className="w-px h-3 bg-current opacity-30" />
-              <div className="flex items-center gap-1">
-                <span className="opacity-60">CAT</span>
-                <span>{player.category}</span>
+            {/* Right side - Player avatar */}
+            <div className="flex-1 flex items-start justify-end">
+              <div className="w-28 h-36 sm:w-32 sm:h-40 rounded-xl overflow-hidden shadow-2xl ring-2 ring-white/30 bg-black/10">
+                <Image
+                  src={avatarSrc}
+                  alt={player.name}
+                  width={128}
+                  height={160}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

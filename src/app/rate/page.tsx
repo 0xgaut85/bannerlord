@@ -6,18 +6,22 @@ import { useRouter } from "next/navigation"
 import { Button, Flag } from "@/components/ui"
 import { FifaCard, EligibilityProgress } from "@/components/rating"
 import { MIN_RATINGS } from "@/lib/utils"
-import { Player } from "@prisma/client"
+import { Player, Division } from "@prisma/client"
 import { useDebounce } from "@/hooks/useDebounce"
 
 interface RatingMap {
   [playerId: string]: number
 }
 
+const DIVISIONS: Division[] = ["A", "B", "C", "D", "E", "F"]
+const CATEGORIES = ["ALL", "INFANTRY", "CAVALRY", "ARCHER"] as const
+
 export default function RatePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   
   const [players, setPlayers] = useState<Player[]>([])
+  const [filteredPlayers, setFilteredPlayers] = useState<Player[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [ratings, setRatings] = useState<RatingMap>({})
   const [originalRatings, setOriginalRatings] = useState<RatingMap>({})
@@ -25,6 +29,10 @@ export default function RatePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  
+  // Filters
+  const [selectedDivisions, setSelectedDivisions] = useState<Division[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<typeof CATEGORIES[number]>("ALL")
   
   // Search
   const [searchQuery, setSearchQuery] = useState("")
@@ -65,6 +73,7 @@ export default function RatePage() {
           const playersData = await playersRes.json()
           const shuffled = [...playersData].sort(() => Math.random() - 0.5)
           setPlayers(shuffled)
+          setFilteredPlayers(shuffled)
         }
         
         if (session?.user?.id) {
@@ -91,6 +100,24 @@ export default function RatePage() {
     }
   }, [session?.user?.id, status])
   
+  // Apply filters
+  useEffect(() => {
+    let filtered = [...players]
+    
+    // Filter by division
+    if (selectedDivisions.length > 0) {
+      filtered = filtered.filter(p => p.division && selectedDivisions.includes(p.division))
+    }
+    
+    // Filter by category
+    if (selectedCategory !== "ALL") {
+      filtered = filtered.filter(p => p.category === selectedCategory)
+    }
+    
+    setFilteredPlayers(filtered)
+    setCurrentIndex(0)
+  }, [players, selectedDivisions, selectedCategory])
+  
   // Search players
   useEffect(() => {
     async function searchPlayers() {
@@ -116,7 +143,15 @@ export default function RatePage() {
     searchPlayers()
   }, [debouncedSearch])
   
-  const currentPlayer = players[currentIndex]
+  const toggleDivision = (division: Division) => {
+    setSelectedDivisions(prev => 
+      prev.includes(division) 
+        ? prev.filter(d => d !== division)
+        : [...prev, division]
+    )
+  }
+  
+  const currentPlayer = filteredPlayers[currentIndex]
   
   const handleRatingChange = useCallback((value: number) => {
     if (currentPlayer) {
@@ -158,7 +193,7 @@ export default function RatePage() {
       // Move to next player
       setTimeout(() => {
         setSaveMessage(null)
-        if (currentIndex < players.length - 1) {
+        if (currentIndex < filteredPlayers.length - 1) {
           setCurrentIndex(i => i + 1)
         } else {
           setCurrentIndex(0)
@@ -170,15 +205,15 @@ export default function RatePage() {
     } finally {
       setIsSaving(false)
     }
-  }, [currentPlayer, ratings, currentIndex, players.length])
+  }, [currentPlayer, ratings, currentIndex, filteredPlayers.length])
   
   const handleSkip = useCallback(() => {
-    if (currentIndex < players.length - 1) {
+    if (currentIndex < filteredPlayers.length - 1) {
       setCurrentIndex(i => i + 1)
     } else {
       setCurrentIndex(0)
     }
-  }, [currentIndex, players.length])
+  }, [currentIndex, filteredPlayers.length])
   
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
@@ -187,9 +222,17 @@ export default function RatePage() {
   }, [currentIndex])
   
   const handleSelectPlayer = (player: Player) => {
-    const idx = players.findIndex(p => p.id === player.id)
+    const idx = filteredPlayers.findIndex(p => p.id === player.id)
     if (idx !== -1) {
       setCurrentIndex(idx)
+    } else {
+      // Player not in filtered list, clear filters and find in all players
+      setSelectedDivisions([])
+      setSelectedCategory("ALL")
+      const allIdx = players.findIndex(p => p.id === player.id)
+      if (allIdx !== -1) {
+        setCurrentIndex(allIdx)
+      }
     }
     setSearchQuery("")
     setSearchResults([])
@@ -252,7 +295,7 @@ export default function RatePage() {
     <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col overflow-hidden">
       {/* Compact Top Bar */}
       <div className="bg-black/20 backdrop-blur-sm border-b border-white/10 px-4 py-2">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <h1 className="text-lg font-display font-bold text-white shrink-0">Rate Players</h1>
           
           {/* Search Bar */}
@@ -292,6 +335,60 @@ export default function RatePage() {
         </div>
       </div>
       
+      {/* Filters Bar */}
+      <div className="bg-black/10 border-b border-white/5 px-4 py-2">
+        <div className="max-w-6xl mx-auto flex items-center gap-4 flex-wrap">
+          {/* Division Filters */}
+          <div className="flex items-center gap-2">
+            <span className="text-white/40 text-xs font-medium">Division:</span>
+            {DIVISIONS.map(div => (
+              <button
+                key={div}
+                onClick={() => toggleDivision(div)}
+                className={`px-2 py-0.5 rounded text-xs font-bold transition-all ${
+                  selectedDivisions.includes(div)
+                    ? "bg-amber-500 text-black"
+                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                }`}
+              >
+                {div}
+              </button>
+            ))}
+            {selectedDivisions.length > 0 && (
+              <button
+                onClick={() => setSelectedDivisions([])}
+                className="px-2 py-0.5 text-xs text-white/40 hover:text-white/60"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          
+          {/* Category Filters */}
+          <div className="flex items-center gap-2 ml-4">
+            <span className="text-white/40 text-xs font-medium">Class:</span>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-2 py-0.5 rounded text-xs font-bold transition-all ${
+                  selectedCategory === cat
+                    ? "bg-amber-500 text-black"
+                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                }`}
+              >
+                {cat === "ALL" ? "All" : cat.charAt(0) + cat.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+          
+          {/* Player count */}
+          <div className="ml-auto text-white/40 text-xs">
+            {filteredPlayers.length} players
+          </div>
+        </div>
+      </div>
+      
       {/* Note about eligibility */}
       {!eligibility.isEligible && (
         <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-center">
@@ -315,7 +412,7 @@ export default function RatePage() {
       
       {/* Main Card Area - Takes remaining space */}
       <div className="flex-1 flex items-center justify-center px-4 py-4 overflow-hidden">
-        {players.length > 0 && currentPlayer ? (
+        {filteredPlayers.length > 0 && currentPlayer ? (
           <FifaCard
             player={currentPlayer}
             currentRating={ratings[currentPlayer.id] || 75}
@@ -325,12 +422,22 @@ export default function RatePage() {
             onPrevious={handlePrevious}
             hasPrevious={currentIndex > 0}
             currentIndex={currentIndex}
-            totalPlayers={players.length}
+            totalPlayers={filteredPlayers.length}
             isSaving={isSaving}
           />
         ) : (
           <div className="text-center py-16 text-white/60">
-            <p className="font-display text-2xl">No players yet</p>
+            <p className="font-display text-2xl">
+              {players.length === 0 ? "No players yet" : "No players match your filters"}
+            </p>
+            {filteredPlayers.length === 0 && players.length > 0 && (
+              <button
+                onClick={() => { setSelectedDivisions([]); setSelectedCategory("ALL") }}
+                className="mt-4 text-amber-500 hover:text-amber-400 text-sm"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         )}
       </div>
