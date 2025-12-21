@@ -63,7 +63,7 @@ export function RankingTable({ players, isLoading }: RankingTableProps) {
           variant={getCardVariant(player.rank || 0)}
           className={cn(
             "flex items-center gap-4 p-4 hover-lift",
-            player.rank && player.rank <= 3 && "py-5"
+            player.rank !== undefined && player.rank <= 3 && "py-5"
           )}
         >
           {/* Rank */}

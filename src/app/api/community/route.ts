@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import { PlayerCategory } from "@prisma/client"
-import { DIVISION_WEIGHTS, MIN_RATINGS } from "@/lib/utils"
+import { DIVISION_WEIGHTS, MIN_RATINGS, MIN_PLAYER_RATINGS } from "@/lib/utils"
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,29 +33,32 @@ export async function GET(request: NextRequest) {
     })
     
     // Calculate weighted average for each player
-    const rankedPlayers = players.map(player => {
-      let weightedSum = 0
-      let totalWeight = 0
-      
-      for (const rating of player.ratings) {
-        const weight = rating.rater.division 
-          ? DIVISION_WEIGHTS[rating.rater.division] 
-          : 0.25
-        weightedSum += rating.score * weight
-        totalWeight += weight
-      }
-      
-      const averageRating = totalWeight > 0 ? weightedSum / totalWeight : 0
-      
-      return {
-        id: player.id,
-        name: player.name,
-        category: player.category,
-        nationality: player.nationality,
-        averageRating: Math.round(averageRating * 100) / 100,
-        totalRatings: player.ratings.length,
-      }
-    })
+    const rankedPlayers = players
+      // Filter: only include players with at least MIN_PLAYER_RATINGS ratings
+      .filter(player => player.ratings.length >= MIN_PLAYER_RATINGS)
+      .map(player => {
+        let weightedSum = 0
+        let totalWeight = 0
+        
+        for (const rating of player.ratings) {
+          const weight = rating.rater.division 
+            ? DIVISION_WEIGHTS[rating.rater.division] 
+            : 0.25
+          weightedSum += rating.score * weight
+          totalWeight += weight
+        }
+        
+        const averageRating = totalWeight > 0 ? weightedSum / totalWeight : 0
+        
+        return {
+          id: player.id,
+          name: player.name,
+          category: player.category,
+          nationality: player.nationality,
+          averageRating: Math.round(averageRating * 100) / 100,
+          totalRatings: player.ratings.length,
+        }
+      })
     
     // Sort by average rating descending
     rankedPlayers.sort((a, b) => b.averageRating - a.averageRating)
@@ -107,5 +110,3 @@ async function getEligibleUserIds(): Promise<string[]> {
   
   return eligibleIds
 }
-
-

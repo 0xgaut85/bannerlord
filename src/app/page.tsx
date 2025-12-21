@@ -129,15 +129,7 @@ export default function HomePage() {
       
       {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 z-20">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 px-6 sm:px-8 lg:px-16 py-3 sm:py-4">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="font-display text-lg sm:text-xl font-semibold text-white">
-              Bannerlord
-            </span>
-            <span className="text-xs sm:text-sm font-medium text-[#6a6a6a] tracking-widest uppercase">
-              Ranking
-            </span>
-          </div>
+        <div className="flex justify-end px-6 sm:px-8 lg:px-16 py-3 sm:py-4">
           <div className="text-sm sm:text-base text-[#6a6a6a]">
             Crafted by <span className="font-medium text-[#c9a962]">Obelix</span>
           </div>

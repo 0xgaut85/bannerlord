@@ -63,7 +63,7 @@ export function PlayerCard({
           {player.name}
         </h2>
         <p className="text-[#8a8a8a]">
-          {COUNTRY_NAMES[player.nationality] || player.nationality}
+          {player.nationality ? (COUNTRY_NAMES[player.nationality] || player.nationality) : "Unknown"}
         </p>
       </div>
       

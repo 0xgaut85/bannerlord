@@ -10,12 +10,18 @@ export const DIVISION_WEIGHTS: Record<Division, number> = {
   F: 0.25,
 }
 
-// Minimum ratings required for eligibility
+// Minimum ratings required for user eligibility (to count their votes)
 export const MIN_RATINGS = {
   INFANTRY: 20,
   CAVALRY: 20,
   ARCHER: 10,
 } as const
+
+// Minimum ratings for a player to appear in global ranking
+export const MIN_PLAYER_RATINGS = 5
+
+// Maximum deviation from current average for established players (±10)
+export const MAX_RATING_DEVIATION = 10
 
 // Check if user can edit (24h cooldown)
 export function canUserEdit(lastEditAt: Date | null): boolean {
@@ -119,5 +125,3 @@ export const COUNTRY_NAMES: Record<string, string> = {
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ')
 }
-
-
