@@ -24,7 +24,7 @@ export default function QAPage() {
             How is the score calculated?
           </h2>
           <p className="text-[#5a5a5a] leading-relaxed">
-            Each player's score is calculated from the <span className="text-[#1a1a1a] font-medium">weighted average</span> of all eligible votes they have received. This ensures that votes from more experienced players (in higher divisions) carry more weight in the final ranking.
+            Each player&apos;s score is calculated from the <span className="text-[#1a1a1a] font-medium">weighted average</span> of all eligible votes they have received. This ensures that votes from more experienced players (in higher divisions) carry more weight in the final ranking.
           </p>
         </Card>
 
@@ -68,7 +68,7 @@ export default function QAPage() {
             Who is eligible to vote?
           </h2>
           <p className="text-[#5a5a5a] leading-relaxed mb-4">
-            To prevent manipulation and ensure quality rankings, a user's votes are only counted in the global ranking once they have rated a minimum number of players across all classes.
+            To prevent manipulation and ensure quality rankings, a user&apos;s votes are only counted in the global ranking once they have rated a minimum number of players across all classes.
           </p>
           <div className="bg-[#1a1a1a] text-white p-4 rounded-lg">
             <p className="text-sm uppercase tracking-wider text-[#8a8a8a] mb-2">Requirements</p>
