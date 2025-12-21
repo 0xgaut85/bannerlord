@@ -131,8 +131,13 @@ const categoryShort: Record<string, string> = {
 interface Voter {
   id: string
   name: string
+  discordName: string | null
   division: string | null
   totalRatings: number
+  infantryCount: number
+  cavalryCount: number
+  archerCount: number
+  isEligible: boolean
 }
 
 interface VoterDetails {
@@ -161,6 +166,7 @@ export default function CommunityPage() {
   const [voters, setVoters] = useState<Voter[]>([])
   const [selectedVoter, setSelectedVoter] = useState<VoterDetails | null>(null)
   const [loadingVoters, setLoadingVoters] = useState(false)
+  const [votersDisplayCount, setVotersDisplayCount] = useState(12)
   
   useEffect(() => {
     async function fetchRankings() {
@@ -207,6 +213,7 @@ export default function CommunityPage() {
   
   const handleShowVoters = () => {
     setShowVoters(true)
+    setVotersDisplayCount(12) // Reset pagination
     if (voters.length === 0) {
       fetchVoters()
     }
@@ -255,7 +262,7 @@ export default function CommunityPage() {
                 : "bg-white/10 text-white/70 hover:bg-white/20"
             )}
           >
-            Eligible Voters
+            Community Voters
           </button>
         </div>
       </div>
@@ -324,10 +331,10 @@ export default function CommunityPage() {
       {showVoters ? (
         <div className="max-w-4xl mx-auto px-6 pb-20">
           <h2 className="text-2xl font-display font-bold text-white mb-2">
-            Eligible Voters
+            Community Voters
           </h2>
           <p className="text-white/50 mb-8 text-sm">
-            Users who have rated at least 10 Infantry, 5 Cavalry, and 5 Archers
+            All users who have submitted ratings. Eligible voters (10 INF, 5 CAV, 5 ARC) are marked with a badge.
           </p>
           
           {loadingVoters ? (
@@ -335,27 +342,62 @@ export default function CommunityPage() {
               <div className="w-10 h-10 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
             </div>
           ) : voters.length === 0 ? (
-            <div className="text-center text-white/40 py-12">No eligible voters yet</div>
+            <div className="text-center text-white/40 py-12">No voters yet</div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {voters.map((voter) => (
-                <button
-                  key={voter.id}
-                  onClick={() => fetchVoterDetails(voter.id)}
-                  className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/30 rounded-xl p-4 text-left transition-all"
-                >
-                  <h3 className="text-white font-semibold truncate">{voter.name}</h3>
-                  <div className="flex items-center gap-3 mt-2 text-sm">
-                    <span className="text-white/50">
-                      Div {voter.division || "N/A"}
-                    </span>
-                    <span className="text-amber-400">
-                      {voter.totalRatings} ratings
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {voters.slice(0, votersDisplayCount).map((voter) => (
+                  <button
+                    key={voter.id}
+                    onClick={() => fetchVoterDetails(voter.id)}
+                    className={cn(
+                      "border rounded-xl p-4 text-left transition-all",
+                      voter.isEligible 
+                        ? "bg-green-500/10 hover:bg-green-500/20 border-green-500/30 hover:border-green-500/50" 
+                        : "bg-white/5 hover:bg-white/10 border-white/10 hover:border-amber-500/30"
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-white font-semibold truncate">
+                          {voter.discordName || voter.name}
+                        </h3>
+                        {voter.discordName && voter.name !== voter.discordName && (
+                          <p className="text-white/40 text-xs truncate">{voter.name}</p>
+                        )}
+                      </div>
+                      {voter.isEligible && (
+                        <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-xs font-medium shrink-0">
+                          Eligible
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-2 text-xs flex-wrap">
+                      <span className="text-white/50">
+                        Div {voter.division || "N/A"}
+                      </span>
+                      <span className="text-amber-400">
+                        {voter.totalRatings} total
+                      </span>
+                      <span className="text-white/30">
+                        ({voter.infantryCount}I/{voter.cavalryCount}C/{voter.archerCount}A)
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              
+              {voters.length > votersDisplayCount && (
+                <div className="flex justify-center mt-8">
+                  <button
+                    onClick={() => setVotersDisplayCount(prev => prev + 12)}
+                    className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all"
+                  >
+                    Show More ({voters.length - votersDisplayCount} remaining)
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       ) : isLoading ? (

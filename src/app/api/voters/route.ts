@@ -43,12 +43,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(user)
     }
     
-    // Get all eligible users
+    // Get all users who have made at least one rating
     const users = await prisma.user.findMany({
       where: {
-        isProfileComplete: true,
         NOT: {
           discordId: { startsWith: "system_" }
+        },
+        ratings: {
+          some: {} // Has at least one rating
         }
       },
       select: {
@@ -63,28 +65,38 @@ export async function GET(request: NextRequest) {
             }
           }
         }
+      },
+      orderBy: {
+        ratings: { _count: "desc" }
       }
     })
     
-    // Filter to only eligible users
-    const eligibleUsers = users.filter(user => {
+    // Map users with eligibility status
+    const allVoters = users.map(user => {
       const infantryCount = user.ratings.filter(r => r.player.category === "INFANTRY").length
       const cavalryCount = user.ratings.filter(r => r.player.category === "CAVALRY").length
       const archerCount = user.ratings.filter(r => r.player.category === "ARCHER").length
       
-      return (
+      const isEligible = (
         infantryCount >= MIN_RATINGS.INFANTRY &&
         cavalryCount >= MIN_RATINGS.CAVALRY &&
         archerCount >= MIN_RATINGS.ARCHER
       )
-    }).map(user => ({
-      id: user.id,
-      name: user.discordName || user.name || "Anonymous",
-      division: user.division,
-      totalRatings: user.ratings.length,
-    }))
+      
+      return {
+        id: user.id,
+        name: user.name || "Anonymous",
+        discordName: user.discordName,
+        division: user.division,
+        totalRatings: user.ratings.length,
+        infantryCount,
+        cavalryCount,
+        archerCount,
+        isEligible,
+      }
+    })
     
-    return NextResponse.json(eligibleUsers)
+    return NextResponse.json(allVoters)
   } catch (error) {
     console.error("Voters GET error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
