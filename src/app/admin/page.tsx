@@ -53,7 +53,11 @@ export default function AdminPage() {
 
   const fetchAnomalies = async () => {
     try {
-      const res = await fetch("/api/admin/anomalies")
+      // Force fresh fetch with cache-busting
+      const res = await fetch("/api/admin/anomalies?t=" + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      })
       if (res.ok) {
         const data = await res.json()
         setAnomalies(data)
@@ -66,17 +70,23 @@ export default function AdminPage() {
   const handleDeleteAnomaly = async (ratingId: string) => {
     if (!confirm("Are you sure you want to delete this rating?")) return
     
+    // Optimistically remove from UI immediately
+    setAnomalies(prev => prev.filter(a => a.id !== ratingId))
+    
     try {
       const res = await fetch(`/api/admin/ratings/${ratingId}`, {
-        method: "DELETE"
+        method: "DELETE",
+        cache: 'no-store'
       })
-      if (res.ok) {
-        setAnomalies(anomalies.filter(a => a.id !== ratingId))
-      } else {
-        alert("Failed to delete rating")
+      
+      if (!res.ok) {
+        // If delete failed, refresh to get actual state
+        alert("Failed to delete rating - refreshing list")
+        await fetchAnomalies()
       }
     } catch (error) {
-      alert("Error deleting rating")
+      alert("Error deleting rating - refreshing list")
+      await fetchAnomalies()
     }
   }
 
@@ -87,24 +97,39 @@ export default function AdminPage() {
     if (!confirm(`Are you sure you want to delete ${toDelete.length} ratings with ${minDeviation}+ point deviation?`)) return
     
     setLoading(true)
+    const deleteIds = toDelete.map(a => a.id)
+    
+    // Optimistically remove from UI
+    setAnomalies(prev => prev.filter(a => !deleteIds.includes(a.id)))
+    
     let deleted = 0
+    let failed = 0
     
     for (const anomaly of toDelete) {
       try {
         const res = await fetch(`/api/admin/ratings/${anomaly.id}`, {
-          method: "DELETE"
+          method: "DELETE",
+          cache: 'no-store'
         })
         if (res.ok) {
           deleted++
+        } else {
+          failed++
         }
       } catch (error) {
         console.error("Error deleting rating:", error)
+        failed++
       }
     }
     
     setLoading(false)
-    alert(`Deleted ${deleted} of ${toDelete.length} ratings`)
-    fetchAnomalies()
+    
+    if (failed > 0) {
+      alert(`Deleted ${deleted} ratings. ${failed} failed - refreshing list.`)
+      await fetchAnomalies()
+    } else {
+      alert(`Successfully deleted ${deleted} ratings`)
+    }
   }
 
   const handleBulkDeleteByType = async (type: string) => {
@@ -115,24 +140,39 @@ export default function AdminPage() {
     if (!confirm(`Are you sure you want to delete ${toDelete.length} ${typeName} ratings?`)) return
     
     setLoading(true)
+    const deleteIds = toDelete.map(a => a.id)
+    
+    // Optimistically remove from UI
+    setAnomalies(prev => prev.filter(a => !deleteIds.includes(a.id)))
+    
     let deleted = 0
+    let failed = 0
     
     for (const anomaly of toDelete) {
       try {
         const res = await fetch(`/api/admin/ratings/${anomaly.id}`, {
-          method: "DELETE"
+          method: "DELETE",
+          cache: 'no-store'
         })
         if (res.ok) {
           deleted++
+        } else {
+          failed++
         }
       } catch (error) {
         console.error("Error deleting rating:", error)
+        failed++
       }
     }
     
     setLoading(false)
-    alert(`Deleted ${deleted} of ${toDelete.length} ratings`)
-    fetchAnomalies()
+    
+    if (failed > 0) {
+      alert(`Deleted ${deleted} ratings. ${failed} failed - refreshing list.`)
+      await fetchAnomalies()
+    } else {
+      alert(`Successfully deleted ${deleted} ratings`)
+    }
   }
 
   const fetchPlayerRequests = async () => {
