@@ -80,6 +80,33 @@ export default function AdminPage() {
     }
   }
 
+  const handleBulkDeleteAnomalies = async (minDeviation: number) => {
+    const toDelete = anomalies.filter(a => a.deviation >= minDeviation)
+    if (toDelete.length === 0) return
+    
+    if (!confirm(`Are you sure you want to delete ${toDelete.length} ratings with ${minDeviation}+ point deviation?`)) return
+    
+    setLoading(true)
+    let deleted = 0
+    
+    for (const anomaly of toDelete) {
+      try {
+        const res = await fetch(`/api/admin/ratings/${anomaly.id}`, {
+          method: "DELETE"
+        })
+        if (res.ok) {
+          deleted++
+        }
+      } catch (error) {
+        console.error("Error deleting rating:", error)
+      }
+    }
+    
+    setLoading(false)
+    alert(`Deleted ${deleted} of ${toDelete.length} ratings`)
+    fetchAnomalies()
+  }
+
   const fetchPlayerRequests = async () => {
     try {
       const res = await fetch("/api/player-requests")
@@ -841,9 +868,35 @@ export default function AdminPage() {
           <div className="space-y-4">
             <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 mb-6">
               <h3 className="text-orange-400 font-semibold mb-2">Anomaly Detection</h3>
-              <p className="text-white/60 text-sm">
+              <p className="text-white/60 text-sm mb-4">
                 Ratings that deviate more than 10 points from the player&apos;s average are flagged as potential troll ratings.
               </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  className="!bg-red-600 !text-white hover:!bg-red-700"
+                  onClick={() => handleBulkDeleteAnomalies(20)}
+                  disabled={anomalies.filter(a => a.deviation >= 20).length === 0}
+                >
+                  Delete 20+ ({anomalies.filter(a => a.deviation >= 20).length})
+                </Button>
+                <Button
+                  size="sm"
+                  className="!bg-red-500 !text-white hover:!bg-red-600"
+                  onClick={() => handleBulkDeleteAnomalies(15)}
+                  disabled={anomalies.filter(a => a.deviation >= 15).length === 0}
+                >
+                  Delete 15+ ({anomalies.filter(a => a.deviation >= 15).length})
+                </Button>
+                <Button
+                  size="sm"
+                  className="!bg-orange-500 !text-white hover:!bg-orange-600"
+                  onClick={() => handleBulkDeleteAnomalies(10)}
+                  disabled={anomalies.filter(a => a.deviation >= 10).length === 0}
+                >
+                  Delete All 10+ ({anomalies.length})
+                </Button>
+              </div>
             </div>
 
             {anomalies.map((anomaly) => (
