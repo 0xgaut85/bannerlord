@@ -38,8 +38,8 @@ export const MIN_RATINGS = {
 // Minimum ratings for a player to appear in global ranking
 export const MIN_PLAYER_RATINGS = 5
 
-// Maximum deviation from current average for established players (±15)
-export const MAX_RATING_DEVIATION = 15
+// Maximum deviation from current average for established players (±20)
+export const MAX_RATING_DEVIATION = 20
 
 // Check if user can edit (24h cooldown)
 export function canUserEdit(lastEditAt: Date | null): boolean {

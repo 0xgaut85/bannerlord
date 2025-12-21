@@ -184,8 +184,18 @@ export default function RatePage() {
     setSaveMessage(null)
     setError(null)
     
+    // Ensure current player's rating is in the state (even if slider wasn't moved)
+    const currentRating = ratings[currentPlayer.id] ?? 75
+    const updatedRatings = {
+      ...ratings,
+      [currentPlayer.id]: currentRating
+    }
+    
+    // Update state to include this rating
+    setRatings(updatedRatings)
+    
     try {
-      const ratingsToSend = Object.entries(ratings).map(([playerId, score]) => ({
+      const ratingsToSend = Object.entries(updatedRatings).map(([playerId, score]) => ({
         playerId,
         score,
       }))
@@ -201,7 +211,7 @@ export default function RatePage() {
         throw new Error(data.error || "Failed to save")
       }
       
-      setOriginalRatings({ ...ratings })
+      setOriginalRatings({ ...updatedRatings })
       setSaveMessage("Rating saved!")
       
       // Move to next player
