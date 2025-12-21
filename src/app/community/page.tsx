@@ -128,10 +128,39 @@ const categoryShort: Record<string, string> = {
   ARCHER: "ARC",
 }
 
+interface Voter {
+  id: string
+  name: string
+  division: string | null
+  totalRatings: number
+}
+
+interface VoterDetails {
+  id: string
+  name: string
+  discordName: string | null
+  division: string | null
+  ratings: {
+    id: string
+    score: number
+    player: {
+      id: string
+      name: string
+      category: string
+      nationality: string | null
+      clan: string | null
+    }
+  }[]
+}
+
 export default function CommunityPage() {
   const [category, setCategory] = useState<Category>("INFANTRY")
   const [players, setPlayers] = useState<PlayerWithRating[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [showVoters, setShowVoters] = useState(false)
+  const [voters, setVoters] = useState<Voter[]>([])
+  const [selectedVoter, setSelectedVoter] = useState<VoterDetails | null>(null)
+  const [loadingVoters, setLoadingVoters] = useState(false)
   
   useEffect(() => {
     async function fetchRankings() {
@@ -150,6 +179,38 @@ export default function CommunityPage() {
     
     fetchRankings()
   }, [category])
+  
+  const fetchVoters = async () => {
+    setLoadingVoters(true)
+    try {
+      const res = await fetch("/api/voters")
+      if (res.ok) {
+        setVoters(await res.json())
+      }
+    } catch (error) {
+      console.error("Error fetching voters:", error)
+    } finally {
+      setLoadingVoters(false)
+    }
+  }
+  
+  const fetchVoterDetails = async (voterId: string) => {
+    try {
+      const res = await fetch(`/api/voters?userId=${voterId}`)
+      if (res.ok) {
+        setSelectedVoter(await res.json())
+      }
+    } catch (error) {
+      console.error("Error fetching voter details:", error)
+    }
+  }
+  
+  const handleShowVoters = () => {
+    setShowVoters(true)
+    if (voters.length === 0) {
+      fetchVoters()
+    }
+  }
   
   const top3 = players.slice(0, 3)
   const elite = players.slice(3, 15)
@@ -174,10 +235,10 @@ export default function CommunityPage() {
           {(Object.keys(categoryConfig) as Category[]).map((cat) => (
             <button
               key={cat}
-              onClick={() => setCategory(cat)}
+              onClick={() => { setCategory(cat); setShowVoters(false) }}
               className={cn(
                 "px-6 py-3 rounded-xl font-semibold",
-                category === cat
+                category === cat && !showVoters
                   ? "bg-amber-500 text-black shadow-xl"
                   : "bg-white/10 text-white/70 hover:bg-white/20"
               )}
@@ -185,10 +246,119 @@ export default function CommunityPage() {
               {categoryConfig[cat].label}
             </button>
           ))}
+          <button
+            onClick={handleShowVoters}
+            className={cn(
+              "px-6 py-3 rounded-xl font-semibold",
+              showVoters
+                ? "bg-amber-500 text-black shadow-xl"
+                : "bg-white/10 text-white/70 hover:bg-white/20"
+            )}
+          >
+            Eligible Voters
+          </button>
         </div>
       </div>
       
-      {isLoading ? (
+      {/* Voter Details Modal */}
+      {selectedVoter && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-white/10">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-display text-white">
+                    {selectedVoter.discordName || selectedVoter.name}
+                  </h2>
+                  <p className="text-white/50 text-sm mt-1">
+                    Division {selectedVoter.division || "N/A"} · {selectedVoter.ratings.length} ratings
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedVoter(null)}
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                >
+                  X
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {/* Group by category */}
+              {(["INFANTRY", "CAVALRY", "ARCHER"] as const).map((cat) => {
+                const catRatings = selectedVoter.ratings.filter(r => r.player.category === cat)
+                if (catRatings.length === 0) return null
+                
+                return (
+                  <div key={cat} className="mb-6">
+                    <h3 className="text-amber-400 font-semibold mb-3 text-sm uppercase tracking-wider">
+                      {cat} ({catRatings.length})
+                    </h3>
+                    <div className="space-y-2">
+                      {catRatings.map((rating) => (
+                        <div 
+                          key={rating.id}
+                          className="flex items-center justify-between bg-black/20 rounded-lg p-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Flag code={rating.player.nationality} size="sm" />
+                            <div>
+                              <span className="text-white font-medium">{rating.player.name}</span>
+                              {rating.player.clan && (
+                                <span className="text-white/40 text-sm ml-2">{rating.player.clan}</span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-amber-400 font-bold text-lg">{rating.score}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {showVoters ? (
+        <div className="max-w-4xl mx-auto px-6 pb-20">
+          <h2 className="text-2xl font-display font-bold text-white mb-2">
+            Eligible Voters
+          </h2>
+          <p className="text-white/50 mb-8 text-sm">
+            Users who have rated at least 10 Infantry, 5 Cavalry, and 5 Archers
+          </p>
+          
+          {loadingVoters ? (
+            <div className="flex justify-center py-12">
+              <div className="w-10 h-10 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+            </div>
+          ) : voters.length === 0 ? (
+            <div className="text-center text-white/40 py-12">No eligible voters yet</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {voters.map((voter) => (
+                <button
+                  key={voter.id}
+                  onClick={() => fetchVoterDetails(voter.id)}
+                  className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/30 rounded-xl p-4 text-left transition-all"
+                >
+                  <h3 className="text-white font-semibold truncate">{voter.name}</h3>
+                  <div className="flex items-center gap-3 mt-2 text-sm">
+                    <span className="text-white/50">
+                      Div {voter.division || "N/A"}
+                    </span>
+                    <span className="text-amber-400">
+                      {voter.totalRatings} ratings
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : isLoading ? (
         <div className="flex justify-center py-20">
           <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
         </div>
