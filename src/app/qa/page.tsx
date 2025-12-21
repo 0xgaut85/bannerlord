@@ -94,7 +94,7 @@ export default function QAPage() {
             Can I rate myself?
           </h2>
           <p className="text-[#5a5a5a] leading-relaxed">
-            No. The system automatically detects if a player&apos;s name closely matches your profile name or Discord name (within 1-2 character differences) and will require you to skip that player. This prevents self-promotion and ensures fair rankings.
+            No. The system automatically detects if a player&apos;s name exactly matches your profile name or Discord name (case-insensitive) and will require you to skip that player. This prevents self-promotion and ensures fair rankings.
           </p>
         </Card>
       </div>

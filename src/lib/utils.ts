@@ -1,55 +1,19 @@
 import { Division } from "@prisma/client"
 
-// Levenshtein distance - calculates how many character changes needed to transform one string to another
-export function levenshteinDistance(a: string, b: string): number {
-  const aLower = a.toLowerCase().trim()
-  const bLower = b.toLowerCase().trim()
-  
-  if (aLower === bLower) return 0
-  if (aLower.length === 0) return bLower.length
-  if (bLower.length === 0) return aLower.length
-
-  const matrix: number[][] = []
-
-  for (let i = 0; i <= bLower.length; i++) {
-    matrix[i] = [i]
-  }
-  for (let j = 0; j <= aLower.length; j++) {
-    matrix[0][j] = j
-  }
-
-  for (let i = 1; i <= bLower.length; i++) {
-    for (let j = 1; j <= aLower.length; j++) {
-      if (bLower[i - 1] === aLower[j - 1]) {
-        matrix[i][j] = matrix[i - 1][j - 1]
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1, // substitution
-          matrix[i][j - 1] + 1,     // insertion
-          matrix[i - 1][j] + 1      // deletion
-        )
-      }
-    }
-  }
-
-  return matrix[bLower.length][aLower.length]
-}
-
-// Check if user might be rating themselves (name too similar)
+// Check if user is rating themselves (exact name match only, case-insensitive)
 export function isSelfRating(userName: string | null, discordName: string | null, playerName: string): boolean {
   const playerNameClean = playerName.toLowerCase().trim()
-  const maxDistance = 2 // Allow up to 2 character differences
   
   if (userName) {
     const userNameClean = userName.toLowerCase().trim()
-    if (levenshteinDistance(userNameClean, playerNameClean) <= maxDistance) {
+    if (userNameClean === playerNameClean) {
       return true
     }
   }
   
   if (discordName) {
     const discordNameClean = discordName.toLowerCase().trim()
-    if (levenshteinDistance(discordNameClean, playerNameClean) <= maxDistance) {
+    if (discordNameClean === playerNameClean) {
       return true
     }
   }
