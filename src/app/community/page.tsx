@@ -2,15 +2,27 @@
 
 import { useState, useEffect } from "react"
 import { PlayerWithRating } from "@/types"
-import { Button } from "@/components/ui"
 import { getFlagEmoji, cn } from "@/lib/utils"
 
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
 const categoryConfig = {
-  INFANTRY: { icon: "⚔️", label: "Infantry", gradient: "from-amber-900 via-amber-800 to-amber-700" },
-  CAVALRY: { icon: "🐎", label: "Cavalry", gradient: "from-slate-800 via-slate-700 to-slate-600" },
-  ARCHER: { icon: "🏹", label: "Archers", gradient: "from-emerald-900 via-emerald-800 to-emerald-700" },
+  INFANTRY: { icon: "⚔️", label: "Infantry" },
+  CAVALRY: { icon: "🐎", label: "Cavalry" },
+  ARCHER: { icon: "🏹", label: "Archers" },
+}
+
+// Rating-based card colors for top 3
+function getRatingStyle(rating: number) {
+  if (rating >= 95) return { bg: "from-gray-200 via-white to-gray-100", border: "border-white", text: "text-gray-900", shine: true }
+  if (rating >= 90) return { bg: "from-amber-400 via-yellow-300 to-amber-300", border: "border-amber-300", text: "text-gray-900", shine: true }
+  if (rating >= 85) return { bg: "from-amber-600 via-amber-500 to-yellow-500", border: "border-amber-400", text: "text-white", shine: false }
+  if (rating >= 80) return { bg: "from-gray-300 via-gray-200 to-white", border: "border-gray-200", text: "text-gray-900", shine: true }
+  if (rating >= 75) return { bg: "from-gray-400 via-gray-300 to-gray-200", border: "border-gray-300", text: "text-gray-900", shine: false }
+  if (rating >= 70) return { bg: "from-orange-500 via-orange-400 to-amber-400", border: "border-orange-400", text: "text-white", shine: true }
+  if (rating >= 65) return { bg: "from-orange-700 via-orange-600 to-orange-500", border: "border-orange-500", text: "text-white", shine: false }
+  if (rating >= 60) return { bg: "from-amber-800 via-amber-700 to-yellow-700", border: "border-amber-600", text: "text-white", shine: true }
+  return { bg: "from-amber-900 via-amber-800 to-amber-700", border: "border-amber-700", text: "text-white", shine: false }
 }
 
 export default function CommunityPage() {
@@ -44,10 +56,10 @@ export default function CommunityPage() {
   const config = categoryConfig[category]
   
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${config.gradient}`}>
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
       {/* Header */}
       <div className="text-center py-12 sm:py-16">
-        <p className="text-xs font-medium tracking-[0.3em] uppercase text-white/60 mb-4">
+        <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
           Community Rankings
         </p>
         <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-6">
@@ -63,7 +75,7 @@ export default function CommunityPage() {
               className={cn(
                 "px-6 py-3 rounded-xl font-semibold transition-all",
                 category === cat
-                  ? "bg-white text-gray-900 shadow-xl"
+                  ? "bg-amber-500 text-black shadow-xl"
                   : "bg-white/10 text-white/70 hover:bg-white/20"
               )}
             >
@@ -75,7 +87,7 @@ export default function CommunityPage() {
       
       {isLoading ? (
         <div className="flex justify-center py-20">
-          <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
         </div>
       ) : (
         <div className="max-w-6xl mx-auto px-6 pb-20">
@@ -99,7 +111,6 @@ export default function CommunityPage() {
                       player={player} 
                       rank={actualRank}
                       isCenter={idx === 1}
-                      category={category}
                     />
                   )
                 })}
@@ -143,11 +154,11 @@ export default function CommunityPage() {
             </section>
           )}
           
-          {/* THE REST */}
+          {/* REMAINING PLAYERS IN THIS CATEGORY */}
           {rest.length > 0 && (
             <section>
               <h2 className="text-lg font-display font-bold text-white/60 mb-4">
-                All Players
+                All {config.label}
               </h2>
               
               <div className="bg-black/20 rounded-xl p-4">
@@ -179,27 +190,20 @@ export default function CommunityPage() {
   )
 }
 
-// Top 3 FIFA-style card
+// Top 3 FIFA-style card with rating-based colors
 function TopPlayerCard({ 
   player, 
   rank, 
-  isCenter,
-  category 
+  isCenter 
 }: { 
   player: PlayerWithRating
   rank: number
   isCenter: boolean
-  category: Category
 }) {
   const flag = player.nationality ? getFlagEmoji(player.nationality) : "🇪🇺"
+  const ratingStyle = getRatingStyle(player.averageRating)
   
-  const rankStyles = {
-    1: { border: "border-amber-400", glow: "shadow-amber-500/50", medal: "🥇", bg: "from-amber-600 to-yellow-500" },
-    2: { border: "border-gray-300", glow: "shadow-gray-400/30", medal: "🥈", bg: "from-gray-500 to-gray-400" },
-    3: { border: "border-orange-600", glow: "shadow-orange-500/30", medal: "🥉", bg: "from-orange-700 to-orange-500" },
-  }
-  
-  const style = rankStyles[rank as 1 | 2 | 3]
+  const medals = { 1: "🥇", 2: "🥈", 3: "🥉" }
   
   return (
     <div className={cn(
@@ -208,43 +212,48 @@ function TopPlayerCard({
     )}>
       <div className={cn(
         "relative overflow-hidden rounded-2xl border-2 p-6",
-        style.border,
-        `shadow-2xl ${style.glow}`
+        ratingStyle.border,
+        "shadow-2xl"
       )}>
-        {/* Background gradient */}
-        <div className={`absolute inset-0 bg-gradient-to-b ${style.bg} opacity-90`} />
+        {/* Background gradient based on rating */}
+        <div className={`absolute inset-0 bg-gradient-to-b ${ratingStyle.bg} opacity-90`} />
+        
+        {/* Shine effect for bright cards */}
+        {ratingStyle.shine && (
+          <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent" />
+        )}
         
         {/* Pattern overlay */}
         <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v22H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z' fill='%23ffffff' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v22H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z' fill='%23000000' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
         }} />
         
         {/* Content */}
         <div className="relative text-center">
           {/* Medal */}
-          <div className="text-5xl mb-2">{style.medal}</div>
+          <div className="text-5xl mb-2">{medals[rank as 1 | 2 | 3]}</div>
           
           {/* Rating */}
-          <div className="bg-black/30 backdrop-blur-sm inline-block rounded-lg px-4 py-1 mb-4">
-            <span className="text-3xl font-black text-white">{player.averageRating.toFixed(1)}</span>
+          <div className={`${ratingStyle.text === "text-gray-900" ? "bg-black/20" : "bg-black/30"} backdrop-blur-sm inline-block rounded-lg px-4 py-1 mb-4`}>
+            <span className={`text-3xl font-black ${ratingStyle.text}`}>{player.averageRating.toFixed(1)}</span>
           </div>
           
           {/* Flag */}
           <div className="text-5xl mb-3">{flag}</div>
           
           {/* Name */}
-          <h3 className="text-xl font-black text-white uppercase tracking-wide mb-1">
+          <h3 className={`text-xl font-black ${ratingStyle.text} uppercase tracking-wide mb-1`}>
             {player.name}
           </h3>
           
           {/* Clan */}
           {player.clan && (
-            <p className="text-white/70 text-sm font-medium">{player.clan}</p>
+            <p className={`${ratingStyle.text === "text-gray-900" ? "text-gray-600" : "text-white/70"} text-sm font-medium`}>{player.clan}</p>
           )}
           
           {/* Bio */}
           {player.bio && (
-            <p className="mt-3 text-white/60 text-xs italic line-clamp-2">
+            <p className={`mt-3 ${ratingStyle.text === "text-gray-900" ? "text-gray-500" : "text-white/60"} text-xs italic line-clamp-2`}>
               &ldquo;{player.bio}&rdquo;
             </p>
           )}

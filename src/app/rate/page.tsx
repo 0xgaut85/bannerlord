@@ -23,8 +23,7 @@ export default function RatePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
-  const isModified = JSON.stringify(ratings) !== JSON.stringify(originalRatings)
+  const [saveMessage, setSaveMessage] = useState<string | null>(null)
   
   // Check if can edit
   const canEdit = canUserEdit(session?.user?.lastEditAt ? new Date(session.user.lastEditAt) : null)
@@ -57,16 +56,13 @@ export default function RatePage() {
     async function fetchData() {
       setIsLoading(true)
       try {
-        // Fetch all players
         const playersRes = await fetch("/api/players")
         if (playersRes.ok) {
           const playersData = await playersRes.json()
-          // Shuffle players randomly
           const shuffled = [...playersData].sort(() => Math.random() - 0.5)
           setPlayers(shuffled)
         }
         
-        // Fetch user's existing ratings if logged in
         if (session?.user?.id) {
           const ratingsRes = await fetch("/api/ratings")
           if (ratingsRes.ok) {
@@ -102,27 +98,12 @@ export default function RatePage() {
     }
   }, [currentPlayer])
   
-  const handleSkip = useCallback(() => {
-    if (currentIndex < players.length - 1) {
-      setCurrentIndex(i => i + 1)
-    } else {
-      setCurrentIndex(0)
-    }
-  }, [currentIndex, players.length])
-  
-  const handlePrevious = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex(i => i - 1)
-    }
-  }, [currentIndex])
-  
-  const handleSave = async () => {
-    if (!canEdit) {
-      setError("You can only edit once every 24 hours")
-      return
-    }
+  const handleValidate = useCallback(async () => {
+    if (!currentPlayer || !canEdit) return
     
+    // Save immediately when validating
     setIsSaving(true)
+    setSaveMessage(null)
     setError(null)
     
     try {
@@ -139,22 +120,47 @@ export default function RatePage() {
       
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || "Failed to save ratings")
+        throw new Error(data.error || "Failed to save")
       }
       
       setOriginalRatings({ ...ratings })
-      router.refresh()
+      setSaveMessage("Rating saved!")
+      
+      // Move to next player
+      setTimeout(() => {
+        setSaveMessage(null)
+        if (currentIndex < players.length - 1) {
+          setCurrentIndex(i => i + 1)
+        } else {
+          setCurrentIndex(0)
+        }
+      }, 500)
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save")
     } finally {
       setIsSaving(false)
     }
-  }
+  }, [currentPlayer, canEdit, ratings, currentIndex, players.length])
+  
+  const handleSkip = useCallback(() => {
+    if (currentIndex < players.length - 1) {
+      setCurrentIndex(i => i + 1)
+    } else {
+      setCurrentIndex(0)
+    }
+  }, [currentIndex, players.length])
+  
+  const handlePrevious = useCallback(() => {
+    if (currentIndex > 0) {
+      setCurrentIndex(i => i - 1)
+    }
+  }, [currentIndex])
   
   // Not logged in
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
+      <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center">
           <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
             Authentication Required
@@ -176,7 +182,7 @@ export default function RatePage() {
   // Profile not complete
   if (session && !session.user?.isProfileComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
+      <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center">
           <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
             Profile Setup
@@ -198,59 +204,52 @@ export default function RatePage() {
   // Loading
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
+      <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col">
-      {/* Top Bar */}
-      <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-display font-bold text-white">
-              Rate Players
-            </h1>
-            
-            {/* Save Button */}
-            {isModified && canEdit && (
-              <Button
-                onClick={handleSave}
-                isLoading={isSaving}
-                className="!bg-amber-500 !text-black hover:!bg-amber-400 font-semibold"
-              >
-                💾 Save All Ratings
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-      
-      {/* Progress Bars */}
-      <div className="bg-black/10 px-6 py-3">
-        <div className="max-w-4xl mx-auto">
+    <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col overflow-hidden">
+      {/* Compact Top Bar */}
+      <div className="bg-black/20 backdrop-blur-sm border-b border-white/10 px-4 py-2">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <h1 className="text-lg font-display font-bold text-white">Rate Players</h1>
           <EligibilityProgress status={eligibility} dark />
-          <CooldownTimer lastEditAt={session?.user?.lastEditAt} dark />
         </div>
       </div>
       
-      {/* Error */}
-      {error && (
-        <div className="mx-auto mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-center max-w-lg">
-          {error}
+      {/* Cooldown if active */}
+      {session?.user?.lastEditAt && (
+        <div className="px-4 py-1 bg-black/10">
+          <div className="max-w-4xl mx-auto">
+            <CooldownTimer lastEditAt={session.user.lastEditAt} dark />
+          </div>
         </div>
       )}
       
-      {/* Main Card Area */}
-      <div className="flex-1 flex items-center justify-center px-6 py-8">
+      {/* Messages */}
+      {error && (
+        <div className="mx-4 mt-2 p-2 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-center text-sm">
+          {error}
+        </div>
+      )}
+      {saveMessage && (
+        <div className="mx-4 mt-2 p-2 bg-green-500/20 border border-green-500/50 rounded-lg text-green-200 text-center text-sm">
+          {saveMessage}
+        </div>
+      )}
+      
+      {/* Main Card Area - Takes remaining space */}
+      <div className="flex-1 flex items-center justify-center px-4 py-4 overflow-hidden">
         {players.length > 0 && currentPlayer ? (
           <FifaCard
             player={currentPlayer}
             currentRating={ratings[currentPlayer.id] || 75}
             onRatingChange={handleRatingChange}
             onSkip={handleSkip}
+            onValidate={handleValidate}
             onPrevious={handlePrevious}
             hasPrevious={currentIndex > 0}
             currentIndex={currentIndex}

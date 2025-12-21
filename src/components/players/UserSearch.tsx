@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Input, Card } from "@/components/ui"
 import { useDebounce } from "@/hooks/useDebounce"
 import { Division } from "@prisma/client"
 
@@ -54,17 +53,18 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
   
   return (
     <div className="relative">
-      <Input
+      <input
         type="text"
         placeholder="Search for a user..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
       />
       
       {(results.length > 0 || isLoading) && (
-        <Card className="absolute top-full left-0 right-0 mt-2 z-10 p-2 max-h-80 overflow-y-auto shadow-xl">
+        <div className="absolute top-full left-0 right-0 mt-2 z-10 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-80 overflow-y-auto shadow-xl">
           {isLoading ? (
-            <div className="py-6 text-center text-[#8a8a8a]">
+            <div className="py-6 text-center text-white/40">
               Searching...
             </div>
           ) : (
@@ -77,7 +77,7 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
                     setQuery("")
                     setResults([])
                   }}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition-colors text-left"
                 >
                   {user.image ? (
                     <Image 
@@ -88,20 +88,20 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
                       className="w-10 h-10 rounded-full object-cover" 
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-[#c9a962]/20 flex items-center justify-center">
-                      <span className="text-sm font-semibold text-[#c9a962]">
+                    <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                      <span className="text-sm font-semibold text-amber-500">
                         {(user.discordName || user.name || "U")[0].toUpperCase()}
                       </span>
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-[#1a1a1a] truncate">
+                    <div className="font-medium text-white truncate">
                       {user.discordName || user.name || "Unknown"}
                     </div>
-                    <div className="text-sm text-[#8a8a8a] flex items-center gap-2">
+                    <div className="text-sm text-white/50 flex items-center gap-2">
                       {user.team && <span>{user.team}</span>}
                       {user.division && (
-                        <span className="bg-[#c9a962] text-white px-1.5 py-0.5 rounded text-xs">
+                        <span className="bg-amber-500 text-black px-1.5 py-0.5 rounded text-xs font-medium">
                           Div {user.division}
                         </span>
                       )}
@@ -112,7 +112,7 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
               ))}
             </div>
           )}
-        </Card>
+        </div>
       )}
     </div>
   )
