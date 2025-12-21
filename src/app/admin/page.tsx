@@ -81,10 +81,38 @@ export default function AdminPage() {
   }
 
   const handleBulkDeleteAnomalies = async (minDeviation: number) => {
-    const toDelete = anomalies.filter(a => a.deviation >= minDeviation)
+    const toDelete = anomalies.filter(a => a.type === "deviation" && a.deviation >= minDeviation)
     if (toDelete.length === 0) return
     
     if (!confirm(`Are you sure you want to delete ${toDelete.length} ratings with ${minDeviation}+ point deviation?`)) return
+    
+    setLoading(true)
+    let deleted = 0
+    
+    for (const anomaly of toDelete) {
+      try {
+        const res = await fetch(`/api/admin/ratings/${anomaly.id}`, {
+          method: "DELETE"
+        })
+        if (res.ok) {
+          deleted++
+        }
+      } catch (error) {
+        console.error("Error deleting rating:", error)
+      }
+    }
+    
+    setLoading(false)
+    alert(`Deleted ${deleted} of ${toDelete.length} ratings`)
+    fetchAnomalies()
+  }
+
+  const handleBulkDeleteByType = async (type: string) => {
+    const toDelete = anomalies.filter(a => a.type === type)
+    if (toDelete.length === 0) return
+    
+    const typeName = type === "suspicious_boost" ? "suspicious boost" : type
+    if (!confirm(`Are you sure you want to delete ${toDelete.length} ${typeName} ratings?`)) return
     
     setLoading(true)
     let deleted = 0
@@ -869,62 +897,109 @@ export default function AdminPage() {
             <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 mb-6">
               <h3 className="text-orange-400 font-semibold mb-2">Anomaly Detection</h3>
               <p className="text-white/60 text-sm mb-4">
-                Ratings that deviate more than 10 points from the player&apos;s average are flagged as potential troll ratings.
+                <span className="text-orange-400">Deviation:</span> Ratings that deviate 10+ points from average.
+                <br />
+                <span className="text-purple-400">Boost:</span> New players with only 1 rating above 85.
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
+                  className="!bg-purple-600 !text-white hover:!bg-purple-700"
+                  onClick={() => handleBulkDeleteByType("suspicious_boost")}
+                  disabled={anomalies.filter(a => a.type === "suspicious_boost").length === 0}
+                >
+                  Delete Boosts ({anomalies.filter(a => a.type === "suspicious_boost").length})
+                </Button>
+                <Button
+                  size="sm"
                   className="!bg-red-600 !text-white hover:!bg-red-700"
                   onClick={() => handleBulkDeleteAnomalies(20)}
-                  disabled={anomalies.filter(a => a.deviation >= 20).length === 0}
+                  disabled={anomalies.filter(a => a.type === "deviation" && a.deviation >= 20).length === 0}
                 >
-                  Delete 20+ ({anomalies.filter(a => a.deviation >= 20).length})
+                  Delete 20+ ({anomalies.filter(a => a.type === "deviation" && a.deviation >= 20).length})
                 </Button>
                 <Button
                   size="sm"
                   className="!bg-red-500 !text-white hover:!bg-red-600"
                   onClick={() => handleBulkDeleteAnomalies(15)}
-                  disabled={anomalies.filter(a => a.deviation >= 15).length === 0}
+                  disabled={anomalies.filter(a => a.type === "deviation" && a.deviation >= 15).length === 0}
                 >
-                  Delete 15+ ({anomalies.filter(a => a.deviation >= 15).length})
+                  Delete 15+ ({anomalies.filter(a => a.type === "deviation" && a.deviation >= 15).length})
                 </Button>
                 <Button
                   size="sm"
                   className="!bg-orange-500 !text-white hover:!bg-orange-600"
                   onClick={() => handleBulkDeleteAnomalies(10)}
-                  disabled={anomalies.filter(a => a.deviation >= 10).length === 0}
+                  disabled={anomalies.filter(a => a.type === "deviation" && a.deviation >= 10).length === 0}
                 >
-                  Delete All 10+ ({anomalies.length})
+                  Delete All 10+ ({anomalies.filter(a => a.type === "deviation").length})
                 </Button>
               </div>
             </div>
 
             {anomalies.map((anomaly) => (
-              <div key={anomaly.id} className="bg-white/5 p-4 rounded-xl border border-orange-500/30">
+              <div 
+                key={anomaly.id} 
+                className={`bg-white/5 p-4 rounded-xl border ${
+                  anomaly.type === "suspicious_boost" 
+                    ? "border-purple-500/50" 
+                    : "border-orange-500/30"
+                }`}
+              >
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="font-medium text-white">
-                      {anomaly.playerName}
-                    </h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-medium text-white">
+                        {anomaly.playerName}
+                      </h3>
+                      {anomaly.type === "suspicious_boost" && (
+                        <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded text-xs font-medium">
+                          BOOST
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-white/50">
                       Rated by: {anomaly.raterName} (Div {anomaly.raterDivision || "?"})
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-orange-400">{anomaly.score}</div>
-                    <div className="text-xs text-white/50">vs avg {anomaly.averageScore}</div>
+                    <div className={`text-2xl font-bold ${
+                      anomaly.type === "suspicious_boost" ? "text-purple-400" : "text-orange-400"
+                    }`}>
+                      {anomaly.score}
+                    </div>
+                    <div className="text-xs text-white/50">
+                      {anomaly.type === "suspicious_boost" 
+                        ? "only 1 rating" 
+                        : `vs avg ${anomaly.averageScore}`
+                      }
+                    </div>
                   </div>
                 </div>
                 
                 <div className="bg-black/30 rounded-lg p-3 mb-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-white/50 text-xs uppercase">Deviation</span>
-                    <span className={`font-bold ${anomaly.deviation >= 15 ? "text-red-400" : "text-orange-400"}`}>
-                      {anomaly.score > anomaly.averageScore ? "+" : "-"}{anomaly.deviation} points
+                    <span className="text-white/50 text-xs uppercase">
+                      {anomaly.type === "suspicious_boost" ? "Suspicious" : "Deviation"}
+                    </span>
+                    <span className={`font-bold ${
+                      anomaly.type === "suspicious_boost" 
+                        ? "text-purple-400" 
+                        : anomaly.deviation >= 15 
+                          ? "text-red-400" 
+                          : "text-orange-400"
+                    }`}>
+                      {anomaly.type === "suspicious_boost" 
+                        ? `High rating (${anomaly.score}) on new player`
+                        : `${anomaly.score > anomaly.averageScore ? "+" : "-"}${anomaly.deviation} points`
+                      }
                     </span>
                   </div>
                   <div className="text-xs text-white/40">
-                    Other ratings: {anomaly.otherRatings.join(", ")}
+                    {anomaly.type === "suspicious_boost" 
+                      ? "New player with only 1 rating above 85"
+                      : `Other ratings: ${anomaly.otherRatings.join(", ") || "none"}`
+                    }
                   </div>
                 </div>
 
