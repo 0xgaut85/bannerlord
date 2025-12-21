@@ -939,7 +939,7 @@ export default function AdminPage() {
               <p className="text-white/60 text-sm mb-4">
                 <span className="text-orange-400">Deviation:</span> Ratings that deviate 10+ points from average.
                 <br />
-                <span className="text-purple-400">Boost:</span> New players with only 1 rating above 85.
+                <span className="text-purple-400">Boost:</span> Players with less than 3 ratings and average above 90.
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button
@@ -1030,14 +1030,14 @@ export default function AdminPage() {
                           : "text-orange-400"
                     }`}>
                       {anomaly.type === "suspicious_boost" 
-                        ? `High rating (${anomaly.score}) on new player`
+                        ? `Avg ${anomaly.averageScore} with only ${anomaly.ratingCount} rating${anomaly.ratingCount !== 1 ? 's' : ''}`
                         : `${anomaly.score > anomaly.averageScore ? "+" : "-"}${anomaly.deviation} points`
                       }
                     </span>
                   </div>
                   <div className="text-xs text-white/40">
                     {anomaly.type === "suspicious_boost" 
-                      ? "New player with only 1 rating above 85"
+                      ? `Player has <3 ratings with avg above 90${anomaly.otherRatings.length > 0 ? ` (other: ${anomaly.otherRatings.join(", ")})` : ''}`
                       : `Other ratings: ${anomaly.otherRatings.join(", ") || "none"}`
                     }
                   </div>

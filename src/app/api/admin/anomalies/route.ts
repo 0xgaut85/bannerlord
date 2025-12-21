@@ -3,8 +3,9 @@ import prisma from "@/lib/prisma"
 
 // Threshold for detecting anomalies (ratings that deviate more than this from average)
 const ANOMALY_THRESHOLD = 10
-// Threshold for suspicious high ratings on new players
-const SUSPICIOUS_HIGH_RATING = 85
+// Thresholds for suspicious boost detection
+const BOOST_MIN_RATINGS = 3 // Less than this number of ratings
+const BOOST_AVG_THRESHOLD = 90 // Average must be above this
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -26,6 +27,7 @@ interface Anomaly {
   averageScore: number
   deviation: number
   otherRatings: number[]
+  ratingCount?: number // Number of ratings for boost detection
 }
 
 export async function GET() {
@@ -55,31 +57,41 @@ export async function GET() {
       // Filter to only real user ratings (exclude system ratings)
       const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
       
-      // DETECTOR 1: Suspicious boost - new player with only 1 high rating
-      if (realRatings.length === 1 && realRatings[0].score >= SUSPICIOUS_HIGH_RATING) {
-        const rating = realRatings[0]
-        anomalies.push({
-          id: rating.id,
-          type: "suspicious_boost",
-          playerId: player.id,
-          playerName: player.name,
-          raterId: rating.rater.id,
-          raterName: rating.rater.discordName || rating.rater.name || "Unknown",
-          raterDivision: rating.rater.division,
-          score: rating.score,
-          averageScore: rating.score,
-          deviation: rating.score - 75, // Deviation from "normal" rating of 75
-          otherRatings: [],
-        })
+      if (realRatings.length === 0) continue
+      
+      // Calculate average from real ratings
+      const scores = realRatings.map(r => r.score)
+      const average = scores.reduce((a, b) => a + b, 0) / scores.length
+      
+      // DETECTOR 1: Suspicious boost - player with <3 ratings and average above 90
+      if (realRatings.length < BOOST_MIN_RATINGS && average >= BOOST_AVG_THRESHOLD) {
+        // Add each rating as a boost anomaly (so they can be deleted individually)
+        for (const rating of realRatings) {
+          const otherRatings = realRatings
+            .filter(r => r.id !== rating.id)
+            .map(r => r.score)
+            .sort((a, b) => b - a)
+            
+          anomalies.push({
+            id: rating.id,
+            type: "suspicious_boost",
+            playerId: player.id,
+            playerName: player.name,
+            raterId: rating.rater.id,
+            raterName: rating.rater.discordName || rating.rater.name || "Unknown",
+            raterDivision: rating.rater.division,
+            score: rating.score,
+            averageScore: Math.round(average * 10) / 10,
+            deviation: Math.round((average - 75) * 10) / 10, // Deviation from "normal" rating of 75
+            otherRatings,
+            ratingCount: realRatings.length,
+          })
+        }
         continue // Skip deviation check for this player
       }
       
       // DETECTOR 2: Deviation anomalies - need at least 2 real ratings
       if (realRatings.length < 2) continue
-
-      // Calculate average from real ratings only
-      const scores = realRatings.map(r => r.score)
-      const average = scores.reduce((a, b) => a + b, 0) / scores.length
 
       // Find anomalies (only check real user ratings)
       for (const rating of realRatings) {

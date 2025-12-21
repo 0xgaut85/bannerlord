@@ -113,7 +113,7 @@ export default function QAPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#c9a962] font-bold">•</span>
-                <span><span className="font-medium text-[#1a1a1a]">Suspicious Boosts:</span> New players who receive only one rating that is unusually high (85+) are flagged, as this may indicate self-promotion or friend-boosting.</span>
+                <span><span className="font-medium text-[#1a1a1a]">Suspicious Boosts:</span> Players with fewer than 3 ratings and an average above 90 are flagged, as this may indicate self-promotion or friend-boosting.</span>
               </li>
             </ul>
             <p>
