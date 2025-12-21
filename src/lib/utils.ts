@@ -1,24 +1,14 @@
 import { Division } from "@prisma/client"
 
-// Check if user is rating themselves (exact name match only, case-insensitive)
-export function isSelfRating(userName: string | null, discordName: string | null, playerName: string): boolean {
+// Check if user is rating themselves (exact in-game name match only, case-insensitive)
+// Only checks against discordName (the in-game name user sets), not Discord OAuth display name
+export function isSelfRating(discordName: string | null, playerName: string): boolean {
+  if (!discordName) return false
+  
   const playerNameClean = playerName.toLowerCase().trim()
+  const discordNameClean = discordName.toLowerCase().trim()
   
-  if (userName) {
-    const userNameClean = userName.toLowerCase().trim()
-    if (userNameClean === playerNameClean) {
-      return true
-    }
-  }
-  
-  if (discordName) {
-    const discordNameClean = discordName.toLowerCase().trim()
-    if (discordNameClean === playerNameClean) {
-      return true
-    }
-  }
-  
-  return false
+  return discordNameClean === playerNameClean
 }
 
 // Division weight coefficients

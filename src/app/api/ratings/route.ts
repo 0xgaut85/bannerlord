@@ -114,11 +114,12 @@ export async function POST(request: NextRequest) {
         select: { name: true }
       })
       
-      if (player && isSelfRating(user.name, user.discordName, player.name)) {
-        return NextResponse.json({ 
-          error: `You cannot rate yourself (${player.name}). Please skip this player.`
-        }, { status: 403 })
-      }
+      // Self-rating check temporarily disabled for debugging
+      // if (player && user.discordName && isSelfRating(user.discordName, player.name)) {
+      //   return NextResponse.json({ 
+      //     error: `You cannot rate yourself (${player.name}). Please skip this player.`
+      //   }, { status: 403 })
+      // }
       
       // Check if player has enough ratings (anti-troll protection)
       const { average, count } = await getPlayerAverageRating(rating.playerId, session.user.id)

@@ -184,10 +184,8 @@ export default function RatePage() {
   
   const currentPlayer = filteredPlayers[currentIndex]
   
-  // Check if current player is the user themselves (self-rating prevention)
-  const isSelfRatingPlayer = currentPlayer && userProfile 
-    ? isSelfRating(userProfile.name, userProfile.discordName, currentPlayer.name)
-    : false
+  // Self-rating prevention temporarily disabled for debugging
+  const isSelfRatingPlayer = false
   
   const handleRatingChange = useCallback((value: number) => {
     if (currentPlayer) {
