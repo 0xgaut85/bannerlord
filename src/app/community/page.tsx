@@ -27,84 +27,97 @@ function getDefaultAvatar(category: string): string {
 // Rating-based card styles with texture patterns
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
-    frame: "bg-gradient-to-b from-slate-200 via-white to-slate-300",
-    inner: "bg-gradient-to-br from-white via-slate-50 to-slate-200",
-    accent: "from-slate-400 to-slate-200",
-    text: "text-slate-900",
-    subtext: "text-slate-600",
-    label: "ICON",
-    labelBg: "bg-slate-800",
-    grainOpacity: "0.15",
+    // ICON - Dark Platinum/Diamond
+    bg: "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900",
+    border: "border-slate-400/50",
+    accent: "from-cyan-400 via-white to-cyan-400",
+    text: "text-white",
+    subtext: "text-cyan-100",
+    overlay: "mix-blend-overlay opacity-30",
+    noiseOpacity: "0.15",
+    // Intricate geometric pattern for high tier
+    pattern: `radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%), 
+              repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px),
+              repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px)`,
   }
   if (rating >= 90) return {
-    frame: "bg-gradient-to-b from-amber-300 via-yellow-200 to-amber-400",
-    inner: "bg-gradient-to-br from-yellow-100 via-amber-50 to-yellow-200",
-    accent: "from-amber-500 to-yellow-400",
-    text: "text-amber-900",
-    subtext: "text-amber-700",
-    label: "LEGEND",
-    labelBg: "bg-amber-800",
-    grainOpacity: "0.12",
+    // LEGEND - Deep Rich Gold
+    bg: "bg-gradient-to-br from-yellow-900 via-amber-700 to-yellow-900",
+    border: "border-amber-400/50",
+    accent: "from-amber-300 via-yellow-200 to-amber-300",
+    text: "text-amber-50",
+    subtext: "text-amber-200",
+    overlay: "mix-blend-overlay opacity-20",
+    noiseOpacity: "0.12",
+    pattern: `radial-gradient(circle at 50% 0%, rgba(255,215,0,0.2) 0%, transparent 70%),
+              repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 12px)`,
   }
   if (rating >= 85) return {
-    frame: "bg-gradient-to-b from-amber-500 via-amber-400 to-amber-600",
-    inner: "bg-gradient-to-br from-amber-200 via-amber-100 to-amber-300",
-    accent: "from-amber-600 to-amber-400",
-    text: "text-amber-900",
-    subtext: "text-amber-700",
-    label: "GOLD",
-    labelBg: "bg-amber-700",
-    grainOpacity: "0.18",
+    // GOLD - Metallic Gold
+    bg: "bg-gradient-to-br from-yellow-600 via-yellow-500 to-amber-600",
+    border: "border-yellow-300/50",
+    accent: "from-yellow-200 via-white to-yellow-200",
+    text: "text-white",
+    subtext: "text-yellow-50",
+    overlay: "mix-blend-overlay opacity-10",
+    noiseOpacity: "0.10",
+    pattern: `linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%)`,
   }
   if (rating >= 80) return {
-    frame: "bg-gradient-to-b from-gray-300 via-gray-200 to-gray-400",
-    inner: "bg-gradient-to-br from-gray-100 via-white to-gray-200",
-    accent: "from-gray-500 to-gray-300",
-    text: "text-gray-900",
-    subtext: "text-gray-600",
-    label: "SILVER",
-    labelBg: "bg-gray-600",
-    grainOpacity: "0.12",
+    // SILVER - Clean Metallic
+    bg: "bg-gradient-to-br from-slate-400 via-slate-300 to-slate-400",
+    border: "border-slate-200/50",
+    accent: "from-white via-slate-100 to-white",
+    text: "text-slate-900",
+    subtext: "text-slate-700",
+    overlay: "mix-blend-overlay opacity-10",
+    noiseOpacity: "0.08",
+    pattern: `linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, transparent 100%)`,
   }
   if (rating >= 75) return {
-    frame: "bg-gradient-to-b from-gray-400 via-gray-300 to-gray-500",
-    inner: "bg-gradient-to-br from-gray-200 via-gray-100 to-gray-300",
-    accent: "from-gray-500 to-gray-400",
-    text: "text-gray-900",
-    subtext: "text-gray-600",
-    label: "SILVER",
-    labelBg: "bg-gray-600",
-    grainOpacity: "0.15",
+    // SILVER (Lower) - Slightly darker
+    bg: "bg-gradient-to-br from-slate-500 via-slate-400 to-slate-500",
+    border: "border-slate-300/50",
+    accent: "from-slate-200 via-white to-slate-200",
+    text: "text-slate-900",
+    subtext: "text-slate-800",
+    overlay: "mix-blend-overlay opacity-10",
+    noiseOpacity: "0.10",
+    pattern: `linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 100%)`,
   }
   if (rating >= 70) return {
-    frame: "bg-gradient-to-b from-orange-400 via-orange-300 to-orange-500",
-    inner: "bg-gradient-to-br from-orange-100 via-orange-50 to-orange-200",
-    accent: "from-orange-600 to-orange-400",
-    text: "text-orange-900",
-    subtext: "text-orange-700",
-    label: "BRONZE",
-    labelBg: "bg-orange-700",
-    grainOpacity: "0.15",
+    // BRONZE - Deep reddish
+    bg: "bg-gradient-to-br from-orange-800 via-orange-700 to-amber-900",
+    border: "border-orange-400/40",
+    accent: "from-orange-300 via-orange-200 to-orange-300",
+    text: "text-orange-50",
+    subtext: "text-orange-200",
+    overlay: "mix-blend-overlay opacity-15",
+    noiseOpacity: "0.12",
+    pattern: `radial-gradient(circle at 100% 100%, rgba(0,0,0,0.2) 0%, transparent 50%)`,
   }
   if (rating >= 65) return {
-    frame: "bg-gradient-to-b from-orange-600 via-orange-500 to-orange-700",
-    inner: "bg-gradient-to-br from-orange-200 via-orange-100 to-orange-300",
-    accent: "from-orange-700 to-orange-500",
-    text: "text-orange-900",
-    subtext: "text-orange-700",
-    label: "BRONZE",
-    labelBg: "bg-orange-800",
-    grainOpacity: "0.2",
+    // BRONZE (Lower)
+    bg: "bg-gradient-to-br from-orange-900 via-orange-800 to-amber-950",
+    border: "border-orange-500/30",
+    accent: "from-orange-400 via-orange-300 to-orange-400",
+    text: "text-orange-100",
+    subtext: "text-orange-300",
+    overlay: "mix-blend-overlay opacity-20",
+    noiseOpacity: "0.15",
+    pattern: `radial-gradient(circle at 0% 0%, rgba(255,255,255,0.1) 0%, transparent 50%)`,
   }
+  // WOOD/COMMON - Dark, textured
   return {
-    frame: "bg-gradient-to-b from-amber-700 via-amber-600 to-amber-800",
-    inner: "bg-gradient-to-br from-amber-300 via-amber-200 to-amber-400",
-    accent: "from-amber-800 to-amber-600",
-    text: "text-amber-900",
-    subtext: "text-amber-700",
-    label: "COMMON",
-    labelBg: "bg-amber-900",
-    grainOpacity: "0.25",
+    bg: "bg-[#2a231d]",
+    border: "border-[#5c4d3c]",
+    accent: "from-[#8b7355] via-[#a68a6d] to-[#8b7355]",
+    text: "text-[#e8dcc5]",
+    subtext: "text-[#c2b299]",
+    overlay: "mix-blend-overlay opacity-40",
+    noiseOpacity: "0.30", // Heavy grain for wood
+    pattern: `repeating-linear-gradient(90deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px),
+              linear-gradient(to bottom, rgba(0,0,0,0.2), transparent)`,
   }
 }
 
@@ -299,107 +312,103 @@ function FifaDisplayCard({
       "flex justify-center transition-all duration-300",
       isCenter ? "md:scale-110 z-10" : ""
     )}>
-      {/* FIFA Card - Taller Premium Design */}
-      <div className={`relative w-48 sm:w-56 aspect-[2/3.5] rounded-2xl overflow-hidden shadow-2xl ${style.frame}`}>
-        {/* Outer frame border effect */}
-        <div className="absolute inset-[3px] rounded-xl overflow-hidden">
-          {/* Inner card background */}
-          <div className={`absolute inset-0 ${style.inner}`} />
+      {/* FIFA Card - Premium Design */}
+      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border}`}>
+        {/* Background Base */}
+        <div className={`absolute inset-0 ${style.bg}`} />
+        
+        {/* Texture Pattern */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: style.pattern }}
+        />
+        
+        {/* Heavy Noise Texture (SVG) */}
+        <div 
+          className="absolute inset-0 pointer-events-none mix-blend-overlay"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='${style.noiseOpacity}'/%3E%3C/svg%3E")`,
+            opacity: 1,
+          }}
+        />
+
+        {/* Inner Border (Dashed) */}
+        <div className="absolute inset-3 border border-dashed border-white/20 rounded-2xl pointer-events-none z-10" />
+        
+        {/* Shine Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none z-20" />
+
+        {/* Content Container */}
+        <div className="relative h-full flex flex-col p-4 z-30">
           
-          {/* Pattern texture */}
-          <div 
-            className="absolute inset-0 opacity-40 pointer-events-none"
-            style={{
-              backgroundImage: "radial-gradient(circle at 25% 25%, rgba(0,0,0,0.05) 1px, transparent 1px)",
-              backgroundSize: "8px 8px",
-            }}
-          />
-          
-          {/* Noise texture overlay */}
-          <div 
-            className="absolute inset-0 pointer-events-none mix-blend-overlay"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-              opacity: style.grainOpacity,
-            }}
-          />
-          
-          {/* Decorative lines */}
-          <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${style.accent}`} />
-          <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${style.accent}`} />
-          
-          {/* Rank badge - top right */}
-          <div className="absolute top-3 right-3">
-            <div className={`${style.labelBg} px-2 py-0.5 rounded text-white text-xs font-bold tracking-wider`}>
-              {rankLabels[rank as 1 | 2 | 3]}
+          {/* Top Section: Rating & Position Left, Name Right */}
+          <div className="flex justify-between items-start mb-2">
+            <div className="flex flex-col items-center -ml-1">
+              <span className={`text-4xl font-black ${style.text} leading-none drop-shadow-lg`}>
+                {player.averageRating.toFixed(0)}
+              </span>
+              <span className={`text-[10px] font-bold ${style.subtext} tracking-widest mt-1 uppercase`}>
+                {categoryShort[player.category]}
+              </span>
+              <div className={`h-0.5 w-6 bg-gradient-to-r ${style.accent} mt-1.5 rounded-full`} />
+            </div>
+            
+            <div className="flex-1 text-right mt-1 pl-2">
+              <div className={`text-xs font-bold ${style.subtext} mb-0.5 opacity-80 tracking-widest`}>
+                {rankLabels[rank as 1 | 2 | 3]}
+              </div>
+              <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md truncate`}>
+                {player.name}
+              </h2>
             </div>
           </div>
-          
-          {/* Card type badge - below rank */}
-          <div className="absolute top-10 right-3">
-            <div className={`${style.labelBg} px-2 py-0.5 rounded text-white text-[10px] font-bold tracking-wider`}>
-              {style.label}
+
+          {/* Middle Section: Avatar & Flag */}
+          <div className="flex-1 relative flex items-center justify-center my-1">
+            {/* Background Glow behind avatar */}
+            <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-20 blur-xl rounded-full transform scale-75`} />
+            
+            {/* Player Avatar */}
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/20">
+              <Image
+                src={avatarSrc}
+                alt={player.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+
+            {/* Floating Country Flag - Larger now */}
+            <div className="absolute -bottom-1 -right-1 transform rotate-3 shadow-xl hover:rotate-0 transition-transform duration-300">
+              <div className="relative w-10 h-7 rounded overflow-hidden border-2 border-white/20">
+                <Flag code={player.nationality} size="lg" className="w-full h-full object-cover scale-150" />
+              </div>
             </div>
           </div>
-          
-          {/* Name at top left */}
-          <div className="absolute top-3 left-3 right-16">
-            <h2 className={`text-sm sm:text-base font-black ${style.text} uppercase tracking-wide truncate`}>
-              {player.name}
-            </h2>
-          </div>
-          
-          {/* Rating and Class - below name, left side */}
-          <div className="absolute top-9 left-3 flex items-end gap-2">
-            <span className={`text-3xl sm:text-4xl font-black ${style.text} leading-none`}>
-              {player.averageRating.toFixed(0)}
-            </span>
-            <span className={`text-xs font-bold ${style.subtext} mb-1`}>
-              {categoryShort[player.category]}
-            </span>
-          </div>
-          
-          {/* Main content area - clan/flag on left, avatar on right */}
-          <div className="absolute top-20 bottom-3 left-3 right-3 flex">
-            {/* Left side - Clan logo and Flag */}
-            <div className="flex flex-col items-start gap-2 w-12">
-              {/* Clan logo */}
-              <div className="w-10 h-10 rounded-lg bg-black/80 flex items-center justify-center overflow-hidden shadow-lg">
-                {player.clan ? (
-                  <span className="text-white text-[10px] font-bold text-center px-1 leading-tight">
+
+          {/* Bottom Section: Division & Clan */}
+          <div className="mt-auto pt-3">
+            <div className={`h-0.5 w-full bg-gradient-to-r ${style.accent} mb-2 rounded-full opacity-50`} />
+            
+            <div className="flex justify-between items-end">
+              {/* Division */}
+              <div className="flex flex-col">
+                <span className={`text-[8px] font-bold ${style.subtext} opacity-60 uppercase tracking-widest`}>
+                  Division
+                </span>
+                <span className={`text-sm font-black ${style.text} drop-shadow-sm`}>
+                  {player.division || "-"}
+                </span>
+              </div>
+
+              {/* Clan Badge */}
+              {player.clan && (
+                <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-md border border-white/10 shadow-lg">
+                  <span className={`text-[10px] font-bold ${style.text} tracking-wide`}>
                     {player.clan}
-                  </span>
-                ) : (
-                  <div className="w-full h-full bg-black" />
-                )}
-              </div>
-              
-              {/* Country flag */}
-              <div className="w-10 h-7 rounded overflow-hidden shadow-lg bg-white/20 flex items-center justify-center">
-                <Flag code={player.nationality} size="md" />
-              </div>
-              
-              {/* Division badge */}
-              {player.division && (
-                <div className={`px-1.5 py-0.5 rounded ${style.labelBg}`}>
-                  <span className="text-white text-[8px] font-bold">
-                    DIV {player.division}
                   </span>
                 </div>
               )}
-            </div>
-            
-            {/* Right side - Player avatar */}
-            <div className="flex-1 flex items-start justify-end">
-              <div className="w-24 h-32 sm:w-28 sm:h-36 rounded-xl overflow-hidden shadow-2xl ring-2 ring-white/30 bg-black/10">
-                <Image
-                  src={avatarSrc}
-                  alt={player.name}
-                  width={112}
-                  height={144}
-                  className="w-full h-full object-cover"
-                />
-              </div>
             </div>
           </div>
         </div>

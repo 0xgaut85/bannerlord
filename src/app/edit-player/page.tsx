@@ -462,17 +462,17 @@ export default function EditPlayerPage() {
       <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center">
           <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
-            Authentication Required
-          </p>
+          Authentication Required
+        </p>
           <h1 className="font-display text-4xl font-bold text-white mb-4">
             Sign in to Continue
-          </h1>
+        </h1>
           <p className="text-white/60 mb-10">
             Connect your Discord account to edit player and clan information
-          </p>
+        </p>
           <Button onClick={() => signIn("discord")} size="lg" className="!bg-amber-500 !text-black hover:!bg-amber-400">
-            Sign in with Discord
-          </Button>
+          Sign in with Discord
+        </Button>
         </div>
       </div>
     )
@@ -536,44 +536,44 @@ export default function EditPlayerPage() {
             <h2 className="text-xl font-display font-bold text-white mb-6">
               Edit Player
             </h2>
-            
-            {/* Search */}
+      
+      {/* Search */}
             <div className="relative mb-6">
               <input
-                type="text"
-                placeholder="Search for a player..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+          type="text"
+          placeholder="Search for a player..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-              />
-              
-              {(searchResults.length > 0 || isSearching) && (
+        />
+        
+        {(searchResults.length > 0 || isSearching) && (
                 <div className="absolute top-full left-0 right-0 mt-2 z-10 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-60 overflow-y-auto shadow-xl">
-                  {isSearching ? (
+            {isSearching ? (
                     <div className="py-4 text-center text-white/40">Searching...</div>
-                  ) : (
-                    <div className="space-y-1">
-                      {searchResults.map((player) => (
-                        <button
-                          key={player.id}
-                          onClick={() => handleSelectPlayer(player)}
+            ) : (
+              <div className="space-y-1">
+                {searchResults.map((player) => (
+                  <button
+                    key={player.id}
+                    onClick={() => handleSelectPlayer(player)}
                           className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-colors text-left"
-                        >
+                  >
                           <Flag code={player.nationality} size="md" className="rounded" />
-                          <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0">
                             <div className="text-white font-medium truncate">{player.name}</div>
                             <div className="text-white/40 text-sm">{player.category} {player.clan && `- ${player.clan}`}</div>
-                          </div>
-                        </button>
-                      ))}
                     </div>
-                  )}
+                  </button>
+                ))}
+              </div>
+            )}
                 </div>
-              )}
-            </div>
-            
+        )}
+      </div>
+      
             {/* Selected Player Form */}
-            {selectedPlayer ? (
+      {selectedPlayer ? (
               <div className="space-y-4">
                 <div className="bg-white/5 rounded-xl p-4 mb-4">
                   <div className="flex items-center gap-3">
@@ -636,31 +636,31 @@ export default function EditPlayerPage() {
                       </button>
                     ))}
                   </div>
-                </div>
-                
-                <div>
+          </div>
+          
+            <div>
                   <label className="block text-white/70 text-sm mb-2">Nationality</label>
-                  <select
-                    value={nationality}
-                    onChange={(e) => setNationality(e.target.value)}
+              <select
+                value={nationality}
+                onChange={(e) => setNationality(e.target.value)}
                     className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-800 [&>option]:text-white"
-                  >
-                    <option value="">Select nationality</option>
-                    {countries.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {country.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
+              >
+                <option value="">Select nationality</option>
+                {countries.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
                 {/* Clan with autocomplete */}
                 <div className="relative">
                   <label className="block text-white/70 text-sm mb-2">Clan (type to search, or use &quot;FA&quot; for Free Agent)</label>
                   <input
                     type="text"
                     placeholder="Search clan or type FA..."
-                    value={clan}
+              value={clan}
                     onChange={(e) => {
                       setClan(e.target.value.toUpperCase())
                       setShowClanDropdown(true)
@@ -720,26 +720,26 @@ export default function EditPlayerPage() {
                   />
                 </div>
                 
-                {error && (
+            {error && (
                   <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300 text-sm">
-                    {error}
-                  </div>
-                )}
-                
-                {saveSuccess && (
+                {error}
+              </div>
+            )}
+            
+            {saveSuccess && (
                   <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-xl text-green-300 text-sm">
                     Request submitted! An admin will review your changes.
-                  </div>
-                )}
-                
-                <Button
-                  onClick={handleSave}
-                  isLoading={isSaving}
-                  className="w-full !bg-amber-500 !text-black hover:!bg-amber-400"
-                >
-                  Submit Edit Request
-                </Button>
               </div>
+            )}
+            
+            <Button
+              onClick={handleSave}
+              isLoading={isSaving}
+                  className="w-full !bg-amber-500 !text-black hover:!bg-amber-400"
+            >
+                  Submit Edit Request
+            </Button>
+          </div>
             ) : (
               <div className="text-center py-12 text-white/40">
                 <p className="text-lg mb-2">Search for a player above</p>
