@@ -6,6 +6,11 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "Bannerlord Ranking",
   description: "Rate and rank the best Mount & Blade II: Bannerlord players",
+  icons: {
+    icon: "/brlogo.jpg",
+    shortcut: "/brlogo.jpg",
+    apple: "/brlogo.jpg",
+  },
 }
 
 export default function RootLayout({
