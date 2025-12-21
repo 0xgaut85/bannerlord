@@ -24,7 +24,9 @@ export interface PlayerWithRating {
   id: string
   name: string
   category: PlayerCategory
-  nationality: string
+  nationality: string | null
+  clan: string | null
+  bio: string | null
   averageRating: number
   totalRatings: number
   rank?: number

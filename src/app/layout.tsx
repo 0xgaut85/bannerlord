@@ -7,7 +7,9 @@ export const metadata: Metadata = {
   title: "Bannerlord Ranking",
   description: "Rate and rank the best Mount & Blade II: Bannerlord players",
   icons: {
-    icon: "/brlogo.jpg",
+    icon: [
+      { url: "/brlogo.jpg", type: "image/jpeg" },
+    ],
     shortcut: "/brlogo.jpg",
     apple: "/brlogo.jpg",
   },

@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    const { playerId, nationality, clan } = body
+    const { playerId, nationality, clan, bio } = body
     
     if (!playerId) {
       return NextResponse.json(
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
         playerId,
         suggestedNationality: nationality || null,
         suggestedClan: clan || null,
+        suggestedBio: bio?.slice(0, 240) || null,
       }
     })
     

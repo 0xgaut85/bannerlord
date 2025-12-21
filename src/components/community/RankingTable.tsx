@@ -67,7 +67,7 @@ export function RankingTable({ players, isLoading, dark, initialLimit = 20 }: Ra
               "flex items-center gap-3 p-3 rounded-xl border transition-all hover:scale-[1.01]",
               styles.bg,
               styles.border,
-              player.rank && player.rank <= 3 && "p-4"
+              player.rank !== undefined && player.rank <= 3 ? "p-4" : ""
             )}
           >
             {/* Rank */}

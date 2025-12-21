@@ -93,6 +93,7 @@ model Player {
   category    PlayerCategory
   nationality String?        // ISO country code (FR, DE, PL, etc.)
   clan        String?        // Player's clan/team
+  bio         String?        // Player bio (max 240 chars)
   
   ratings     Rating[]
   editRequests EditRequest[]
@@ -127,6 +128,7 @@ model EditRequest {
   
   suggestedClan        String?
   suggestedNationality String?
+  suggestedBio         String?
   
   status      RequestStatus @default(PENDING)
   createdAt   DateTime      @default(now())

@@ -25,7 +25,8 @@ export async function POST(
         where: { id: editRequest.playerId },
         data: {
           nationality: editRequest.suggestedNationality || editRequest.player.nationality,
-          clan: editRequest.suggestedClan || editRequest.player.clan
+          clan: editRequest.suggestedClan || editRequest.player.clan,
+          bio: editRequest.suggestedBio || editRequest.player.bio,
         }
       })
       

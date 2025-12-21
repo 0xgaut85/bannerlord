@@ -56,6 +56,8 @@ export async function GET(request: NextRequest) {
           name: player.name,
           category: player.category,
           nationality: player.nationality,
+          clan: player.clan,
+          bio: player.bio,
           averageRating: Math.round(averageRating * 100) / 100,
           totalRatings: player.ratings.length,
         }
