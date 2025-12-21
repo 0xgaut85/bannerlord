@@ -1,40 +1,43 @@
 "use client"
 
-import { signIn, getSession } from "next-auth/react"
-import { useEffect, useState } from "react"
+import { signIn, useSession } from "next-auth/react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui"
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { data: session, status } = useSession()
   const [error, setError] = useState<string | null>(null)
 
   // Check if user is already signed in
   useEffect(() => {
-    getSession().then((session) => {
-      if (session) {
-        const callbackUrl = searchParams.get("callbackUrl") || "/"
-        router.push(callbackUrl)
-      }
-    })
-  }, [router, searchParams])
+    if (status === "authenticated" && session) {
+      const callbackUrl = searchParams.get("callbackUrl") || "/"
+      router.push(callbackUrl)
+    }
+  }, [router, searchParams, session, status])
 
   const handleSignIn = async () => {
     try {
       setError(null)
-      const result = await signIn("discord", { 
+      await signIn("discord", { 
         callbackUrl: "/",
         redirect: true 
       })
-      
-      if (result?.error) {
-        setError("Sign in failed. Please try again.")
-      }
     } catch (err) {
       setError("An error occurred. Please try again.")
       console.error("Sign in error:", err)
     }
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="page-transition min-h-[60vh] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#c9a962] border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -72,5 +75,17 @@ export default function SignInPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#c9a962] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   )
 }
