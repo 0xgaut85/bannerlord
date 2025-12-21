@@ -23,8 +23,8 @@ export const DIVISION_DEFAULT_RATINGS: Record<Division, number> = {
 // Minimum ratings required for user eligibility (to count their votes)
 export const MIN_RATINGS = {
   INFANTRY: 20,
-  CAVALRY: 20,
-  ARCHER: 10,
+  CAVALRY: 10,
+  ARCHER: 5,
 } as const
 
 // Minimum ratings for a player to appear in global ranking
