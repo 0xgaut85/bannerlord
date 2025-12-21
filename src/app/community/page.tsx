@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { PlayerWithRating } from "@/types"
-import { getFlagEmoji, cn } from "@/lib/utils"
+import { Flag } from "@/components/ui"
+import { cn } from "@/lib/utils"
 
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
@@ -169,7 +170,7 @@ export default function CommunityPage() {
                       className="flex items-center gap-2 p-2 rounded-lg bg-white/5 text-sm"
                     >
                       <span className="text-white/40 w-8">#{player.rank}</span>
-                      <span className="text-lg">{player.nationality ? getFlagEmoji(player.nationality) : "🇪🇺"}</span>
+                      <Flag code={player.nationality} size="sm" />
                       <span className="text-white/80 truncate flex-1">{player.name}</span>
                       <span className="text-white/60 font-mono">{player.averageRating.toFixed(1)}</span>
                     </div>
@@ -200,7 +201,6 @@ function TopPlayerCard({
   rank: number
   isCenter: boolean
 }) {
-  const flag = player.nationality ? getFlagEmoji(player.nationality) : "🇪🇺"
   const ratingStyle = getRatingStyle(player.averageRating)
   
   const medals = { 1: "🥇", 2: "🥈", 3: "🥉" }
@@ -239,7 +239,9 @@ function TopPlayerCard({
           </div>
           
           {/* Flag */}
-          <div className="text-5xl mb-3">{flag}</div>
+          <div className="flex justify-center mb-3">
+            <Flag code={player.nationality} size="xl" className="rounded shadow-md" />
+          </div>
           
           {/* Name */}
           <h3 className={`text-xl font-black ${ratingStyle.text} uppercase tracking-wide mb-1`}>
@@ -265,13 +267,11 @@ function TopPlayerCard({
 
 // Elite player card (4-15)
 function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
-  const flag = player.nationality ? getFlagEmoji(player.nationality) : "🇪🇺"
-  
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/15 transition-all">
       <div className="flex items-center gap-3">
         <div className="text-white/40 font-bold text-lg w-8">#{player.rank}</div>
-        <div className="text-3xl">{flag}</div>
+        <Flag code={player.nationality} size="lg" className="rounded" />
         <div className="flex-1 min-w-0">
           <h3 className="text-white font-semibold truncate">{player.name}</h3>
           {player.clan && <p className="text-white/50 text-xs">{player.clan}</p>}
@@ -289,13 +289,11 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
 
 // Compact player card (16-30)
 function CompactPlayerCard({ player }: { player: PlayerWithRating }) {
-  const flag = player.nationality ? getFlagEmoji(player.nationality) : "🇪🇺"
-  
   return (
     <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:bg-white/10 transition-all">
       <div className="flex items-center gap-2">
         <span className="text-white/30 text-sm w-6">#{player.rank}</span>
-        <span className="text-xl">{flag}</span>
+        <Flag code={player.nationality} size="md" className="rounded" />
         <span className="text-white/80 text-sm truncate flex-1">{player.name}</span>
       </div>
       <div className="flex items-center justify-between mt-1">

@@ -1,8 +1,7 @@
 "use client"
 
 import { Player } from "@prisma/client"
-import { Button, Slider } from "@/components/ui"
-import { getFlagEmoji } from "@/lib/utils"
+import { Button, Slider, Flag } from "@/components/ui"
 
 interface FifaCardProps {
   player: Player
@@ -46,10 +45,6 @@ export function FifaCard({
   currentIndex,
   totalPlayers,
 }: FifaCardProps) {
-  const flag = player.nationality 
-    ? getFlagEmoji(player.nationality) 
-    : "🇪🇺"
-  
   const icon = categoryIcons[player.category] || "⚔️"
   const { gradient, shine } = getRatingGradient(currentRating)
   
@@ -102,8 +97,8 @@ export function FifaCard({
         {/* Player Info - Center */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 pt-12">
           {/* Flag */}
-          <div className="text-5xl mb-2 drop-shadow-lg">
-            {flag}
+          <div className="mb-3 drop-shadow-lg">
+            <Flag code={player.nationality} size="xl" className="rounded shadow-md" />
           </div>
           
           {/* Name */}

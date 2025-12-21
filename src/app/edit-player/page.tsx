@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { useSession, signIn } from "next-auth/react"
-import { Button, Card, Input } from "@/components/ui"
+import { Button, Card, Input, Flag } from "@/components/ui"
 import { useDebounce } from "@/hooks/useDebounce"
-import { COUNTRY_NAMES, getFlagEmoji, cn } from "@/lib/utils"
+import { COUNTRY_NAMES, cn } from "@/lib/utils"
 import { Player, PlayerCategory } from "@prisma/client"
 
 const countries = Object.entries(COUNTRY_NAMES).map(([code, name]) => ({
@@ -264,7 +264,7 @@ export default function EditPlayerPage() {
                         onClick={() => handleSelectPlayer(player)}
                         className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-colors text-left"
                       >
-                        <span className="text-xl">{player.nationality ? getFlagEmoji(player.nationality) : "🇪🇺"}</span>
+                        <Flag code={player.nationality} size="md" className="rounded" />
                         <div className="flex-1 min-w-0">
                           <div className="text-white font-medium truncate">{player.name}</div>
                           <div className="text-white/40 text-sm">{player.category} {player.clan && `• ${player.clan}`}</div>
@@ -282,7 +282,7 @@ export default function EditPlayerPage() {
             <div className="space-y-4">
               <div className="bg-white/5 rounded-xl p-4 mb-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl">{selectedPlayer.nationality ? getFlagEmoji(selectedPlayer.nationality) : "🇪🇺"}</span>
+                  <Flag code={selectedPlayer.nationality} size="lg" className="rounded" />
                   <div>
                     <h3 className="text-white font-semibold text-lg">{selectedPlayer.name}</h3>
                     <p className="text-white/40 text-sm">{selectedPlayer.category}</p>
@@ -367,7 +367,9 @@ export default function EditPlayerPage() {
             // User is already a player
             <div className="space-y-6">
               <div className="bg-black/20 rounded-xl p-6 text-center">
-                <div className="text-5xl mb-4">{myPlayer.nationality ? getFlagEmoji(myPlayer.nationality) : "🇪🇺"}</div>
+                <div className="flex justify-center mb-4">
+                  <Flag code={myPlayer.nationality} size="xl" className="rounded shadow-md" />
+                </div>
                 <h3 className="text-2xl font-bold text-white mb-1">{myPlayer.name}</h3>
                 <p className="text-amber-400 font-medium">{myPlayer.category}</p>
                 {myPlayer.clan && <p className="text-white/60 mt-1">{myPlayer.clan}</p>}
