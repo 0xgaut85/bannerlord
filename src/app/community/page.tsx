@@ -83,10 +83,12 @@ export default function CommunityPage() {
           <span className="font-medium text-[#1a1a1a]">How rankings work:</span>{" "}
           Each player&apos;s score is calculated from the weighted average of all eligible votes.
         </p>
-        <p>
+        <p className="mb-3">
           <span className="font-medium text-[#1a1a1a]">Vote weight:</span>{" "}
-          A (100%) · B (75%) · C/D (50%) · E/F (25%).
-          Only users who have rated at least 20 Infantry, 20 Cavalry, and 10 Archers are counted.
+          Division A (100%) · Division B (75%) · Division C/D (50%) · Division E/F (25%).
+        </p>
+        <p>
+          Only users&apos; lists who have rated at least 20 Infantry, 20 Cavalry, and 10 Archers are counted.
         </p>
       </div>
     </div>
