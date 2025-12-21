@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { Card, Badge, Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui"
 import { EligibilityProgress } from "@/components/rating"
 import { Division, PlayerCategory } from "@prisma/client"
@@ -126,7 +127,13 @@ export function UserRatingsList({ userId, onBack }: UserRatingsListProps) {
       {/* User Info */}
       <Card className="flex items-center gap-4">
         {user.image ? (
-          <img src={user.image} alt="" className="w-16 h-16 rounded-full ring-2 ring-white/50" />
+          <Image 
+            src={user.image} 
+            alt="" 
+            width={64}
+            height={64}
+            className="w-16 h-16 rounded-full ring-2 ring-white/50 object-cover" 
+          />
         ) : (
           <div className="w-16 h-16 rounded-full bg-[#c9a962]/20 flex items-center justify-center">
             <span className="font-display text-xl font-semibold text-[#c9a962]">

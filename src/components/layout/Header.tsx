@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useSession, signIn, signOut } from "next-auth/react"
 import { useState } from "react"
@@ -91,10 +92,12 @@ export function Header() {
                   )}
                 >
                   {session.user?.image ? (
-                    <img 
+                    <Image 
                       src={session.user.image} 
                       alt="" 
-                      className="w-7 h-7 rounded-full ring-2 ring-white/20"
+                      width={28}
+                      height={28}
+                      className="w-7 h-7 rounded-full ring-2 ring-white/20 object-cover"
                     />
                   ) : (
                     <div className="w-7 h-7 rounded-full bg-[#c9a962]/20 flex items-center justify-center">

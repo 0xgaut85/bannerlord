@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSession, signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { Button, Card, Input, Badge } from "@/components/ui"
 import { EligibilityProgress } from "@/components/rating"
 import { Division } from "@prisma/client"
@@ -107,10 +108,12 @@ export default function ProfilePage() {
       <Card className="mb-6">
         <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/30">
           {session?.user?.image ? (
-            <img 
+            <Image 
               src={session.user.image} 
               alt="" 
-              className="w-16 h-16 rounded-full ring-2 ring-white/50"
+              width={64}
+              height={64}
+              className="w-16 h-16 rounded-full ring-2 ring-white/50 object-cover"
             />
           ) : (
             <div className="w-16 h-16 rounded-full bg-[#c9a962]/20 flex items-center justify-center">
