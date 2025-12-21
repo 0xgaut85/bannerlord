@@ -58,18 +58,64 @@ export default function AdminPage() {
 
   const fetchAnomalies = async () => {
     try {
-      // Force fresh fetch with cache-busting
-      const res = await fetch("/api/admin/anomalies?t=" + Date.now(), {
+      // Force fresh fetch with multiple cache-busting techniques
+      const timestamp = Date.now()
+      const random = Math.random().toString(36).substring(7)
+      const res = await fetch(`/api/admin/anomalies?_t=${timestamp}&_r=${random}`, {
+        method: 'GET',
         cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache' }
+        headers: { 
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       })
       if (res.ok) {
         const data = await res.json()
         setAnomalies(data)
+        return data
       }
     } catch (error) {
       console.error("Error fetching anomalies:", error)
     }
+    return []
+  }
+
+  // Helper to delete a single rating with retries
+  const deleteRating = async (ratingId: string): Promise<boolean> => {
+    const maxRetries = 3
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await fetch(`/api/admin/ratings/${ratingId}?_t=${Date.now()}`, {
+          method: "DELETE",
+          cache: 'no-store',
+          headers: { 
+            'Cache-Control': 'no-cache, no-store',
+            'Pragma': 'no-cache'
+          }
+        })
+        
+        const data = await res.json()
+        if (data.success) {
+          return true
+        }
+        
+        // If not found, it was already deleted
+        if (res.status === 404 || data.alreadyDeleted) {
+          return true
+        }
+        
+        console.log(`Delete attempt ${attempt} failed for ${ratingId}, retrying...`)
+      } catch (error) {
+        console.error(`Delete attempt ${attempt} error for ${ratingId}:`, error)
+      }
+      
+      // Wait before retry (exponential backoff)
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, 200 * attempt))
+      }
+    }
+    return false
   }
 
   const handleDeleteAnomaly = async (ratingId: string) => {
@@ -78,20 +124,17 @@ export default function AdminPage() {
     // Optimistically remove from UI immediately
     setAnomalies(prev => prev.filter(a => a.id !== ratingId))
     
-    try {
-      const res = await fetch(`/api/admin/ratings/${ratingId}`, {
-        method: "DELETE",
-        cache: 'no-store'
-      })
-      
-      if (!res.ok) {
-        // If delete failed, refresh to get actual state
-        alert("Failed to delete rating - refreshing list")
-        await fetchAnomalies()
-      }
-    } catch (error) {
-      alert("Error deleting rating - refreshing list")
-      await fetchAnomalies()
+    const success = await deleteRating(ratingId)
+    
+    // Always refresh after a short delay to verify
+    await new Promise(r => setTimeout(r, 300))
+    const freshData = await fetchAnomalies()
+    
+    // Check if the rating is still there
+    if (freshData.some((a: any) => a.id === ratingId)) {
+      alert("Warning: Rating may not have been deleted. Please try again.")
+    } else if (!success) {
+      alert("Rating deleted (or was already deleted)")
     }
   }
 
@@ -110,31 +153,24 @@ export default function AdminPage() {
     let deleted = 0
     let failed = 0
     
+    // Delete with small delays between each to avoid overwhelming the server
     for (const anomaly of toDelete) {
-      try {
-        const res = await fetch(`/api/admin/ratings/${anomaly.id}`, {
-          method: "DELETE",
-          cache: 'no-store'
-        })
-        if (res.ok) {
-          deleted++
-        } else {
-          failed++
-        }
-      } catch (error) {
-        console.error("Error deleting rating:", error)
+      const success = await deleteRating(anomaly.id)
+      if (success) {
+        deleted++
+      } else {
         failed++
       }
+      // Small delay between deletions
+      await new Promise(r => setTimeout(r, 100))
     }
+    
+    // Always refresh to verify
+    await new Promise(r => setTimeout(r, 500))
+    await fetchAnomalies()
     
     setLoading(false)
-    
-    if (failed > 0) {
-      alert(`Deleted ${deleted} ratings. ${failed} failed - refreshing list.`)
-      await fetchAnomalies()
-    } else {
-      alert(`Successfully deleted ${deleted} ratings`)
-    }
+    alert(`Deleted ${deleted} ratings${failed > 0 ? `. ${failed} may have failed - list refreshed.` : ''}`)
   }
 
   const handleBulkDeleteByType = async (type: string) => {
@@ -153,31 +189,23 @@ export default function AdminPage() {
     let deleted = 0
     let failed = 0
     
+    // Delete with small delays between each
     for (const anomaly of toDelete) {
-      try {
-        const res = await fetch(`/api/admin/ratings/${anomaly.id}`, {
-          method: "DELETE",
-          cache: 'no-store'
-        })
-        if (res.ok) {
-          deleted++
-        } else {
-          failed++
-        }
-      } catch (error) {
-        console.error("Error deleting rating:", error)
+      const success = await deleteRating(anomaly.id)
+      if (success) {
+        deleted++
+      } else {
         failed++
       }
+      await new Promise(r => setTimeout(r, 100))
     }
+    
+    // Always refresh to verify
+    await new Promise(r => setTimeout(r, 500))
+    await fetchAnomalies()
     
     setLoading(false)
-    
-    if (failed > 0) {
-      alert(`Deleted ${deleted} ratings. ${failed} failed - refreshing list.`)
-      await fetchAnomalies()
-    } else {
-      alert(`Successfully deleted ${deleted} ratings`)
-    }
+    alert(`Deleted ${deleted} ratings${failed > 0 ? `. ${failed} may have failed - list refreshed.` : ''}`)
   }
 
   const fetchPlayerRequests = async () => {
