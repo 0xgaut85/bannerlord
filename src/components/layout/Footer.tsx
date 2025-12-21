@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 export function Footer() {
@@ -23,8 +24,17 @@ export function Footer() {
               Ranking
             </span>
           </div>
-          <div className="text-sm text-[#8a8a8a]">
-            Crafted by <span className="font-medium text-[#c9a962]">Obelix</span>
+          
+          <div className="flex items-center gap-6 text-sm text-[#8a8a8a]">
+            <Link href="/privacy" className="hover:text-[#1a1a1a] transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-[#1a1a1a] transition-colors">
+              Terms
+            </Link>
+            <span>
+              Crafted by <span className="font-medium text-[#c9a962]">Obelix</span>
+            </span>
           </div>
         </div>
       </div>

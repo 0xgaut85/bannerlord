@@ -1,9 +1,22 @@
 "use client"
 
-import { signIn } from "next-auth/react"
+import { signIn, getSession } from "next-auth/react"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui"
 
 export default function SignInPage() {
+  const router = useRouter()
+
+  // Check if user is already signed in
+  useEffect(() => {
+    getSession().then((session) => {
+      if (session) {
+        router.push("/")
+      }
+    })
+  }, [router])
+
   return (
     <div className="page-transition min-h-[60vh] flex items-center justify-center px-6">
       <div className="max-w-md w-full text-center">

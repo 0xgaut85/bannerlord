@@ -40,19 +40,27 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async signIn({ user, account, profile }) {
-      if (account?.provider === "discord" && profile) {
-        // Only link the account, don't auto-fill profile data
-        // User will fill this in via the onboarding flow
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            discordId: account.providerAccountId,
-            // We use the ID as a fallback name initially, user must set their real in-game name
-            discordName: null, 
-          }
-        }).catch(() => {
-          // User might not exist yet, that's fine
-        })
+      if (account?.provider === "discord") {
+        try {
+          // Use upsert to handle both new and existing users
+          await prisma.user.upsert({
+            where: { id: user.id },
+            update: {
+              discordId: account.providerAccountId,
+            },
+            create: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              discordId: account.providerAccountId,
+              discordName: null, // User will set this in onboarding
+            }
+          })
+        } catch (error) {
+          console.error("Error updating user during sign-in:", error)
+          // Don't block sign-in if there's an error
+        }
       }
       return true
     }
