@@ -96,7 +96,7 @@ export function RankingTable({ players, isLoading, dark, initialLimit = 20 }: Ra
               <h3 className={cn(
                 "font-semibold truncate",
                 styles.text,
-                player.rank && player.rank <= 3 && "text-lg"
+                player.rank !== undefined && player.rank >= 1 && player.rank <= 3 ? "text-lg" : ""
               )}>
                 {player.name}
               </h3>
