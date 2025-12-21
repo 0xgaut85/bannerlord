@@ -432,6 +432,7 @@ export default function EditPlayerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clanId: editingClan.id,
+          clanShortName: editingClan.shortName, // Include current shortName for lookup
           suggestedName: editClanName !== editingClan.name ? editClanName : null,
           suggestedShortName: editClanShortName !== editingClan.shortName ? editClanShortName : null,
           suggestedYear: editClanYear || null,
