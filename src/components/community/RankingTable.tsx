@@ -7,16 +7,20 @@ import { cn } from "@/lib/utils"
 interface RankingTableProps {
   players: PlayerWithRating[]
   isLoading?: boolean
+  dark?: boolean
 }
 
-export function RankingTable({ players, isLoading }: RankingTableProps) {
+export function RankingTable({ players, isLoading, dark }: RankingTableProps) {
   if (isLoading) {
     return (
       <div className="space-y-3">
         {[...Array(10)].map((_, i) => (
           <div 
             key={i} 
-            className="h-16 glass rounded-xl animate-pulse"
+            className={cn(
+              "h-16 rounded-xl animate-pulse",
+              dark ? "bg-white/5" : "glass"
+            )}
             style={{ animationDelay: `${i * 50}ms` }}
           />
         ))}
@@ -26,7 +30,10 @@ export function RankingTable({ players, isLoading }: RankingTableProps) {
   
   if (players.length === 0) {
     return (
-      <div className="text-center py-16 text-[#8a8a8a]">
+      <div className={cn(
+        "text-center py-16",
+        dark ? "text-white/40" : "text-[#8a8a8a]"
+      )}>
         <p className="font-display text-xl">No players found</p>
         <p className="text-sm mt-2">Check back later</p>
       </div>
@@ -38,11 +45,11 @@ export function RankingTable({ players, isLoading }: RankingTableProps) {
       case 1:
         return <span className="font-display text-2xl font-semibold text-[#c9a962]">1st</span>
       case 2:
-        return <span className="font-display text-2xl font-semibold text-[#8a8a8a]">2nd</span>
+        return <span className={cn("font-display text-2xl font-semibold", dark ? "text-white/60" : "text-[#8a8a8a]")}>2nd</span>
       case 3:
         return <span className="font-display text-2xl font-semibold text-[#a67c52]">3rd</span>
       default:
-        return <span className="text-lg font-medium text-[#8a8a8a]">{rank}</span>
+        return <span className={cn("text-lg font-medium", dark ? "text-white/40" : "text-[#8a8a8a]")}>{rank}</span>
     }
   }
   
@@ -63,7 +70,9 @@ export function RankingTable({ players, isLoading }: RankingTableProps) {
           variant={getCardVariant(player.rank || 0)}
           className={cn(
             "flex items-center gap-4 p-4 hover-lift",
-            player.rank !== undefined && player.rank <= 3 && "py-5"
+            player.rank !== undefined && player.rank <= 3 && "py-5",
+            dark && !player.rank && "bg-[#111] border-[#222]",
+            dark && (player.rank || 0) > 3 && "bg-[#111] border-[#222]"
           )}
         >
           {/* Rank */}
@@ -78,11 +87,11 @@ export function RankingTable({ players, isLoading }: RankingTableProps) {
               player.rank === 1 && "text-lg text-[#a68b47]",
               player.rank === 2 && "text-lg text-[#5a5a5a]",
               player.rank === 3 && "text-lg text-[#8b5a2b]",
-              (!player.rank || player.rank > 3) && "text-[#1a1a1a]"
+              (!player.rank || player.rank > 3) && (dark ? "text-white" : "text-[#1a1a1a]")
             )}>
               {player.name}
             </h3>
-            <p className="text-xs text-[#8a8a8a] mt-0.5">
+            <p className={cn("text-xs mt-0.5", dark ? "text-white/40" : "text-[#8a8a8a]")}>
               {player.nationality}
             </p>
           </div>
@@ -100,7 +109,7 @@ export function RankingTable({ players, isLoading }: RankingTableProps) {
               player.rank === 1 && "text-[#c9a962]",
               player.rank === 2 && "text-[#5a5a5a]",
               player.rank === 3 && "text-[#a67c52]",
-              (!player.rank || player.rank > 3) && "text-[#1a1a1a]"
+              (!player.rank || player.rank > 3) && (dark ? "text-white" : "text-[#1a1a1a]")
             )}>
               {player.averageRating > 0 ? player.averageRating.toFixed(1) : "—"}
             </div>

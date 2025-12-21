@@ -35,9 +35,9 @@ export default function CommunityPage() {
   }, [])
   
   return (
-    <div className="page-transition w-full px-4 lg:px-8 py-12 sm:py-16">
+    <div className="page-transition w-full min-h-screen flex flex-col">
       {/* Header */}
-      <div className="text-center mb-12">
+      <div className="text-center py-12 sm:py-16 bg-[#f5f5f5]">
         <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#c9a962] mb-4">
           Community Rankings
         </p>
@@ -49,25 +49,25 @@ export default function CommunityPage() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Infantry Column */}
-        <div>
-          <h2 className="text-xl font-display font-semibold text-[#1a1a1a] mb-6 flex items-center gap-3 justify-center border-b border-[#e5e5e5] pb-4">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3">
+        {/* Infantry Column - Black */}
+        <div className="bg-[#0a0a0a] p-8">
+          <h2 className="text-xl font-display font-semibold text-white mb-6 flex items-center gap-3 justify-center border-b border-white/10 pb-4">
             Infantry
           </h2>
-          <RankingTable players={infantryPlayers} isLoading={isLoading} />
+          <RankingTable players={infantryPlayers} isLoading={isLoading} dark />
         </div>
 
-        {/* Cavalry Column */}
-        <div>
+        {/* Cavalry Column - White */}
+        <div className="bg-white p-8 border-x border-[#e5e5e5]">
           <h2 className="text-xl font-display font-semibold text-[#1a1a1a] mb-6 flex items-center gap-3 justify-center border-b border-[#e5e5e5] pb-4">
             Cavalry
           </h2>
           <RankingTable players={cavalryPlayers} isLoading={isLoading} />
         </div>
 
-        {/* Archer Column */}
-        <div>
+        {/* Archer Column - Light Gray */}
+        <div className="bg-[#f5f5f5] p-8">
           <h2 className="text-xl font-display font-semibold text-[#1a1a1a] mb-6 flex items-center gap-3 justify-center border-b border-[#e5e5e5] pb-4">
             Archer
           </h2>
