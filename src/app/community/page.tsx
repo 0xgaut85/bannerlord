@@ -385,10 +385,10 @@ function FifaDisplayCard({
             {/* Background Glow behind avatar */}
             <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} style={{ transform: 'scale(0.6)' }} />
             
-            {/* Clan Logo on left - if exists */}
-            {clanLogo && (
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 shadow-xl z-20">
-                <div className="w-8 h-8 rounded-lg overflow-hidden border-2 border-white/20 bg-black/30">
+            {/* Clan Logo on left - black square if no logo */}
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 shadow-xl z-20">
+              <div className="w-8 h-8 rounded-lg overflow-hidden border-2 border-white/20 bg-black">
+                {clanLogo ? (
                   <Image
                     src={clanLogo}
                     alt="Clan"
@@ -396,9 +396,11 @@ function FifaDisplayCard({
                     height={32}
                     className="w-full h-full object-cover"
                   />
-                </div>
+                ) : (
+                  <div className="w-full h-full bg-black" />
+                )}
               </div>
-            )}
+            </div>
             
             {/* Player Avatar */}
             <div className="relative w-22 h-22 sm:w-26 sm:h-26 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30">

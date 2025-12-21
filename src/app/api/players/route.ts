@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
 import { PlayerCategory, Division } from "@prisma/client"
-import { DIVISION_DEFAULT_RATINGS } from "@/lib/utils"
+import { DIVISION_DEFAULT_RATINGS, getDivisionFromRating } from "@/lib/utils"
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,6 +27,11 @@ export async function GET(request: NextRequest) {
     const players = await prisma.player.findMany({
       where,
       orderBy: { name: "asc" },
+      include: {
+        ratings: {
+          select: { score: true }
+        }
+      }
     })
     
     // Get all unique clan names and fetch their logos
@@ -49,13 +54,33 @@ export async function GET(request: NextRequest) {
       clanLogos[c.shortName] = c.logo
     })
     
-    // Add clanLogo to each player
-    const playersWithLogos = players.map(player => ({
-      ...player,
-      clanLogo: player.clan ? clanLogos[player.clan] || null : null,
-    }))
+    // Add clanLogo and calculated division to each player
+    const playersWithExtras = players.map(player => {
+      // Calculate average rating if has ratings, otherwise use division default
+      let avgRating = 70 // default
+      if (player.ratings.length > 0) {
+        avgRating = player.ratings.reduce((sum, r) => sum + r.score, 0) / player.ratings.length
+      } else if (player.division) {
+        avgRating = DIVISION_DEFAULT_RATINGS[player.division]
+      }
+      
+      // Calculate division from rating if not set
+      const calculatedDivision = player.division || getDivisionFromRating(avgRating)
+      
+      return {
+        id: player.id,
+        name: player.name,
+        category: player.category,
+        nationality: player.nationality,
+        clan: player.clan,
+        bio: player.bio,
+        avatar: player.avatar,
+        division: calculatedDivision,
+        clanLogo: player.clan ? clanLogos[player.clan] || null : null,
+      }
+    })
     
-    return NextResponse.json(playersWithLogos)
+    return NextResponse.json(playersWithExtras)
   } catch (error) {
     console.error("Players GET error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

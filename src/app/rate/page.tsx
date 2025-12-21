@@ -104,7 +104,7 @@ export default function RatePage() {
   useEffect(() => {
     let filtered = [...players]
     
-    // Filter by division
+    // Filter by division (API now returns calculated division for all players)
     if (selectedDivisions.length > 0) {
       filtered = filtered.filter(p => p.division && selectedDivisions.includes(p.division))
     }
