@@ -141,6 +141,8 @@ model EditRequest {
   suggestedClan        String?
   suggestedNationality String?
   suggestedBio         String?
+  suggestedAvatar      String?
+  suggestedDivision    Division?
   
   status      RequestStatus @default(PENDING)
   createdAt   DateTime      @default(now())

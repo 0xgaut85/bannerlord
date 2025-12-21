@@ -40,9 +40,17 @@ export default function EditPlayerPage() {
   const [nationality, setNationality] = useState("")
   const [clan, setClan] = useState("")
   const [bio, setBio] = useState("")
+  const [avatar, setAvatar] = useState<string | null>(null)
+  const [division, setDivision] = useState<Division | "">("")
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isUploadingEditAvatar, setIsUploadingEditAvatar] = useState(false)
+  
+  // Clan autocomplete for edit form
+  const [clanOptions, setClanOptions] = useState<Clan[]>([])
+  const [showClanDropdown, setShowClanDropdown] = useState(false)
+  const debouncedClanInput = useDebounce(clan, 300)
   
   // Right side - User's own profile
   const [myPlayer, setMyPlayer] = useState<Player | null>(null)
@@ -58,10 +66,14 @@ export default function EditPlayerPage() {
   const [createSuccess, setCreateSuccess] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   
+  // New player clan autocomplete
+  const [newPlayerClanOptions, setNewPlayerClanOptions] = useState<Clan[]>([])
+  const [showNewPlayerClanDropdown, setShowNewPlayerClanDropdown] = useState(false)
+  const debouncedNewPlayerClan = useDebounce(newPlayerClan, 300)
+  
   // Clan editing
   const [clans, setClans] = useState<Clan[]>([])
   const [clanSearch, setClanSearch] = useState("")
-  const [selectedClan, setSelectedClan] = useState<Clan | null>(null)
   const [newClanName, setNewClanName] = useState("")
   const [newClanShortName, setNewClanShortName] = useState("")
   const [newClanLogo, setNewClanLogo] = useState<string | null>(null)
@@ -71,6 +83,7 @@ export default function EditPlayerPage() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   
   const avatarInputRef = useRef<HTMLInputElement>(null)
+  const editAvatarInputRef = useRef<HTMLInputElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
   
   const debouncedSearch = useDebounce(searchQuery, 300)
@@ -101,7 +114,51 @@ export default function EditPlayerPage() {
     searchPlayers()
   }, [debouncedSearch])
   
-  // Search clans
+  // Clan autocomplete for edit form
+  useEffect(() => {
+    async function fetchClans() {
+      if (debouncedClanInput.length < 1) {
+        setClanOptions([])
+        return
+      }
+      
+      try {
+        const res = await fetch(`/api/clans?search=${encodeURIComponent(debouncedClanInput)}`)
+        if (res.ok) {
+          const data = await res.json()
+          setClanOptions(data)
+        }
+      } catch (err) {
+        console.error("Clan fetch error:", err)
+      }
+    }
+    
+    fetchClans()
+  }, [debouncedClanInput])
+  
+  // Clan autocomplete for new player form
+  useEffect(() => {
+    async function fetchClans() {
+      if (debouncedNewPlayerClan.length < 1) {
+        setNewPlayerClanOptions([])
+        return
+      }
+      
+      try {
+        const res = await fetch(`/api/clans?search=${encodeURIComponent(debouncedNewPlayerClan)}`)
+        if (res.ok) {
+          const data = await res.json()
+          setNewPlayerClanOptions(data)
+        }
+      } catch (err) {
+        console.error("Clan fetch error:", err)
+      }
+    }
+    
+    fetchClans()
+  }, [debouncedNewPlayerClan])
+  
+  // Search clans for clan tab
   useEffect(() => {
     async function searchClans() {
       if (debouncedClanSearch.length < 2) {
@@ -155,6 +212,8 @@ export default function EditPlayerPage() {
       setNationality(selectedPlayer.nationality || "")
       setClan(selectedPlayer.clan || "")
       setBio(selectedPlayer.bio || "")
+      setAvatar((selectedPlayer as any).avatar || null)
+      setDivision((selectedPlayer as any).division || "")
     }
   }, [selectedPlayer])
   
@@ -166,8 +225,27 @@ export default function EditPlayerPage() {
     setError(null)
   }
   
+  const handleSelectClan = (clanShortName: string) => {
+    setClan(clanShortName)
+    setShowClanDropdown(false)
+  }
+  
+  const handleSelectNewPlayerClan = (clanShortName: string) => {
+    setNewPlayerClan(clanShortName)
+    setShowNewPlayerClanDropdown(false)
+  }
+  
   const handleSave = async () => {
     if (!selectedPlayer) return
+    
+    // Validate clan - must be existing clan, "FA", or empty
+    if (clan && clan.toUpperCase() !== "FA") {
+      const validClan = clanOptions.find(c => c.shortName.toUpperCase() === clan.toUpperCase())
+      if (!validClan && clan !== selectedPlayer.clan) {
+        setError("Please select a valid clan from the list, use 'FA' for Free Agent, or leave empty")
+        return
+      }
+    }
     
     setIsSaving(true)
     setError(null)
@@ -180,8 +258,10 @@ export default function EditPlayerPage() {
         body: JSON.stringify({ 
           playerId: selectedPlayer.id,
           nationality, 
-          clan,
-          bio 
+          clan: clan || null,
+          bio,
+          avatar,
+          division: division || null,
         }),
       })
       
@@ -195,6 +275,35 @@ export default function EditPlayerPage() {
       setError(err instanceof Error ? err.message : "Failed to save")
     } finally {
       setIsSaving(false)
+    }
+  }
+  
+  const handleEditAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    setIsUploadingEditAvatar(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("type", "avatar")
+      
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+      
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to upload")
+      }
+      
+      const { url } = await res.json()
+      setAvatar(url)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload avatar")
+    } finally {
+      setIsUploadingEditAvatar(false)
     }
   }
   
@@ -260,6 +369,15 @@ export default function EditPlayerPage() {
     if (!newPlayerName.trim()) {
       setCreateError("Please enter a name")
       return
+    }
+    
+    // Validate clan - must be existing clan, "FA", or empty
+    if (newPlayerClan && newPlayerClan.toUpperCase() !== "FA") {
+      const validClan = newPlayerClanOptions.find(c => c.shortName.toUpperCase() === newPlayerClan.toUpperCase())
+      if (!validClan) {
+        setCreateError("Please select a valid clan from the list, use 'FA' for Free Agent, or leave empty")
+        return
+      }
     }
     
     setIsCreating(true)
@@ -459,11 +577,64 @@ export default function EditPlayerPage() {
               <div className="space-y-4">
                 <div className="bg-white/5 rounded-xl p-4 mb-4">
                   <div className="flex items-center gap-3">
-                    <Flag code={selectedPlayer.nationality} size="lg" className="rounded" />
+                    {avatar ? (
+                      <Image src={avatar} alt={selectedPlayer.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
+                    ) : (
+                      <Flag code={selectedPlayer.nationality} size="lg" className="rounded" />
+                    )}
                     <div>
                       <h3 className="text-white font-semibold text-lg">{selectedPlayer.name}</h3>
                       <p className="text-white/40 text-sm">{selectedPlayer.category}</p>
                     </div>
+                  </div>
+                </div>
+                
+                {/* Avatar Upload */}
+                <div>
+                  <label className="block text-white/70 text-sm mb-2">Avatar</label>
+                  <div className="flex items-center gap-4">
+                    <input
+                      ref={editAvatarInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg"
+                      onChange={handleEditAvatarUpload}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => editAvatarInputRef.current?.click()}
+                      disabled={isUploadingEditAvatar}
+                      className="w-16 h-16 rounded-lg bg-white/10 border-2 border-dashed border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors overflow-hidden"
+                    >
+                      {avatar ? (
+                        <Image src={avatar} alt="Avatar" width={64} height={64} className="w-full h-full object-cover" />
+                      ) : isUploadingEditAvatar ? (
+                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <span className="text-white/40 text-2xl">+</span>
+                      )}
+                    </button>
+                    <span className="text-white/40 text-xs">PNG or JPEG, square format</span>
+                  </div>
+                </div>
+                
+                {/* Division */}
+                <div>
+                  <label className="block text-white/70 text-sm mb-2">Division</label>
+                  <div className="grid grid-cols-6 gap-2">
+                    {divisions.map((div) => (
+                      <button
+                        key={div}
+                        onClick={() => setDivision(div)}
+                        className={cn(
+                          "px-3 py-2 rounded-lg font-bold transition-all",
+                          division === div
+                            ? "bg-amber-500 text-black"
+                            : "bg-white/10 text-white/70 hover:bg-white/20"
+                        )}
+                      >
+                        {div}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 
@@ -483,15 +654,58 @@ export default function EditPlayerPage() {
                   </select>
                 </div>
                 
-                <div>
-                  <label className="block text-white/70 text-sm mb-2">Clan</label>
+                {/* Clan with autocomplete */}
+                <div className="relative">
+                  <label className="block text-white/70 text-sm mb-2">Clan (type to search, or use &quot;FA&quot; for Free Agent)</label>
                   <input
                     type="text"
-                    placeholder="Enter clan short name (e.g. VW)"
+                    placeholder="Search clan or type FA..."
                     value={clan}
-                    onChange={(e) => setClan(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    onChange={(e) => {
+                      setClan(e.target.value.toUpperCase())
+                      setShowClanDropdown(true)
+                    }}
+                    onFocus={() => setShowClanDropdown(true)}
+                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 uppercase"
                   />
+                  
+                  {showClanDropdown && (clanOptions.length > 0 || clan.length >= 1) && (
+                    <div className="absolute top-full left-0 right-0 mt-2 z-20 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-40 overflow-y-auto shadow-xl">
+                      {/* FA option always available */}
+                      <button
+                        onClick={() => handleSelectClan("FA")}
+                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                      >
+                        <div className="w-8 h-8 rounded bg-gray-600 flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">FA</span>
+                        </div>
+                        <div>
+                          <div className="text-white font-medium">Free Agent</div>
+                          <div className="text-white/40 text-xs">No clan</div>
+                        </div>
+                      </button>
+                      
+                      {clanOptions.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => handleSelectClan(c.shortName)}
+                          className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                        >
+                          {c.logo ? (
+                            <Image src={c.logo} alt={c.name} width={32} height={32} className="w-8 h-8 rounded object-cover" />
+                          ) : (
+                            <div className="w-8 h-8 rounded bg-amber-500/20 flex items-center justify-center">
+                              <span className="text-amber-400 text-xs font-bold">{c.shortName.slice(0, 2)}</span>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-white font-medium">{c.name}</div>
+                            <div className="text-white/40 text-xs">{c.shortName}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 
                 <div>
@@ -560,6 +774,7 @@ export default function EditPlayerPage() {
                   <h3 className="text-2xl font-bold text-white mb-1">{myPlayer.name}</h3>
                   <p className="text-amber-400 font-medium">{myPlayer.category}</p>
                   {myPlayer.clan && <p className="text-white/60 mt-1">{myPlayer.clan}</p>}
+                  {(myPlayer as any).division && <p className="text-white/40 text-sm mt-1">Division {(myPlayer as any).division}</p>}
                   {myPlayer.bio && (
                     <p className="text-white/40 text-sm mt-4 italic">&ldquo;{myPlayer.bio}&rdquo;</p>
                   )}
@@ -567,7 +782,7 @@ export default function EditPlayerPage() {
                 
                 <div className="bg-white/5 rounded-xl p-4">
                   <p className="text-white/60 text-sm">
-                    You&apos;re registered! To update your info, search for yourself on the left.
+                    You&apos;re registered! To update your info (avatar, division, clan, bio), search for yourself on the left and submit an edit request.
                   </p>
                 </div>
               </div>
@@ -673,15 +888,58 @@ export default function EditPlayerPage() {
                   </select>
                 </div>
                 
-                <div>
-                  <label className="block text-white/70 text-sm mb-2">Clan</label>
+                {/* Clan with autocomplete */}
+                <div className="relative">
+                  <label className="block text-white/70 text-sm mb-2">Clan (type to search, or use &quot;FA&quot; for Free Agent)</label>
                   <input
                     type="text"
-                    placeholder="Enter your clan short name"
+                    placeholder="Search clan or type FA..."
                     value={newPlayerClan}
-                    onChange={(e) => setNewPlayerClan(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    onChange={(e) => {
+                      setNewPlayerClan(e.target.value.toUpperCase())
+                      setShowNewPlayerClanDropdown(true)
+                    }}
+                    onFocus={() => setShowNewPlayerClanDropdown(true)}
+                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 uppercase"
                   />
+                  
+                  {showNewPlayerClanDropdown && (newPlayerClanOptions.length > 0 || newPlayerClan.length >= 1) && (
+                    <div className="absolute top-full left-0 right-0 mt-2 z-20 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-40 overflow-y-auto shadow-xl">
+                      {/* FA option always available */}
+                      <button
+                        onClick={() => handleSelectNewPlayerClan("FA")}
+                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                      >
+                        <div className="w-8 h-8 rounded bg-gray-600 flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">FA</span>
+                        </div>
+                        <div>
+                          <div className="text-white font-medium">Free Agent</div>
+                          <div className="text-white/40 text-xs">No clan</div>
+                        </div>
+                      </button>
+                      
+                      {newPlayerClanOptions.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => handleSelectNewPlayerClan(c.shortName)}
+                          className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                        >
+                          {c.logo ? (
+                            <Image src={c.logo} alt={c.name} width={32} height={32} className="w-8 h-8 rounded object-cover" />
+                          ) : (
+                            <div className="w-8 h-8 rounded bg-amber-500/20 flex items-center justify-center">
+                              <span className="text-amber-400 text-xs font-bold">{c.shortName.slice(0, 2)}</span>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-white font-medium">{c.name}</div>
+                            <div className="text-white/40 text-xs">{c.shortName}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 
                 <div>
@@ -741,21 +999,21 @@ export default function EditPlayerPage() {
               
               {clans.length > 0 ? (
                 <div className="space-y-3">
-                  {clans.map((clan) => (
+                  {clans.map((c) => (
                     <div 
-                      key={clan.id}
+                      key={c.id}
                       className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10"
                     >
-                      {clan.logo ? (
-                        <Image src={clan.logo} alt={clan.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
+                      {c.logo ? (
+                        <Image src={c.logo} alt={c.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
                       ) : (
                         <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                          <span className="text-amber-400 font-bold">{clan.shortName.slice(0, 2)}</span>
+                          <span className="text-amber-400 font-bold">{c.shortName.slice(0, 2)}</span>
                         </div>
                       )}
                       <div>
-                        <h3 className="text-white font-semibold">{clan.name}</h3>
-                        <p className="text-white/40 text-sm">{clan.shortName}</p>
+                        <h3 className="text-white font-semibold">{c.name}</h3>
+                        <p className="text-white/40 text-sm">{c.shortName}</p>
                       </div>
                     </div>
                   ))}
