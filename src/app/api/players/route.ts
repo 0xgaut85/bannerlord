@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
-import { PlayerCategory } from "@prisma/client"
+import { PlayerCategory, Division } from "@prisma/client"
+import { DIVISION_DEFAULT_RATINGS } from "@/lib/utils"
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    const { name, category, nationality, clan, bio } = body
+    const { name, category, nationality, clan, bio, division, avatar } = body
     
     if (!name || !category) {
       return NextResponse.json({ error: "Name and category are required" }, { status: 400 })
@@ -63,6 +64,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "A player with this name already exists" }, { status: 400 })
     }
     
+    // Create the player
     const player = await prisma.player.create({
       data: {
         name,
@@ -70,8 +72,38 @@ export async function POST(request: NextRequest) {
         nationality: nationality || null,
         clan: clan || null,
         bio: bio?.slice(0, 240) || null,
+        division: division || null,
+        avatar: avatar || null,
       }
     })
+    
+    // If division is provided, create default ratings from system raters
+    if (division && Object.values(Division).includes(division)) {
+      const defaultRating = DIVISION_DEFAULT_RATINGS[division as Division]
+      
+      // Get system raters
+      const systemRaters = await prisma.user.findMany({
+        where: {
+          discordId: { startsWith: "system_" }
+        },
+        take: 5
+      })
+      
+      // Create ratings from system raters
+      if (systemRaters.length >= 5) {
+        const scores = [defaultRating, defaultRating, defaultRating + 1, defaultRating - 1, defaultRating]
+        
+        for (let i = 0; i < 5; i++) {
+          await prisma.rating.create({
+            data: {
+              raterId: systemRaters[i].id,
+              playerId: player.id,
+              score: scores[i],
+            }
+          })
+        }
+      }
+    }
     
     return NextResponse.json(player)
   } catch (error) {
@@ -79,5 +111,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to create player" }, { status: 500 })
   }
 }
-
-

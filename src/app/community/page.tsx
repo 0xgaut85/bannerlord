@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { PlayerWithRating } from "@/types"
 import { Flag } from "@/components/ui"
 import { cn } from "@/lib/utils"
@@ -245,9 +246,15 @@ function TopPlayerCard({
             <span className={`text-3xl font-black ${ratingStyle.text}`}>{player.averageRating.toFixed(1)}</span>
           </div>
           
-          {/* Flag */}
+          {/* Avatar or Flag */}
           <div className="flex justify-center mb-3">
-            <Flag code={player.nationality} size="xl" className="rounded shadow-md" />
+            {player.avatar ? (
+              <div className="w-16 h-16 rounded-lg overflow-hidden shadow-lg ring-2 ring-white/30">
+                <Image src={player.avatar} alt={player.name} width={64} height={64} className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <Flag code={player.nationality} size="xl" className="rounded shadow-md" />
+            )}
           </div>
           
           {/* Name */}
@@ -278,7 +285,11 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/15 transition-all">
       <div className="flex items-center gap-3">
         <div className="text-white/40 font-bold text-lg w-8">#{player.rank}</div>
-        <Flag code={player.nationality} size="lg" className="rounded" />
+        {player.avatar ? (
+          <Image src={player.avatar} alt={player.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
+        ) : (
+          <Flag code={player.nationality} size="lg" className="rounded" />
+        )}
         <div className="flex-1 min-w-0">
           <h3 className="text-white font-semibold truncate">{player.name}</h3>
           {player.clan && <p className="text-white/50 text-xs">{player.clan}</p>}

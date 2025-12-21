@@ -10,6 +10,16 @@ export const DIVISION_WEIGHTS: Record<Division, number> = {
   F: 0.5,
 }
 
+// Default ratings for new players based on division
+export const DIVISION_DEFAULT_RATINGS: Record<Division, number> = {
+  A: 85,
+  B: 80,
+  C: 75,
+  D: 70,
+  E: 65,
+  F: 60,
+}
+
 // Minimum ratings required for user eligibility (to count their votes)
 export const MIN_RATINGS = {
   INFANTRY: 20,

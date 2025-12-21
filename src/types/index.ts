@@ -27,6 +27,8 @@ export interface PlayerWithRating {
   nationality: string | null
   clan: string | null
   bio: string | null
+  avatar: string | null
+  division: string | null
   averageRating: number
   totalRatings: number
   rank?: number

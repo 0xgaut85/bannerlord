@@ -58,6 +58,8 @@ export async function GET(request: NextRequest) {
           nationality: player.nationality,
           clan: player.clan,
           bio: player.bio,
+          avatar: player.avatar,
+          division: player.division,
           averageRating: Math.round(averageRating * 100) / 100,
           totalRatings: player.ratings.length,
         }

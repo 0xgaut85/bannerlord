@@ -92,14 +92,26 @@ model Player {
   name        String         @unique
   category    PlayerCategory
   nationality String?        // ISO country code (FR, DE, PL, etc.)
-  clan        String?        // Player's clan/team
+  clan        String?        // Player's clan/team short name
   bio         String?        // Player bio (max 240 chars)
+  avatar      String?        // Player avatar URL
+  division    Division?      // Player's division for default rating
   
   ratings     Rating[]
   editRequests EditRequest[]
   
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+}
+
+model Clan {
+  id          String   @id @default(cuid())
+  name        String   @unique  // Full clan name
+  shortName   String   @unique  // Short name (e.g. VW)
+  logo        String?           // Clan logo URL
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Rating {
