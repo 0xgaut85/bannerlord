@@ -29,7 +29,33 @@ export async function GET(request: NextRequest) {
       orderBy: { name: "asc" },
     })
     
-    return NextResponse.json(players)
+    // Get all unique clan names and fetch their logos
+    const clanNames = [...new Set(players.map(p => p.clan).filter(Boolean))] as string[]
+    
+    // Fetch clan logos from Clan table
+    const clans = await prisma.clan.findMany({
+      where: {
+        shortName: { in: clanNames }
+      },
+      select: {
+        shortName: true,
+        logo: true,
+      }
+    })
+    
+    // Create a map of clan shortName to logo
+    const clanLogos: Record<string, string | null> = {}
+    clans.forEach(c => {
+      clanLogos[c.shortName] = c.logo
+    })
+    
+    // Add clanLogo to each player
+    const playersWithLogos = players.map(player => ({
+      ...player,
+      clanLogo: player.clan ? clanLogos[player.clan] || null : null,
+    }))
+    
+    return NextResponse.json(playersWithLogos)
   } catch (error) {
     console.error("Players GET error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

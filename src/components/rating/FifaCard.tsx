@@ -125,6 +125,18 @@ function getDefaultAvatar(category: string): string {
   }
 }
 
+// Calculate division from rating
+function getDivisionFromRating(rating: number): string {
+  if (rating >= 85) return "A"
+  if (rating >= 80) return "B"
+  if (rating >= 75) return "C"
+  if (rating >= 70) return "D"
+  if (rating >= 65) return "E"
+  if (rating >= 60) return "F"
+  if (rating >= 55) return "G"
+  return "H+"
+}
+
 export function FifaCard({
   player,
   currentRating,
@@ -140,8 +152,8 @@ export function FifaCard({
   const style = getCardStyle(currentRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   
-  // Get division from player
-  const playerDivision = player.division || null
+  // Get division from player or calculate from current rating
+  const playerDivision = player.division || getDivisionFromRating(currentRating)
   
   // Get clan logo if available
   const clanLogo = (player as any).clanLogo || null

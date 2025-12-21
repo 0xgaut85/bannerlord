@@ -24,6 +24,18 @@ function getDefaultAvatar(category: string): string {
   }
 }
 
+// Calculate division from rating
+function getDivisionFromRating(rating: number): string {
+  if (rating >= 85) return "A"
+  if (rating >= 80) return "B"
+  if (rating >= 75) return "C"
+  if (rating >= 70) return "D"
+  if (rating >= 65) return "E"
+  if (rating >= 60) return "F"
+  if (rating >= 55) return "G"
+  return "H+"
+}
+
 // AAA+ Premium card styles with heavy textures
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
@@ -291,6 +303,8 @@ function FifaDisplayCard({
 }) {
   const style = getCardStyle(player.averageRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
+  const displayDivision = player.division || getDivisionFromRating(player.averageRating)
+  const clanLogo = (player as any).clanLogo || null
   
   const rankLabels = { 1: "#1", 2: "#2", 3: "#3" }
   
@@ -366,10 +380,25 @@ function FifaDisplayCard({
             </div>
           </div>
 
-          {/* Middle Section: Avatar & Flag */}
+          {/* Middle Section: Clan Logo (left), Avatar (center), Flag (right) */}
           <div className="flex-1 relative flex items-center justify-center my-1">
             {/* Background Glow behind avatar */}
             <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} style={{ transform: 'scale(0.6)' }} />
+            
+            {/* Clan Logo on left - if exists */}
+            {clanLogo && (
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 shadow-xl z-20">
+                <div className="w-8 h-8 rounded-lg overflow-hidden border-2 border-white/20 bg-black/30">
+                  <Image
+                    src={clanLogo}
+                    alt="Clan"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
             
             {/* Player Avatar */}
             <div className="relative w-22 h-22 sm:w-26 sm:h-26 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30">
@@ -381,7 +410,7 @@ function FifaDisplayCard({
               />
             </div>
 
-            {/* Country Flag - moved more left */}
+            {/* Country Flag - on right */}
             <div className="absolute right-2 bottom-0 shadow-xl z-20">
               <Flag code={player.nationality} size="md" />
             </div>
@@ -398,7 +427,7 @@ function FifaDisplayCard({
                   Division
                 </span>
                 <span className={`text-sm font-black ${style.text} drop-shadow-sm`}>
-                  {player.division || "-"}
+                  {displayDivision}
                 </span>
               </div>
 

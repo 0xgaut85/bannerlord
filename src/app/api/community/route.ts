@@ -3,6 +3,18 @@ import prisma from "@/lib/prisma"
 import { PlayerCategory, Division } from "@prisma/client"
 import { DIVISION_WEIGHTS, MIN_RATINGS, MIN_PLAYER_RATINGS, DIVISION_DEFAULT_RATINGS } from "@/lib/utils"
 
+// Calculate division from rating
+function getDivisionFromRating(rating: number): string {
+  if (rating >= 85) return "A"
+  if (rating >= 80) return "B"
+  if (rating >= 75) return "C"
+  if (rating >= 70) return "D"
+  if (rating >= 65) return "E"
+  if (rating >= 60) return "F"
+  if (rating >= 55) return "G"
+  return "H+" // 50 and below
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -33,6 +45,26 @@ export async function GET(request: NextRequest) {
       }
     })
     
+    // Get all unique clan names and fetch their logos
+    const clanNames = [...new Set(players.map(p => p.clan).filter(Boolean))] as string[]
+    
+    // Fetch clan logos from Clan table
+    const clans = await prisma.clan.findMany({
+      where: {
+        shortName: { in: clanNames }
+      },
+      select: {
+        shortName: true,
+        logo: true,
+      }
+    })
+    
+    // Create a map of clan shortName to logo
+    const clanLogos: Record<string, string | null> = {}
+    clans.forEach(c => {
+      clanLogos[c.shortName] = c.logo
+    })
+    
     // Calculate weighted average for each player
     const rankedPlayers = players.map(player => {
       const hasEnoughRatings = player.ratings.length >= MIN_PLAYER_RATINGS
@@ -61,15 +93,19 @@ export async function GET(request: NextRequest) {
         averageRating = 70
       }
       
+      // Calculate display division from rating if not set in database
+      const displayDivision = player.division || getDivisionFromRating(averageRating)
+      
       return {
         id: player.id,
         name: player.name,
         category: player.category,
         nationality: player.nationality,
         clan: player.clan,
+        clanLogo: player.clan ? clanLogos[player.clan] || null : null,
         bio: player.bio,
         avatar: player.avatar,
-        division: player.division,
+        division: displayDivision,
         averageRating: Math.round(averageRating * 100) / 100,
         totalRatings: player.ratings.length,
         hasEnoughRatings,
