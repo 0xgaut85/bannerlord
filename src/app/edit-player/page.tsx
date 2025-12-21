@@ -819,14 +819,14 @@ export default function EditPlayerPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Bio <span className="text-white/40">({bio.length}/240)</span></label>
-                  <textarea
+                  <label className="block text-white/70 text-sm mb-2">Bio <span className="text-white/40">({bio.length}/50)</span></label>
+                  <input
+                    type="text"
                     placeholder="Write a short bio..."
                     value={bio}
-                    onChange={(e) => setBio(e.target.value.slice(0, 240))}
-                    maxLength={240}
-                    rows={3}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 resize-none"
+                    onChange={(e) => setBio(e.target.value.slice(0, 50))}
+                    maxLength={50}
+                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                   />
                 </div>
                 
@@ -1053,14 +1053,14 @@ export default function EditPlayerPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Bio <span className="text-white/40">({newPlayerBio.length}/240)</span></label>
-                  <textarea
+                  <label className="block text-white/70 text-sm mb-2">Bio <span className="text-white/40">({newPlayerBio.length}/50)</span></label>
+                  <input
+                    type="text"
                     placeholder="Tell us about yourself..."
                     value={newPlayerBio}
-                    onChange={(e) => setNewPlayerBio(e.target.value.slice(0, 240))}
-                    maxLength={240}
-                    rows={2}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 resize-none"
+                    onChange={(e) => setNewPlayerBio(e.target.value.slice(0, 50))}
+                    maxLength={50}
+                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                   />
                 </div>
                 

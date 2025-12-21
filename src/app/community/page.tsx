@@ -382,23 +382,30 @@ function FifaDisplayCard({
             </div>
           </div>
 
-          {/* Middle Section: Avatar (center) */}
-          <div className="flex-1 relative flex items-center justify-center my-1">
+          {/* Middle Section: Avatar (moved higher) and Bio */}
+          <div className="flex-1 relative flex flex-col items-center justify-start mt-0">
             {/* Background Glow behind avatar */}
-            <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} style={{ transform: 'scale(0.6)' }} />
+            <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} />
             
             {/* Player Avatar */}
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30 z-10">
               <Image
                 src={avatarSrc}
                 alt={player.name}
-                width={96}
-                height={96}
+                width={80}
+                height={80}
                 className="w-full h-full object-cover"
               />
             </div>
 
-            {/* Bottom row: Clan Logo (left) and Flag (right) */}
+            {/* Bio (below avatar) - max 50 chars */}
+            {player.bio && (
+              <p className={`text-[9px] ${style.subtext} text-center mt-1 px-2 italic opacity-80 line-clamp-2`}>
+                &quot;{player.bio.slice(0, 50)}{player.bio.length > 50 ? '...' : ''}&quot;
+              </p>
+            )}
+
+            {/* Clan Logo (left) and Flag (right) - positioned lower */}
             <div className="absolute bottom-0 left-3 z-20">
               <div className="w-6 h-6 bg-black">
                 {clanLogo && (
@@ -504,9 +511,9 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
             <span className={`text-xs font-bold ${style.subtext} opacity-70`}>#{player.rank}</span>
           </div>
 
-          {/* Middle: Avatar */}
-          <div className="flex-1 relative flex items-center justify-center py-1">
-            <div className="relative w-14 h-14 rounded-full overflow-hidden shadow-lg border border-white/10">
+          {/* Middle: Avatar and Bio */}
+          <div className="flex-1 relative flex flex-col items-center justify-start py-0.5">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden shadow-lg border border-white/10 z-10">
               <Image
                 src={avatarSrc}
                 alt={player.name}
@@ -514,6 +521,12 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
                 className="object-cover"
               />
             </div>
+            {/* Bio (below avatar) */}
+            {player.bio && (
+              <p className={`text-[7px] ${style.subtext} text-center mt-0.5 px-1 italic opacity-80 line-clamp-2`}>
+                &quot;{player.bio.slice(0, 50)}{player.bio.length > 50 ? '...' : ''}&quot;
+              </p>
+            )}
             {/* Clan Logo on left */}
             <div className="absolute left-0 bottom-0 z-20">
               <div className="w-5 h-5 bg-black">

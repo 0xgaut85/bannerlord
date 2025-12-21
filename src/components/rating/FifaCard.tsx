@@ -5,7 +5,7 @@ import { Button, Slider, Flag } from "@/components/ui"
 import Image from "next/image"
 
 interface FifaCardProps {
-  player: Player & { avatar?: string | null; division?: string | null; clanLogo?: string | null }
+  player: Player & { avatar?: string | null; division?: string | null; clanLogo?: string | null; bio?: string | null }
   currentRating: number
   onRatingChange: (rating: number) => void
   onSkip: () => void
@@ -243,13 +243,13 @@ export function FifaCard({
             </div>
           </div>
 
-          {/* Middle Section: Avatar (center) */}
-          <div className="flex-1 relative flex items-center justify-center my-2">
+          {/* Middle Section: Avatar (moved higher) and Bio */}
+          <div className="flex-1 relative flex flex-col items-center justify-start mt-1">
             {/* Background Glow behind avatar */}
-            <div className={`absolute inset-0 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} style={{ transform: 'scale(0.6)' }} />
+            <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} />
             
             {/* Player Avatar */}
-            <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30">
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30 z-10">
               <Image
                 src={avatarSrc}
                 alt={player.name}
@@ -258,7 +258,14 @@ export function FifaCard({
               />
             </div>
 
-            {/* Bottom row: Clan Logo (left) and Flag (right) */}
+            {/* Bio (below avatar) - max 50 chars */}
+            {player.bio && (
+              <p className={`text-xs ${style.subtext} text-center mt-2 px-2 italic opacity-80 line-clamp-2`}>
+                &quot;{player.bio.slice(0, 50)}{player.bio.length > 50 ? '...' : ''}&quot;
+              </p>
+            )}
+
+            {/* Clan Logo (left) and Flag (right) - positioned lower */}
             <div className="absolute bottom-0 left-4 z-20">
               <div className="w-8 h-8 bg-black">
                 {clanLogo && (
