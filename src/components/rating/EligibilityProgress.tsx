@@ -46,13 +46,13 @@ export function EligibilityProgress({ status, dark }: EligibilityProgressProps) 
               <span className={cn("font-semibold", isComplete ? cat.color : "text-white/70")}>
                 {data.current}/{data.required}
               </span>
-              {isComplete && <span className="text-green-400">✓</span>}
+              {isComplete && <span className="text-green-400 text-xs">OK</span>}
             </div>
           )
         })}
         {status.isEligible && (
-          <span className="text-green-400 font-medium ml-auto">
-            ✨ Your list counts!
+          <span className="text-green-400 font-medium ml-auto text-xs">
+            List counts
           </span>
         )}
       </div>

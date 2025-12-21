@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
-import { Card } from "@/components/ui/Card"
-import { Badge } from "@/components/ui/Badge"
+import { Button, Flag } from "@/components/ui"
 import { useDebounce } from "@/hooks/useDebounce"
+import { COUNTRY_NAMES } from "@/lib/utils"
+
+const countries = Object.entries(COUNTRY_NAMES).map(([code, name]) => ({
+  code,
+  name,
+}))
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -18,6 +20,14 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("players")
   const [editingPlayer, setEditingPlayer] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
+  
+  // Country search
+  const [countrySearch, setCountrySearch] = useState("")
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
+  const filteredCountries = countries.filter(c => 
+    c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+    c.code.toLowerCase().includes(countrySearch.toLowerCase())
+  ).slice(0, 10)
 
   const debouncedSearch = useDebounce(search, 500)
 
@@ -74,7 +84,6 @@ export default function AdminPage() {
     }
   }
 
-  // Effect to refetch when search changes
   useEffect(() => {
     if (isAuthenticated) {
       fetchPlayers()
@@ -116,6 +125,7 @@ export default function AdminPage() {
       
       if (res.ok) {
         setEditingPlayer(null)
+        setCountrySearch("")
         fetchPlayers()
       } else {
         alert("Failed to update player")
@@ -124,67 +134,77 @@ export default function AdminPage() {
       alert("Error updating player")
     }
   }
+  
+  const selectCountry = (code: string) => {
+    setEditingPlayer({...editingPlayer, nationality: code})
+    setShowCountryDropdown(false)
+    setCountrySearch("")
+  }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4">
-        <Card className="w-full max-w-md p-8">
-          <h1 className="text-2xl font-display text-center mb-6 text-white">Admin Login</h1>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800 px-4">
+        <div className="w-full max-w-md bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-white/10 p-8">
+          <h1 className="text-2xl font-display text-center mb-2 text-white">Admin Login</h1>
+          <p className="text-white/50 text-center text-sm mb-8">Enter your credentials to access the admin panel</p>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm text-[#8a8a8a] mb-1">Username</label>
-              <Input 
+              <label className="block text-sm text-white/70 mb-2">Username</label>
+              <input 
                 type="text" 
                 value={username} 
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full"
+                className="w-full px-4 py-3 bg-slate-900 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                placeholder="Enter username"
               />
             </div>
             <div>
-              <label className="block text-sm text-[#8a8a8a] mb-1">Password</label>
-              <Input 
+              <label className="block text-sm text-white/70 mb-2">Password</label>
+              <input 
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full"
+                className="w-full px-4 py-3 bg-slate-900 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                placeholder="Enter password"
               />
             </div>
-            <Button type="submit" variant="primary" className="w-full">
+            <Button type="submit" variant="primary" className="w-full !bg-amber-500 !text-black hover:!bg-amber-400 mt-6">
               Login
             </Button>
           </form>
-        </Card>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-display text-white">Admin Panel</h1>
           <div className="flex gap-4">
             <div className="flex gap-2">
               <Button 
-                variant={activeTab === "players" ? "primary" : "outline"} 
+                variant={activeTab === "players" ? "primary" : "ghost"} 
                 onClick={() => setActiveTab("players")}
+                className={activeTab === "players" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}
               >
                 Players
               </Button>
               <Button 
-                variant={activeTab === "requests" ? "primary" : "outline"} 
+                variant={activeTab === "requests" ? "primary" : "ghost"} 
                 onClick={() => setActiveTab("requests")}
-                className="relative"
+                className={`relative ${activeTab === "requests" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
               >
                 Requests
                 {requests.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
                     {requests.length}
                   </span>
                 )}
               </Button>
             </div>
-            <Button onClick={() => setIsAuthenticated(false)} variant="outline">
+            <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/10 !text-white hover:!bg-white/20">
               Logout
             </Button>
           </div>
@@ -193,30 +213,32 @@ export default function AdminPage() {
         {activeTab === "requests" && (
           <div className="grid gap-4">
             {requests.map((request) => (
-              <div key={request.id} className="bg-[#111] p-4 rounded-lg border border-[#222]">
+              <div key={request.id} className="bg-white/5 p-6 rounded-xl border border-white/10">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-medium text-white text-lg">
                       Edit for: {request.player.name}
                     </h3>
-                    <p className="text-sm text-[#8a8a8a]">
+                    <p className="text-sm text-white/50">
                       Submitted by: {request.user.discordName || request.user.name}
                     </p>
                   </div>
-                  <Badge variant="outline">PENDING</Badge>
+                  <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded text-xs font-medium">
+                    PENDING
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                  <div>
-                    <span className="block text-[#8a8a8a] mb-1">Current</span>
-                    <div className="text-white">
+                  <div className="bg-black/20 rounded-lg p-3">
+                    <span className="block text-white/50 mb-2 text-xs uppercase tracking-wide">Current</span>
+                    <div className="text-white space-y-1">
                       <p>Nationality: {request.player.nationality || "None"}</p>
                       <p>Clan: {request.player.clan || "None"}</p>
                     </div>
                   </div>
-                  <div>
-                    <span className="block text-[#c9a962] mb-1">Suggested</span>
-                    <div className="text-white">
+                  <div className="bg-green-500/10 rounded-lg p-3">
+                    <span className="block text-green-400 mb-2 text-xs uppercase tracking-wide">Suggested</span>
+                    <div className="text-white space-y-1">
                       <p>Nationality: {request.suggestedNationality || "No Change"}</p>
                       <p>Clan: {request.suggestedClan || "No Change"}</p>
                     </div>
@@ -226,14 +248,14 @@ export default function AdminPage() {
                 <div className="flex justify-end gap-3">
                   <Button 
                     size="sm" 
-                    className="bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                    className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30"
                     onClick={() => handleRequestAction(request.id, "reject")}
                   >
                     Reject
                   </Button>
                   <Button 
                     size="sm" 
-                    className="bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                    className="!bg-green-500/20 !text-green-400 hover:!bg-green-500/30"
                     onClick={() => handleRequestAction(request.id, "approve")}
                   >
                     Approve
@@ -242,7 +264,7 @@ export default function AdminPage() {
               </div>
             ))}
             {requests.length === 0 && (
-              <div className="text-center text-[#555] py-8">No pending requests</div>
+              <div className="text-center text-white/40 py-12">No pending requests</div>
             )}
           </div>
         )}
@@ -250,89 +272,123 @@ export default function AdminPage() {
         {activeTab === "players" && (
           <>
             <div className="mb-6">
-              <Input
+              <input
                 placeholder="Search players..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="max-w-md"
+                className="w-full max-w-md px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               />
             </div>
 
             {editingPlayer && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <Card className="w-full max-w-lg p-6">
-              <h2 className="text-xl font-display text-white mb-4">Edit Player: {editingPlayer.name}</h2>
-              <form onSubmit={handleUpdate} className="space-y-4">
-                <div>
-                  <label className="block text-sm text-[#8a8a8a] mb-1">Clan</label>
-                  <Input
-                    value={editingPlayer.clan || ""}
-                    onChange={(e) => setEditingPlayer({...editingPlayer, clan: e.target.value})}
-                  />
+              <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                <div className="w-full max-w-lg bg-slate-800 rounded-2xl border border-white/10 p-6">
+                  <h2 className="text-xl font-display text-white mb-6">Edit Player: {editingPlayer.name}</h2>
+                  <form onSubmit={handleUpdate} className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-white/70 mb-2">Clan</label>
+                      <input
+                        value={editingPlayer.clan || ""}
+                        onChange={(e) => setEditingPlayer({...editingPlayer, clan: e.target.value})}
+                        className="w-full px-4 py-3 bg-slate-900 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      />
+                    </div>
+                    <div className="relative">
+                      <label className="block text-sm text-white/70 mb-2">Nationality</label>
+                      <div className="flex gap-2 items-center">
+                        <input
+                          value={countrySearch}
+                          onChange={(e) => {
+                            setCountrySearch(e.target.value)
+                            setShowCountryDropdown(true)
+                          }}
+                          onFocus={() => setShowCountryDropdown(true)}
+                          placeholder="Type country name..."
+                          className="flex-1 px-4 py-3 bg-slate-900 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                        />
+                        {editingPlayer.nationality && (
+                          <div className="flex items-center gap-2 bg-slate-900 border border-white/20 rounded-xl px-4 py-2">
+                            <Flag code={editingPlayer.nationality} size="md" />
+                            <span className="text-white text-sm">{editingPlayer.nationality.toUpperCase()}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {showCountryDropdown && countrySearch && (
+                        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-slate-900 rounded-xl border border-white/20 p-2 max-h-60 overflow-y-auto">
+                          {filteredCountries.map((country) => (
+                            <button
+                              key={country.code}
+                              type="button"
+                              onClick={() => selectCountry(country.code)}
+                              className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                            >
+                              <Flag code={country.code} size="md" />
+                              <span className="text-white">{country.name}</span>
+                              <span className="text-white/40 text-sm ml-auto">{country.code.toUpperCase()}</span>
+                            </button>
+                          ))}
+                          {filteredCountries.length === 0 && (
+                            <div className="text-white/40 text-center py-2">No countries found</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm text-white/70 mb-2">Category</label>
+                      <select
+                        className="w-full bg-slate-900 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-900 [&>option]:text-white"
+                        value={editingPlayer.category}
+                        onChange={(e) => setEditingPlayer({...editingPlayer, category: e.target.value})}
+                      >
+                        <option value="INFANTRY">INFANTRY</option>
+                        <option value="CAVALRY">CAVALRY</option>
+                        <option value="ARCHER">ARCHER</option>
+                      </select>
+                    </div>
+                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/10">
+                      <Button type="button" onClick={() => { setEditingPlayer(null); setCountrySearch("") }} className="!bg-white/10 !text-white hover:!bg-white/20">
+                        Cancel
+                      </Button>
+                      <Button type="submit" variant="primary" className="!bg-amber-500 !text-black hover:!bg-amber-400">
+                        Save Changes
+                      </Button>
+                    </div>
+                  </form>
                 </div>
-                <div>
-                  <label className="block text-sm text-[#8a8a8a] mb-1">Nationality (ISO Code)</label>
-                  <Input
-                    value={editingPlayer.nationality || ""}
-                    onChange={(e) => setEditingPlayer({...editingPlayer, nationality: e.target.value})}
-                    maxLength={2}
-                  />
-                  <p className="text-xs text-[#5a5a5a] mt-1">e.g. FR, DE, US, TR</p>
-                </div>
-                <div>
-                  <label className="block text-sm text-[#8a8a8a] mb-1">Category</label>
-                  <select
-                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a962]"
-                    value={editingPlayer.category}
-                    onChange={(e) => setEditingPlayer({...editingPlayer, category: e.target.value})}
-                  >
-                    <option value="INFANTRY">INFANTRY</option>
-                    <option value="CAVALRY">CAVALRY</option>
-                    <option value="ARCHER">ARCHER</option>
-                  </select>
-                </div>
-                <div className="flex justify-end gap-3 mt-6">
-                  <Button type="button" variant="ghost" onClick={() => setEditingPlayer(null)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary">
-                    Save Changes
-                  </Button>
-                </div>
-              </form>
-            </Card>
-          </div>
-        )}
+              </div>
+            )}
 
-        <div className="grid gap-4">
-          {players.map((player) => (
-            <div key={player.id} className="bg-[#111] p-4 rounded-lg flex items-center justify-between border border-[#222]">
-              <div>
-                <h3 className="font-medium text-white text-lg">{player.name}</h3>
-                <div className="flex gap-2 mt-1">
-                  <Badge variant="outline" className="text-xs">{player.category}</Badge>
-                  {player.clan && <Badge variant="secondary" className="text-xs">{player.clan}</Badge>}
-                  {player.nationality && <span className="text-sm">{player.nationality}</span>}
+            <div className="grid gap-3">
+              {players.map((player) => (
+                <div key={player.id} className="bg-white/5 p-4 rounded-xl flex items-center justify-between border border-white/10">
+                  <div className="flex items-center gap-3">
+                    <Flag code={player.nationality} size="md" />
+                    <div>
+                      <h3 className="font-medium text-white">{player.name}</h3>
+                      <div className="flex gap-2 mt-1">
+                        <span className="px-2 py-0.5 bg-white/10 text-white/70 rounded text-xs">{player.category}</span>
+                        {player.clan && <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded text-xs">{player.clan}</span>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" className="!bg-white/10 !text-white hover:!bg-white/20" onClick={() => setEditingPlayer(player)}>
+                      Edit
+                    </Button>
+                    <Button size="sm" className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30" onClick={() => handleDelete(player.id)}>
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => setEditingPlayer(player)}>
-                  Edit
-                </Button>
-                <Button size="sm" className="bg-red-500/10 text-red-500 hover:bg-red-500/20" onClick={() => handleDelete(player.id)}>
-                  Delete
-                </Button>
-              </div>
+              ))}
+              {players.length === 0 && !loading && (
+                <div className="text-center text-white/40 py-12">No players found</div>
+              )}
             </div>
-          ))}
-          {players.length === 0 && !loading && (
-            <div className="text-center text-[#555] py-8">No players found</div>
-          )}
-        </div>
-        </>
+          </>
         )}
       </div>
     </div>
   )
 }
-

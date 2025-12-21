@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from "react"
 import { useSession, signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui"
-import { FifaCard, EligibilityProgress, CooldownTimer } from "@/components/rating"
-import { canUserEdit, MIN_RATINGS } from "@/lib/utils"
+import { Button, Flag } from "@/components/ui"
+import { FifaCard, EligibilityProgress } from "@/components/rating"
+import { MIN_RATINGS } from "@/lib/utils"
 import { Player } from "@prisma/client"
+import { useDebounce } from "@/hooks/useDebounce"
 
 interface RatingMap {
   [playerId: string]: number
@@ -25,8 +26,11 @@ export default function RatePage() {
   const [error, setError] = useState<string | null>(null)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   
-  // Check if can edit
-  const canEdit = canUserEdit(session?.user?.lastEditAt ? new Date(session.user.lastEditAt) : null)
+  // Search
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<Player[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const debouncedSearch = useDebounce(searchQuery, 300)
   
   // Eligibility calculation
   const eligibility = {
@@ -87,6 +91,31 @@ export default function RatePage() {
     }
   }, [session?.user?.id, status])
   
+  // Search players
+  useEffect(() => {
+    async function searchPlayers() {
+      if (debouncedSearch.length < 2) {
+        setSearchResults([])
+        return
+      }
+      
+      setIsSearching(true)
+      try {
+        const res = await fetch(`/api/players?search=${encodeURIComponent(debouncedSearch)}`)
+        if (res.ok) {
+          const data = await res.json()
+          setSearchResults(data.slice(0, 10))
+        }
+      } catch (err) {
+        console.error("Search error:", err)
+      } finally {
+        setIsSearching(false)
+      }
+    }
+    
+    searchPlayers()
+  }, [debouncedSearch])
+  
   const currentPlayer = players[currentIndex]
   
   const handleRatingChange = useCallback((value: number) => {
@@ -99,7 +128,7 @@ export default function RatePage() {
   }, [currentPlayer])
   
   const handleValidate = useCallback(async () => {
-    if (!currentPlayer || !canEdit) return
+    if (!currentPlayer) return
     
     // Save immediately when validating
     setIsSaving(true)
@@ -134,14 +163,14 @@ export default function RatePage() {
         } else {
           setCurrentIndex(0)
         }
-      }, 500)
+      }, 300)
       
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save")
     } finally {
       setIsSaving(false)
     }
-  }, [currentPlayer, canEdit, ratings, currentIndex, players.length])
+  }, [currentPlayer, ratings, currentIndex, players.length])
   
   const handleSkip = useCallback(() => {
     if (currentIndex < players.length - 1) {
@@ -156,6 +185,15 @@ export default function RatePage() {
       setCurrentIndex(i => i - 1)
     }
   }, [currentIndex])
+  
+  const handleSelectPlayer = (player: Player) => {
+    const idx = players.findIndex(p => p.id === player.id)
+    if (idx !== -1) {
+      setCurrentIndex(idx)
+    }
+    setSearchQuery("")
+    setSearchResults([])
+  }
   
   // Not logged in
   if (status === "unauthenticated") {
@@ -214,18 +252,52 @@ export default function RatePage() {
     <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col overflow-hidden">
       {/* Compact Top Bar */}
       <div className="bg-black/20 backdrop-blur-sm border-b border-white/10 px-4 py-2">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-lg font-display font-bold text-white">Rate Players</h1>
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+          <h1 className="text-lg font-display font-bold text-white shrink-0">Rate Players</h1>
+          
+          {/* Search Bar */}
+          <div className="relative flex-1 max-w-xs">
+            <input
+              type="text"
+              placeholder="Search player..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-1.5 bg-white/10 rounded-lg border border-white/20 text-white text-sm placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            />
+            
+            {(searchResults.length > 0 || isSearching) && (
+              <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-slate-800 rounded-lg border border-white/20 p-1 max-h-60 overflow-y-auto shadow-xl">
+                {isSearching ? (
+                  <div className="py-3 text-center text-white/40 text-sm">Searching...</div>
+                ) : (
+                  <div className="space-y-0.5">
+                    {searchResults.map((player) => (
+                      <button
+                        key={player.id}
+                        onClick={() => handleSelectPlayer(player)}
+                        className="w-full flex items-center gap-2 p-2 rounded hover:bg-white/10 transition-colors text-left"
+                      >
+                        <Flag code={player.nationality} size="sm" />
+                        <span className="text-white text-sm truncate">{player.name}</span>
+                        <span className="text-white/40 text-xs ml-auto">{player.category}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          
           <EligibilityProgress status={eligibility} dark />
         </div>
       </div>
       
-      {/* Cooldown if active */}
-      {session?.user?.lastEditAt && (
-        <div className="px-4 py-1 bg-black/10">
-          <div className="max-w-4xl mx-auto">
-            <CooldownTimer lastEditAt={session.user.lastEditAt} dark />
-          </div>
+      {/* Note about eligibility */}
+      {!eligibility.isEligible && (
+        <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-center">
+          <p className="text-amber-400 text-xs">
+            Rate at least {MIN_RATINGS.INFANTRY} infantry, {MIN_RATINGS.CAVALRY} cavalry, and {MIN_RATINGS.ARCHER} archers to have your ratings count
+          </p>
         </div>
       )}
       
@@ -254,6 +326,7 @@ export default function RatePage() {
             hasPrevious={currentIndex > 0}
             currentIndex={currentIndex}
             totalPlayers={players.length}
+            isSaving={isSaving}
           />
         ) : (
           <div className="text-center py-16 text-white/60">

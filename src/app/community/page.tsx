@@ -8,22 +8,22 @@ import { cn } from "@/lib/utils"
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
 const categoryConfig = {
-  INFANTRY: { icon: "⚔️", label: "Infantry" },
-  CAVALRY: { icon: "🐎", label: "Cavalry" },
-  ARCHER: { icon: "🏹", label: "Archers" },
+  INFANTRY: { label: "Infantry" },
+  CAVALRY: { label: "Cavalry" },
+  ARCHER: { label: "Archers" },
 }
 
-// Rating-based card colors for top 3
+// Rating-based card colors
 function getRatingStyle(rating: number) {
-  if (rating >= 95) return { bg: "from-gray-200 via-white to-gray-100", border: "border-white", text: "text-gray-900", shine: true }
-  if (rating >= 90) return { bg: "from-amber-400 via-yellow-300 to-amber-300", border: "border-amber-300", text: "text-gray-900", shine: true }
-  if (rating >= 85) return { bg: "from-amber-600 via-amber-500 to-yellow-500", border: "border-amber-400", text: "text-white", shine: false }
-  if (rating >= 80) return { bg: "from-gray-300 via-gray-200 to-white", border: "border-gray-200", text: "text-gray-900", shine: true }
-  if (rating >= 75) return { bg: "from-gray-400 via-gray-300 to-gray-200", border: "border-gray-300", text: "text-gray-900", shine: false }
-  if (rating >= 70) return { bg: "from-orange-500 via-orange-400 to-amber-400", border: "border-orange-400", text: "text-white", shine: true }
-  if (rating >= 65) return { bg: "from-orange-700 via-orange-600 to-orange-500", border: "border-orange-500", text: "text-white", shine: false }
-  if (rating >= 60) return { bg: "from-amber-800 via-amber-700 to-yellow-700", border: "border-amber-600", text: "text-white", shine: true }
-  return { bg: "from-amber-900 via-amber-800 to-amber-700", border: "border-amber-700", text: "text-white", shine: false }
+  if (rating >= 95) return { bg: "from-gray-100 via-white to-gray-200", border: "border-white", text: "text-gray-900", shine: true, grainOpacity: "0.15" }
+  if (rating >= 90) return { bg: "from-amber-400 via-yellow-300 to-amber-400", border: "border-amber-300", text: "text-gray-900", shine: true, grainOpacity: "0.12" }
+  if (rating >= 85) return { bg: "from-amber-600 via-amber-500 to-amber-600", border: "border-amber-400", text: "text-white", shine: false, grainOpacity: "0.18" }
+  if (rating >= 80) return { bg: "from-gray-200 via-gray-100 to-gray-300", border: "border-gray-200", text: "text-gray-900", shine: true, grainOpacity: "0.12" }
+  if (rating >= 75) return { bg: "from-gray-400 via-gray-300 to-gray-400", border: "border-gray-300", text: "text-gray-900", shine: false, grainOpacity: "0.15" }
+  if (rating >= 70) return { bg: "from-orange-500 via-orange-400 to-orange-500", border: "border-orange-400", text: "text-white", shine: true, grainOpacity: "0.15" }
+  if (rating >= 65) return { bg: "from-orange-700 via-orange-600 to-orange-700", border: "border-orange-500", text: "text-white", shine: false, grainOpacity: "0.2" }
+  if (rating >= 60) return { bg: "from-amber-700 via-amber-600 to-amber-700", border: "border-amber-600", text: "text-white", shine: true, grainOpacity: "0.25" }
+  return { bg: "from-amber-900 via-amber-800 to-amber-900", border: "border-amber-700", text: "text-white", shine: false, grainOpacity: "0.3" }
 }
 
 export default function CommunityPage() {
@@ -80,7 +80,7 @@ export default function CommunityPage() {
                   : "bg-white/10 text-white/70 hover:bg-white/20"
               )}
             >
-              {categoryConfig[cat].icon} {categoryConfig[cat].label}
+              {categoryConfig[cat].label}
             </button>
           ))}
         </div>
@@ -94,15 +94,15 @@ export default function CommunityPage() {
         <div className="max-w-6xl mx-auto px-6 pb-20">
           {/* THE CHOSEN THREE */}
           {top3.length > 0 && (
-            <section className="mb-16">
+            <section className="mb-20">
               <h2 className="text-center text-2xl font-display font-bold text-amber-400 mb-2 tracking-wider">
-                ✦ THE CHOSEN THREE ✦
+                THE CHOSEN THREE
               </h2>
-              <p className="text-center text-white/50 mb-10 text-sm">
+              <p className="text-center text-white/50 mb-12 text-sm">
                 The undisputed elite
               </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
                 {/* Reorder: 2nd, 1st, 3rd */}
                 {[top3[1], top3[0], top3[2]].filter(Boolean).map((player, idx) => {
                   const actualRank = idx === 1 ? 1 : idx === 0 ? 2 : 3
@@ -123,10 +123,10 @@ export default function CommunityPage() {
           {elite.length > 0 && (
             <section className="mb-16">
               <h2 className="text-xl font-display font-bold text-white mb-2">
-                🔥 Elite Warriors
+                Elite Warriors
               </h2>
               <p className="text-white/50 mb-6 text-sm">
-                Rank #4 - #15 • The feared names in battle
+                Rank #4 - #15
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -141,10 +141,10 @@ export default function CommunityPage() {
           {promising.length > 0 && (
             <section className="mb-16">
               <h2 className="text-xl font-display font-bold text-white/80 mb-2">
-                ⭐ Rising Stars
+                Rising Stars
               </h2>
               <p className="text-white/40 mb-6 text-sm">
-                Rank #16 - #30 • Players on the rise
+                Rank #16 - #30
               </p>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -191,7 +191,7 @@ export default function CommunityPage() {
   )
 }
 
-// Top 3 FIFA-style card with rating-based colors
+// Top 3 FIFA-style card with rating-based colors and grain texture
 function TopPlayerCard({ 
   player, 
   rank, 
@@ -203,12 +203,12 @@ function TopPlayerCard({
 }) {
   const ratingStyle = getRatingStyle(player.averageRating)
   
-  const medals = { 1: "🥇", 2: "🥈", 3: "🥉" }
+  const rankLabels = { 1: "#1", 2: "#2", 3: "#3" }
   
   return (
     <div className={cn(
       "relative transition-all duration-300",
-      isCenter ? "md:-mt-8 md:scale-110 z-10" : "md:mt-4"
+      isCenter ? "md:scale-110 z-10" : ""
     )}>
       <div className={cn(
         "relative overflow-hidden rounded-2xl border-2 p-6",
@@ -216,22 +216,29 @@ function TopPlayerCard({
         "shadow-2xl"
       )}>
         {/* Background gradient based on rating */}
-        <div className={`absolute inset-0 bg-gradient-to-b ${ratingStyle.bg} opacity-90`} />
+        <div className={`absolute inset-0 bg-gradient-to-b ${ratingStyle.bg}`} />
+        
+        {/* Grain texture overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            opacity: ratingStyle.grainOpacity,
+            mixBlendMode: "overlay",
+          }}
+        />
         
         {/* Shine effect for bright cards */}
         {ratingStyle.shine && (
-          <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent pointer-events-none" />
         )}
-        
-        {/* Pattern overlay */}
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v22H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z' fill='%23000000' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-        }} />
         
         {/* Content */}
         <div className="relative text-center">
-          {/* Medal */}
-          <div className="text-5xl mb-2">{medals[rank as 1 | 2 | 3]}</div>
+          {/* Rank */}
+          <div className={`text-4xl font-black mb-2 ${ratingStyle.text}`}>
+            {rankLabels[rank as 1 | 2 | 3]}
+          </div>
           
           {/* Rating */}
           <div className={`${ratingStyle.text === "text-gray-900" ? "bg-black/20" : "bg-black/30"} backdrop-blur-sm inline-block rounded-lg px-4 py-1 mb-4`}>
