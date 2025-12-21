@@ -158,6 +158,25 @@ interface VoterDetails {
   }[]
 }
 
+interface PlayerRatingsDetails {
+  player: {
+    id: string
+    name: string
+    category: string
+    clan: string | null
+    nationality: string | null
+  }
+  ratings: {
+    id: string
+    score: number
+    raterName: string | null
+    raterDiscordName: string | null
+    raterDivision: string | null
+  }[]
+  averageRating: number | null
+  totalRatings: number
+}
+
 export default function CommunityPage() {
   const [category, setCategory] = useState<Category>("INFANTRY")
   const [players, setPlayers] = useState<PlayerWithRating[]>([])
@@ -167,6 +186,8 @@ export default function CommunityPage() {
   const [selectedVoter, setSelectedVoter] = useState<VoterDetails | null>(null)
   const [loadingVoters, setLoadingVoters] = useState(false)
   const [votersDisplayCount, setVotersDisplayCount] = useState(12)
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerRatingsDetails | null>(null)
+  const [loadingPlayerRatings, setLoadingPlayerRatings] = useState(false)
   
   useEffect(() => {
     async function fetchRankings() {
@@ -208,6 +229,20 @@ export default function CommunityPage() {
       }
     } catch (error) {
       console.error("Error fetching voter details:", error)
+    }
+  }
+
+  const fetchPlayerRatings = async (playerId: string) => {
+    setLoadingPlayerRatings(true)
+    try {
+      const res = await fetch(`/api/players/${playerId}/ratings`)
+      if (res.ok) {
+        setSelectedPlayer(await res.json())
+      }
+    } catch (error) {
+      console.error("Error fetching player ratings:", error)
+    } finally {
+      setLoadingPlayerRatings(false)
     }
   }
   
@@ -327,6 +362,79 @@ export default function CommunityPage() {
           </div>
         </div>
       )}
+
+      {/* Player Ratings Modal */}
+      {selectedPlayer && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-white/10">
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <Flag code={selectedPlayer.player.nationality} size="md" />
+                    <div>
+                      <h2 className="text-2xl font-display text-white">
+                        {selectedPlayer.player.name}
+                      </h2>
+                      <p className="text-white/50 text-sm mt-1">
+                        {selectedPlayer.player.category} · {selectedPlayer.player.clan || "FA"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right mr-4">
+                  <div className="text-3xl font-bold text-amber-400">
+                    {selectedPlayer.averageRating || "-"}
+                  </div>
+                  <div className="text-white/50 text-xs">
+                    {selectedPlayer.totalRatings} rating{selectedPlayer.totalRatings !== 1 ? "s" : ""}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedPlayer(null)}
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                >
+                  X
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {loadingPlayerRatings ? (
+                <div className="flex justify-center py-8">
+                  <div className="w-8 h-8 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+                </div>
+              ) : selectedPlayer.ratings.length === 0 ? (
+                <div className="text-center text-white/40 py-8">
+                  No ratings yet from real users
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {selectedPlayer.ratings.map((rating) => (
+                    <div 
+                      key={rating.id}
+                      className="flex items-center justify-between bg-black/20 rounded-lg p-3"
+                    >
+                      <div>
+                        <span className="text-white font-medium">
+                          {rating.raterDiscordName || rating.raterName || "Anonymous"}
+                        </span>
+                        {rating.raterDiscordName && rating.raterName && rating.raterDiscordName !== rating.raterName && (
+                          <span className="text-white/40 text-sm ml-2">({rating.raterName})</span>
+                        )}
+                        <span className="text-white/30 text-sm ml-2">
+                          Div {rating.raterDivision || "?"}
+                        </span>
+                      </div>
+                      <span className="text-amber-400 font-bold text-lg">{rating.score}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       
       {showVoters ? (
         <div className="max-w-4xl mx-auto px-6 pb-20">
@@ -426,6 +534,7 @@ export default function CommunityPage() {
                       player={player} 
                       rank={actualRank}
                       isCenter={idx === 1}
+                      onPlayerClick={fetchPlayerRatings}
                     />
                   )
                 })}
@@ -445,7 +554,7 @@ export default function CommunityPage() {
               
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {elite.map((player) => (
-                  <ElitePlayerCard key={player.id} player={player} />
+                  <ElitePlayerCard key={player.id} player={player} onPlayerClick={fetchPlayerRatings} />
                 ))}
               </div>
             </section>
@@ -463,7 +572,7 @@ export default function CommunityPage() {
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {promising.map((player) => (
-                  <CompactPlayerCard key={player.id} player={player} />
+                  <CompactPlayerCard key={player.id} player={player} onPlayerClick={fetchPlayerRatings} />
                 ))}
               </div>
             </section>
@@ -479,15 +588,16 @@ export default function CommunityPage() {
               <div className="bg-black/20 rounded-xl p-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                   {rest.map((player) => (
-                    <div 
+                    <button
                       key={player.id}
-                      className="flex items-center gap-2 p-2 rounded-lg bg-white/5 text-sm"
+                      onClick={() => fetchPlayerRatings(player.id)}
+                      className="w-full flex items-center gap-2 p-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 transition-colors text-left"
                     >
                       <span className="text-white/40 w-8">#{player.rank}</span>
                       <Flag code={player.nationality} size="sm" />
                       <span className="text-white/80 truncate flex-1">{player.name}</span>
                       <span className="text-white/60 font-mono">{player.averageRating.toFixed(1)}</span>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -509,11 +619,13 @@ export default function CommunityPage() {
 function FifaDisplayCard({ 
   player, 
   rank, 
-  isCenter 
+  isCenter,
+  onPlayerClick
 }: { 
   player: PlayerWithRating
   rank: number
   isCenter: boolean
+  onPlayerClick?: (id: string) => void
 }) {
   const style = getCardStyle(player.averageRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
@@ -523,12 +635,15 @@ function FifaDisplayCard({
   const rankLabels = { 1: "#1", 2: "#2", 3: "#3" }
   
   return (
-    <div className={cn(
-      "flex justify-center",
-      isCenter ? "md:scale-110 z-10" : ""
-    )}>
+    <button 
+      onClick={() => onPlayerClick?.(player.id)}
+      className={cn(
+        "flex justify-center",
+        isCenter ? "md:scale-110 z-10" : ""
+      )}
+    >
       {/* FIFA Card - AAA+ Premium Design */}
-      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border}`}>
+      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} hover:scale-105 transition-transform`}>
         {/* Background Base - Rich gradient */}
         <div 
           className="absolute inset-0"
@@ -664,20 +779,20 @@ function FifaDisplayCard({
           </div>
         </div>
       </div>
-    </div>
+    </button>
   )
 }
 
 // Elite player card (4-15) - Small FIFA Card
-function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
+function ElitePlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; onPlayerClick?: (id: string) => void }) {
   const style = getCardStyle(player.averageRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const clanLogo = (player as any).clanLogo || null
   
   return (
-    <div className="flex justify-center">
+    <button onClick={() => onPlayerClick?.(player.id)} className="flex justify-center w-full">
       {/* Small FIFA Card - 20% bigger */}
-      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${style.border}`}>
+      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${style.border} hover:scale-105 transition-transform`}>
         {/* Background Base */}
         <div 
           className="absolute inset-0"
@@ -771,16 +886,19 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
           </div>
         </div>
       </div>
-    </div>
+    </button>
   )
 }
 
 // Compact player card (16-30) - Rising Stars with Avatar
-function CompactPlayerCard({ player }: { player: PlayerWithRating }) {
+function CompactPlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; onPlayerClick?: (id: string) => void }) {
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   
   return (
-    <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:bg-white/10">
+    <button 
+      onClick={() => onPlayerClick?.(player.id)}
+      className="w-full bg-white/5 rounded-lg p-3 border border-white/5 hover:bg-white/10 text-left transition-colors"
+    >
       <div className="flex items-center gap-2">
         <span className="text-white/30 text-sm w-6">#{player.rank}</span>
         <Image 
@@ -797,6 +915,6 @@ function CompactPlayerCard({ player }: { player: PlayerWithRating }) {
         {player.clan && <span className="text-white/30 text-xs truncate">{player.clan}</span>}
         <span className="text-white/60 text-sm font-mono ml-auto">{player.averageRating.toFixed(1)}</span>
       </div>
-    </div>
+    </button>
   )
 }
