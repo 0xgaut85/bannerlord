@@ -18,7 +18,7 @@ function getDefaultAvatar(category: string): string {
   switch (category) {
     case "INFANTRY": return "/inf.png"
     case "CAVALRY": return "/cav.png"
-    case "ARCHER": return "/cav.png"
+    case "ARCHER": return "/arc.png"
     default: return "/inf.png"
   }
 }
