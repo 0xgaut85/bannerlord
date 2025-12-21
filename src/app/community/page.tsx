@@ -51,7 +51,7 @@ export default function CommunityPage() {
           Community Rankings
         </p>
         <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-6">
-          {config.icon} {config.label} Legends
+          Global Rankings
         </h1>
         
         {/* Category Tabs */}
@@ -86,7 +86,7 @@ export default function CommunityPage() {
                 ✦ THE CHOSEN THREE ✦
               </h2>
               <p className="text-center text-white/50 mb-10 text-sm">
-                The undisputed elite of {config.label.toLowerCase()}
+                The undisputed elite
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -295,7 +295,7 @@ export default function EditPlayerPage() {
                 <select
                   value={nationality}
                   onChange={(e) => setNationality(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-800 [&>option]:text-white"
                 >
                   <option value="">Select nationality</option>
                   {countries.map((country) => (
@@ -425,7 +425,7 @@ export default function EditPlayerPage() {
                 <select
                   value={newPlayerNationality}
                   onChange={(e) => setNewPlayerNationality(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-800 [&>option]:text-white"
                 >
                   <option value="">Select nationality</option>
                   {countries.map((country) => (
