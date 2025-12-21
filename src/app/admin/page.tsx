@@ -17,6 +17,7 @@ export default function AdminPage() {
   const [search, setSearch] = useState("")
   const [players, setPlayers] = useState<any[]>([])
   const [requests, setRequests] = useState<any[]>([])
+  const [clanRequests, setClanRequests] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
   const [selectedUser, setSelectedUser] = useState<any | null>(null)
   const [activeTab, setActiveTab] = useState("players")
@@ -39,9 +40,37 @@ export default function AdminPage() {
       setIsAuthenticated(true)
       fetchPlayers()
       fetchRequests()
+      fetchClanRequests()
       fetchUsers()
     } else {
       alert("Invalid credentials")
+    }
+  }
+
+  const fetchClanRequests = async () => {
+    try {
+      const res = await fetch("/api/clan-requests")
+      if (res.ok) {
+        const data = await res.json()
+        setClanRequests(data)
+      }
+    } catch (error) {
+      console.error("Error fetching clan requests:", error)
+    }
+  }
+
+  const handleClanRequestAction = async (requestId: string, action: "approve" | "reject") => {
+    try {
+      const res = await fetch(`/api/clan-requests/${requestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action })
+      })
+      if (res.ok) {
+        setClanRequests(clanRequests.filter(r => r.id !== requestId))
+      }
+    } catch (error) {
+      alert("Action failed")
     }
   }
 
@@ -250,6 +279,18 @@ export default function AdminPage() {
                 )}
               </Button>
               <Button 
+                variant={activeTab === "clans" ? "primary" : "ghost"} 
+                onClick={() => setActiveTab("clans")}
+                className={`relative ${activeTab === "clans" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+              >
+                Clan Requests
+                {clanRequests.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
+                    {clanRequests.length}
+                  </span>
+                )}
+              </Button>
+              <Button 
                 variant={activeTab === "users" ? "primary" : "ghost"} 
                 onClick={() => setActiveTab("users")}
                 className={activeTab === "users" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}
@@ -323,6 +364,69 @@ export default function AdminPage() {
             ))}
             {requests.length === 0 && (
               <div className="text-center text-white/40 py-12">No pending requests</div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "clans" && (
+          <div className="grid gap-4">
+            {clanRequests.map((request) => (
+              <div key={request.id} className="bg-white/5 p-6 rounded-xl border border-white/10">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-medium text-white text-lg">
+                      Clan Edit: {request.clanShortName}
+                    </h3>
+                    <p className="text-sm text-white/50">
+                      Submitted by: {request.user?.discordName || request.user?.name || "Unknown"}
+                    </p>
+                  </div>
+                  <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded text-xs font-medium">
+                    PENDING
+                  </span>
+                </div>
+
+                <div className="bg-green-500/10 rounded-lg p-3 mb-4">
+                  <span className="block text-green-400 mb-2 text-xs uppercase tracking-wide">Suggested Changes</span>
+                  <div className="text-white space-y-1 text-sm">
+                    {request.suggestedName && <p>Name: {request.suggestedName}</p>}
+                    {request.suggestedShortName && <p>Short Name: {request.suggestedShortName}</p>}
+                    {request.suggestedLogo && (
+                      <div className="mt-2">
+                        <p className="mb-2">New Logo:</p>
+                        <img 
+                          src={request.suggestedLogo} 
+                          alt="Suggested logo" 
+                          className="w-16 h-16 object-cover rounded-lg border border-white/20"
+                        />
+                      </div>
+                    )}
+                    {!request.suggestedName && !request.suggestedShortName && !request.suggestedLogo && (
+                      <p className="text-white/50">No changes specified</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <Button 
+                    size="sm" 
+                    className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30"
+                    onClick={() => handleClanRequestAction(request.id, "reject")}
+                  >
+                    Reject
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="!bg-green-500/20 !text-green-400 hover:!bg-green-500/30"
+                    onClick={() => handleClanRequestAction(request.id, "approve")}
+                  >
+                    Approve
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {clanRequests.length === 0 && (
+              <div className="text-center text-white/40 py-12">No pending clan requests</div>
             )}
           </div>
         )}

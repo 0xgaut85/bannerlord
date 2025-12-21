@@ -49,6 +49,7 @@ model User {
   updatedAt         DateTime      @updatedAt
   accounts          Account[]
   editRequests      EditRequest[]
+  clanEditRequests  ClanEditRequest[]
   ratings           Rating[]
   sessions          Session[]
 }
@@ -113,6 +114,20 @@ model EditRequest {
   suggestedCategory    PlayerCategory?
   player               Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
   user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ClanEditRequest {
+  id                String        @id @default(cuid())
+  clanId            String?       // Optional - might be for a new clan
+  clanShortName     String        // The clan identifier
+  userId            String
+  suggestedName     String?
+  suggestedShortName String?
+  suggestedLogo     String?
+  status            RequestStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Division {
