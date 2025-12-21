@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
-import { MIN_PLAYER_RATINGS, MAX_RATING_DEVIATION, DIVISION_WEIGHTS } from "@/lib/utils"
+import { MIN_PLAYER_RATINGS, MAX_RATING_DEVIATION, DIVISION_WEIGHTS, isSelfRating } from "@/lib/utils"
 
 export async function GET() {
   try {
@@ -77,10 +77,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
     
-    // Check if profile is complete
+    // Check if profile is complete and get user details for self-rating check
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { isProfileComplete: true, division: true }
+      select: { isProfileComplete: true, division: true, name: true, discordName: true }
     })
     
     if (!user?.isProfileComplete) {
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid ratings format" }, { status: 400 })
     }
     
-    // Validate scores (50-99) and check anti-troll rule for established players
+    // Validate scores (50-99), check self-rating, and anti-troll rule for established players
     const validationErrors: string[] = []
     
     for (const rating of ratings) {
@@ -108,19 +108,27 @@ export async function POST(request: NextRequest) {
         }, { status: 400 })
       }
       
+      // Check for self-rating
+      const player = await prisma.player.findUnique({
+        where: { id: rating.playerId },
+        select: { name: true }
+      })
+      
+      if (player && isSelfRating(user.name, user.discordName, player.name)) {
+        return NextResponse.json({ 
+          error: `You cannot rate yourself (${player.name}). Please skip this player.`
+        }, { status: 403 })
+      }
+      
       // Check if player has enough ratings (anti-troll protection)
       const { average, count } = await getPlayerAverageRating(rating.playerId, session.user.id)
       
       if (count >= MIN_PLAYER_RATINGS) {
-        // Player is established - enforce ±7.5 rule
+        // Player is established - enforce ±20 rule
         const minAllowed = Math.max(50, Math.floor(average - MAX_RATING_DEVIATION))
         const maxAllowed = Math.min(99, Math.ceil(average + MAX_RATING_DEVIATION))
         
         if (rating.score < minAllowed || rating.score > maxAllowed) {
-          const player = await prisma.player.findUnique({
-            where: { id: rating.playerId },
-            select: { name: true }
-          })
           validationErrors.push(
             `${player?.name || 'Player'}: rating must be between ${minAllowed} and ${maxAllowed} (current avg: ${average.toFixed(1)})`
           )

@@ -5,7 +5,7 @@ import { useSession, signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button, Flag } from "@/components/ui"
 import { FifaCard, EligibilityProgress } from "@/components/rating"
-import { MIN_RATINGS, MAX_RATING_DEVIATION } from "@/lib/utils"
+import { MIN_RATINGS, MAX_RATING_DEVIATION, isSelfRating } from "@/lib/utils"
 import { Player, Division } from "@prisma/client"
 
 // Extended player type with average rating from API
@@ -49,6 +49,9 @@ export default function RatePage() {
   const [isSearching, setIsSearching] = useState(false)
   const debouncedSearch = useDebounce(searchQuery, 300)
   
+  // User profile for self-rating check
+  const [userProfile, setUserProfile] = useState<{ name: string | null; discordName: string | null } | null>(null)
+  
   // Eligibility calculation
   const eligibility = {
     isEligible: false,
@@ -86,6 +89,13 @@ export default function RatePage() {
         }
         
         if (session?.user?.id) {
+          // Fetch user profile for self-rating check
+          const profileRes = await fetch("/api/profile")
+          if (profileRes.ok) {
+            const profileData = await profileRes.json()
+            setUserProfile({ name: profileData.name, discordName: profileData.discordName })
+          }
+          
           const ratingsRes = await fetch("/api/ratings")
           if (ratingsRes.ok) {
             const ratingsData = await ratingsRes.json()
@@ -173,6 +183,11 @@ export default function RatePage() {
   }
   
   const currentPlayer = filteredPlayers[currentIndex]
+  
+  // Check if current player is the user themselves (self-rating prevention)
+  const isSelfRatingPlayer = currentPlayer && userProfile 
+    ? isSelfRating(userProfile.name, userProfile.discordName, currentPlayer.name)
+    : false
   
   const handleRatingChange = useCallback((value: number) => {
     if (currentPlayer) {
@@ -444,28 +459,57 @@ export default function RatePage() {
       {/* Main Card Area - Takes remaining space */}
       <div className="flex-1 flex items-center justify-center px-4 py-4 overflow-hidden">
         {filteredPlayers.length > 0 && currentPlayer ? (
-          <FifaCard
-            player={currentPlayer}
-            currentRating={ratings[currentPlayer.id] || 75}
-            onRatingChange={handleRatingChange}
-            onSkip={handleSkip}
-            onValidate={handleValidate}
-            onPrevious={handlePrevious}
-            hasPrevious={currentIndex > 0}
-            currentIndex={currentIndex}
-            totalPlayers={filteredPlayers.length}
-            isSaving={isSaving}
-            minRating={
-              currentPlayer.totalRatings && currentPlayer.totalRatings > 0 && currentPlayer.averageRating
-                ? Math.max(50, Math.floor(currentPlayer.averageRating - MAX_RATING_DEVIATION))
-                : 50
-            }
-            maxRating={
-              currentPlayer.totalRatings && currentPlayer.totalRatings > 0 && currentPlayer.averageRating
-                ? Math.min(99, Math.ceil(currentPlayer.averageRating + MAX_RATING_DEVIATION))
-                : 99
-            }
-          />
+          isSelfRatingPlayer ? (
+            // Self-rating prevention - show message and skip button
+            <div className="w-full max-w-md text-center">
+              <div className="bg-red-500/20 border-2 border-red-500/50 rounded-2xl p-8">
+                <div className="text-red-400 text-6xl mb-4">!</div>
+                <h3 className="text-white font-display text-2xl mb-2">Cannot Rate Yourself</h3>
+                <p className="text-white/60 mb-2">
+                  The player &quot;{currentPlayer.name}&quot; matches your profile name.
+                </p>
+                <p className="text-white/40 text-sm mb-6">
+                  You cannot rate yourself. Please skip to continue.
+                </p>
+                <div className="flex gap-4 justify-center">
+                  {currentIndex > 0 && (
+                    <Button variant="ghost" onClick={handlePrevious}>
+                      Previous
+                    </Button>
+                  )}
+                  <Button onClick={handleSkip} className="bg-amber-500 hover:bg-amber-600 text-black">
+                    Skip Player
+                  </Button>
+                </div>
+                <p className="text-white/30 text-xs mt-4">
+                  {currentIndex + 1} / {filteredPlayers.length}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <FifaCard
+              player={currentPlayer}
+              currentRating={ratings[currentPlayer.id] || 75}
+              onRatingChange={handleRatingChange}
+              onSkip={handleSkip}
+              onValidate={handleValidate}
+              onPrevious={handlePrevious}
+              hasPrevious={currentIndex > 0}
+              currentIndex={currentIndex}
+              totalPlayers={filteredPlayers.length}
+              isSaving={isSaving}
+              minRating={
+                currentPlayer.totalRatings && currentPlayer.totalRatings > 0 && currentPlayer.averageRating
+                  ? Math.max(50, Math.floor(currentPlayer.averageRating - MAX_RATING_DEVIATION))
+                  : 50
+              }
+              maxRating={
+                currentPlayer.totalRatings && currentPlayer.totalRatings > 0 && currentPlayer.averageRating
+                  ? Math.min(99, Math.ceil(currentPlayer.averageRating + MAX_RATING_DEVIATION))
+                  : 99
+              }
+            />
+          )
         ) : (
           <div className="text-center py-16 text-white/60">
             <p className="font-display text-2xl">
