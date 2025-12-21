@@ -3,11 +3,11 @@ import { Division } from "@prisma/client"
 // Division weight coefficients
 export const DIVISION_WEIGHTS: Record<Division, number> = {
   A: 1.0,
-  B: 0.75,
-  C: 0.5,
-  D: 0.5,
-  E: 0.25,
-  F: 0.25,
+  B: 0.9,
+  C: 0.8,
+  D: 0.7,
+  E: 0.6,
+  F: 0.5,
 }
 
 // Minimum ratings required for user eligibility (to count their votes)
@@ -60,7 +60,7 @@ export function calculateWeightedAverage(
   let totalWeight = 0
   
   for (const rating of ratings) {
-    const weight = rating.raterDivision ? DIVISION_WEIGHTS[rating.raterDivision] : 0.25
+    const weight = rating.raterDivision ? DIVISION_WEIGHTS[rating.raterDivision] : 0.5
     weightedSum += rating.score * weight
     totalWeight += weight
   }

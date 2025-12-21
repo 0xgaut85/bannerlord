@@ -85,7 +85,7 @@ export default function CommunityPage() {
         </p>
         <p className="mb-3">
           <span className="font-medium text-[#1a1a1a]">Vote weight:</span>{" "}
-          Division A (100%) · Division B (75%) · Division C/D (50%) · Division E/F (25%).
+          Division A (100%) · Division B (90%) · Division C (80%) · Division D (70%) · Division E (60%) · Division F (50%).
         </p>
         <p>
           Only users&apos; lists who have rated at least 20 Infantry, 20 Cavalry, and 10 Archers are counted.

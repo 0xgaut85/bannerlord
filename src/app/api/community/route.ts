@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Get all eligible users (those who have rated minimum required)
+    // AND system raters who are always eligible
     const eligibleUserIds = await getEligibleUserIds()
     
     // Get players with their ratings from eligible users only
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
         for (const rating of player.ratings) {
           const weight = rating.rater.division 
             ? DIVISION_WEIGHTS[rating.rater.division] 
-            : 0.25
+            : 0.5
           weightedSum += rating.score * weight
           totalWeight += weight
         }
@@ -79,9 +80,17 @@ export async function GET(request: NextRequest) {
 async function getEligibleUserIds(): Promise<string[]> {
   // Get users with their rating counts per category
   const users = await prisma.user.findMany({
-    where: { isProfileComplete: true },
+    // Include system users (profile might not be "complete" in same way, or explicit system flag)
+    // We check discordId starting with "system_" or normal eligibility
+    where: { 
+      OR: [
+        { isProfileComplete: true },
+        { discordId: { startsWith: "system_" } }
+      ]
+    },
     select: {
       id: true,
+      discordId: true,
       ratings: {
         select: {
           player: {
@@ -95,6 +104,12 @@ async function getEligibleUserIds(): Promise<string[]> {
   const eligibleIds: string[] = []
   
   for (const user of users) {
+    // System users are always eligible
+    if (user.discordId && user.discordId.startsWith("system_")) {
+      eligibleIds.push(user.id)
+      continue
+    }
+
     const infantryCount = user.ratings.filter(r => r.player.category === "INFANTRY").length
     const cavalryCount = user.ratings.filter(r => r.player.category === "CAVALRY").length
     const archerCount = user.ratings.filter(r => r.player.category === "ARCHER").length

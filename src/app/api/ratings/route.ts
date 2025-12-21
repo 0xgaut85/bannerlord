@@ -58,7 +58,7 @@ async function getPlayerAverageRating(playerId: string, excludeRaterId?: string)
   for (const rating of ratings) {
     const weight = rating.rater.division 
       ? DIVISION_WEIGHTS[rating.rater.division] 
-      : 0.25
+      : 0.5
     weightedSum += rating.score * weight
     totalWeight += weight
   }
