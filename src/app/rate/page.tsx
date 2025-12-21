@@ -13,7 +13,9 @@ interface RatingMap {
   [playerId: string]: number
 }
 
-const DIVISIONS: Division[] = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+// Display divisions for filter buttons (H+ covers H, I, J)
+const DIVISION_BUTTONS = ["A", "B", "C", "D", "E", "F", "G", "H+"] as const
+type DivisionButton = typeof DIVISION_BUTTONS[number]
 const CATEGORIES = ["ALL", "INFANTRY", "CAVALRY", "ARCHER"] as const
 
 export default function RatePage() {
@@ -31,7 +33,7 @@ export default function RatePage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   
   // Filters
-  const [selectedDivisions, setSelectedDivisions] = useState<Division[]>([])
+  const [selectedDivisions, setSelectedDivisions] = useState<DivisionButton[]>([])
   const [selectedCategory, setSelectedCategory] = useState<typeof CATEGORIES[number]>("ALL")
   
   // Search
@@ -106,7 +108,19 @@ export default function RatePage() {
     
     // Filter by division (API now returns calculated division for all players)
     if (selectedDivisions.length > 0) {
-      filtered = filtered.filter(p => p.division && selectedDivisions.includes(p.division))
+      filtered = filtered.filter(p => {
+        if (!p.division) return false
+        // Check if player's division matches any selected division
+        for (const sel of selectedDivisions) {
+          if (sel === "H+") {
+            // H+ matches H, I, J
+            if (p.division === "H" || p.division === "I" || p.division === "J") return true
+          } else if (p.division === sel) {
+            return true
+          }
+        }
+        return false
+      })
     }
     
     // Filter by category
@@ -143,7 +157,7 @@ export default function RatePage() {
     searchPlayers()
   }, [debouncedSearch])
   
-  const toggleDivision = (division: Division) => {
+  const toggleDivision = (division: DivisionButton) => {
     setSelectedDivisions(prev => 
       prev.includes(division) 
         ? prev.filter(d => d !== division)
@@ -341,7 +355,7 @@ export default function RatePage() {
           {/* Division Filters */}
           <div className="flex items-center gap-2">
             <span className="text-white/40 text-xs font-medium">Division:</span>
-            {DIVISIONS.map(div => (
+            {DIVISION_BUTTONS.map(div => (
               <button
                 key={div}
                 onClick={() => toggleDivision(div)}
