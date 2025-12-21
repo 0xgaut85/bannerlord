@@ -3,6 +3,10 @@ import prisma from "@/lib/prisma"
 import { PlayerCategory, Division } from "@prisma/client"
 import { DIVISION_WEIGHTS, MIN_RATINGS, MIN_PLAYER_RATINGS, DIVISION_DEFAULT_RATINGS } from "@/lib/utils"
 
+// Force dynamic - never cache this route
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // Calculate division from rating
 function getDivisionFromRating(rating: number): string {
   if (rating >= 85) return "A"
