@@ -435,7 +435,6 @@ export default function EditPlayerPage() {
           clanShortName: editingClan.shortName, // Include current shortName for lookup
           suggestedName: editClanName !== editingClan.name ? editClanName : null,
           suggestedShortName: editClanShortName !== editingClan.shortName ? editClanShortName : null,
-          suggestedYear: editClanYear || null,
           suggestedLogo: editClanLogo !== editingClan.logo ? editClanLogo : null,
         }),
       })
@@ -1151,18 +1150,6 @@ export default function EditPlayerPage() {
                       onChange={(e) => setEditClanShortName(e.target.value.toUpperCase())}
                       maxLength={10}
                       className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white uppercase focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-white/70 text-sm mb-2">Year Founded (optional)</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 2021"
-                      value={editClanYear}
-                      onChange={(e) => setEditClanYear(e.target.value)}
-                      maxLength={4}
-                      className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                     />
                   </div>
                   

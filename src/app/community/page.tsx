@@ -453,6 +453,7 @@ function FifaDisplayCard({
 function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
   const style = getCardStyle(player.averageRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
+  const clanLogo = (player as any).clanLogo || null
   
   return (
     <div className="flex justify-center">
@@ -513,7 +514,21 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
                 className="object-cover"
               />
             </div>
-            {/* Flag */}
+            {/* Clan Logo on left */}
+            <div className="absolute left-0 bottom-0 z-20">
+              <div className="w-5 h-5 bg-black">
+                {clanLogo && (
+                  <Image
+                    src={clanLogo}
+                    alt="Clan"
+                    width={20}
+                    height={20}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            </div>
+            {/* Flag on right */}
             <div className="absolute right-0 bottom-0 shadow-lg z-20">
               <Flag code={player.nationality} size="sm" />
             </div>
