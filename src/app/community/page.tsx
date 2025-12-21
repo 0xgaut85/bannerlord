@@ -217,7 +217,7 @@ export default function CommunityPage() {
                 Rank #4 - #15
               </p>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {elite.map((player) => (
                   <ElitePlayerCard key={player.id} player={player} />
                 ))}
@@ -418,38 +418,108 @@ function FifaDisplayCard({
   )
 }
 
-// Elite player card (4-15)
+// Elite player card (4-15) - Small FIFA Card
 function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
+  const style = getCardStyle(player.averageRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/15">
-      <div className="flex items-center gap-3">
-        <div className="text-white/40 font-bold text-lg w-8">#{player.rank}</div>
-        <Image src={avatarSrc} alt={player.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
-        <Flag code={player.nationality} size="md" />
-        <div className="flex-1 min-w-0">
-          <h3 className="text-white font-semibold truncate">{player.name}</h3>
-          {player.clan && <p className="text-white/50 text-xs">{player.clan}</p>}
+    <div className="flex justify-center">
+      {/* Small FIFA Card */}
+      <div className={`relative w-36 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${style.border}`}>
+        {/* Background Base */}
+        <div 
+          className="absolute inset-0"
+          style={{ background: style.bg }}
+        />
+        
+        {/* Overlay Gradient */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: style.overlayGradient }}
+        />
+        
+        {/* Noise Texture */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>
+          <filter id={`eliteNoise-${player.id}`}>
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter={`url(#eliteNoise-${player.id})`} />
+        </svg>
+
+        {/* Inner Border (Dashed) */}
+        <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none z-10" />
+        
+        {/* Vignette */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%)" }}
+        />
+
+        {/* Content */}
+        <div className="relative h-full flex flex-col p-2.5 z-30">
+          {/* Top: Rating & Rank */}
+          <div className="flex justify-between items-start">
+            <div className="flex flex-col items-center">
+              <span className={`text-2xl font-black ${style.text} leading-none`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+                {player.averageRating.toFixed(0)}
+              </span>
+              <span className={`text-[8px] font-bold ${style.subtext} tracking-wider uppercase`}>
+                {categoryShort[player.category]}
+              </span>
+            </div>
+            <span className={`text-xs font-bold ${style.subtext} opacity-70`}>#{player.rank}</span>
+          </div>
+
+          {/* Middle: Avatar */}
+          <div className="flex-1 relative flex items-center justify-center py-1">
+            <div className="relative w-14 h-14 rounded-full overflow-hidden shadow-lg border border-white/10">
+              <Image
+                src={avatarSrc}
+                alt={player.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+            {/* Flag */}
+            <div className="absolute right-0 bottom-0 shadow-lg z-20">
+              <Flag code={player.nationality} size="sm" />
+            </div>
+          </div>
+
+          {/* Bottom: Name & Clan */}
+          <div className="mt-auto">
+            <div className={`h-px w-full bg-gradient-to-r ${style.accent} mb-1.5 opacity-40`} />
+            <h3 className={`text-xs font-black ${style.text} uppercase truncate text-center`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+              {player.name}
+            </h3>
+            {player.clan && (
+              <p className={`text-[9px] ${style.subtext} text-center opacity-70 truncate`}>{player.clan}</p>
+            )}
+          </div>
         </div>
-        <div className="text-xl font-bold text-white">{player.averageRating.toFixed(1)}</div>
       </div>
-      {player.bio && (
-        <p className="mt-2 text-white/40 text-xs italic line-clamp-1">
-          &ldquo;{player.bio}&rdquo;
-        </p>
-      )}
     </div>
   )
 }
 
-// Compact player card (16-30)
+// Compact player card (16-30) - Rising Stars with Avatar
 function CompactPlayerCard({ player }: { player: PlayerWithRating }) {
+  const avatarSrc = player.avatar || getDefaultAvatar(player.category)
+  
   return (
     <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:bg-white/10">
       <div className="flex items-center gap-2">
         <span className="text-white/30 text-sm w-6">#{player.rank}</span>
-        <Flag code={player.nationality} size="md" className="rounded" />
+        <Image 
+          src={avatarSrc} 
+          alt={player.name} 
+          width={28} 
+          height={28} 
+          className="w-7 h-7 rounded-full object-cover border border-white/10" 
+        />
+        <Flag code={player.nationality} size="sm" />
         <span className="text-white/80 text-sm truncate flex-1">{player.name}</span>
       </div>
       <div className="flex items-center justify-between mt-1">
