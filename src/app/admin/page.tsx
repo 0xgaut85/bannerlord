@@ -370,6 +370,7 @@ export default function AdminPage() {
                   <div className="bg-black/20 rounded-lg p-3">
                     <span className="block text-white/50 mb-2 text-xs uppercase tracking-wide">Current</span>
                     <div className="text-white space-y-1">
+                      <p>Name: {request.player.name}</p>
                       <p>Nationality: {request.player.nationality || "None"}</p>
                       <p>Clan: {request.player.clan || "None"}</p>
                       <p>Division: {request.player.division || "None"}</p>
@@ -379,6 +380,9 @@ export default function AdminPage() {
                   <div className="bg-green-500/10 rounded-lg p-3">
                     <span className="block text-green-400 mb-2 text-xs uppercase tracking-wide">Suggested</span>
                     <div className="text-white space-y-1">
+                      {request.suggestedName && (
+                        <p className="text-amber-400 font-semibold">Name: {request.suggestedName}</p>
+                      )}
                       <p>Nationality: {request.suggestedNationality || "No Change"}</p>
                       <p>Clan: {request.suggestedClan || "No Change"}</p>
                       <p>Division: {request.suggestedDivision || "No Change"}</p>

@@ -23,6 +23,9 @@ export async function POST(
       // Build update data - only include fields that have suggested changes
       const updateData: Record<string, any> = {}
       
+      if (editRequest.suggestedName) {
+        updateData.name = editRequest.suggestedName
+      }
       if (editRequest.suggestedNationality) {
         updateData.nationality = editRequest.suggestedNationality
       }

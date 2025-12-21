@@ -37,6 +37,7 @@ export default function EditPlayerPage() {
   const [searchResults, setSearchResults] = useState<Player[]>([])
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
   const [isSearching, setIsSearching] = useState(false)
+  const [playerName, setPlayerName] = useState("")
   const [nationality, setNationality] = useState("")
   const [clan, setClan] = useState("")
   const [bio, setBio] = useState("")
@@ -262,6 +263,7 @@ export default function EditPlayerPage() {
   // Load selected player data
   useEffect(() => {
     if (selectedPlayer) {
+      setPlayerName(selectedPlayer.name)
       setNationality(selectedPlayer.nationality || "")
       setClan(selectedPlayer.clan || "")
       setBio(selectedPlayer.bio || "")
@@ -311,6 +313,7 @@ export default function EditPlayerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           playerId: selectedPlayer.id,
+          name: playerName !== selectedPlayer.name ? playerName.trim() : null,
           nationality, 
           clan: clan || null,
           bio,
@@ -1023,6 +1026,21 @@ export default function EditPlayerPage() {
                     </button>
                     <span className="text-white/40 text-xs">PNG or JPEG, square format</span>
                   </div>
+                </div>
+                
+                {/* Player Name */}
+                <div>
+                  <label className="block text-white/70 text-sm mb-2">Player Name</label>
+                  <input
+                    type="text"
+                    value={playerName}
+                    onChange={(e) => setPlayerName(e.target.value)}
+                    placeholder="Player name"
+                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  />
+                  {playerName !== selectedPlayer.name && playerName.trim() !== "" && (
+                    <p className="text-amber-400 text-xs mt-1">Name change requires admin approval</p>
+                  )}
                 </div>
                 
                 {/* Category */}

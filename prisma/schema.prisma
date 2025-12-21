@@ -104,6 +104,7 @@ model EditRequest {
   id                   String          @id @default(cuid())
   playerId             String
   userId               String
+  suggestedName        String?
   suggestedClan        String?
   suggestedNationality String?
   suggestedBio         String?
