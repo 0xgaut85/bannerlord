@@ -385,22 +385,22 @@ function FifaDisplayCard({
           {/* Middle Section: Avatar (moved higher) and Bio */}
           <div className="flex-1 relative flex flex-col items-center justify-start mt-0">
             {/* Background Glow behind avatar */}
-            <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} />
+            <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-28 h-28 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} />
             
-            {/* Player Avatar */}
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30 z-10">
+            {/* Player Avatar - 20% bigger */}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30 z-10">
               <Image
                 src={avatarSrc}
                 alt={player.name}
-                width={80}
-                height={80}
+                width={96}
+                height={96}
                 className="w-full h-full object-cover"
               />
             </div>
 
-            {/* Bio (below avatar) - max 50 chars */}
+            {/* Bio (below avatar) - max 50 chars, 20% bigger and bold */}
             {player.bio && (
-              <p className={`text-[9px] ${style.subtext} text-center mt-1 px-2 italic opacity-80 line-clamp-2`}>
+              <p className={`text-xs font-semibold ${style.subtext} text-center mt-1 px-2 italic opacity-90 line-clamp-2`}>
                 &quot;{player.bio.slice(0, 50)}{player.bio.length > 50 ? '...' : ''}&quot;
               </p>
             )}
@@ -464,8 +464,8 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
   
   return (
     <div className="flex justify-center">
-      {/* Small FIFA Card */}
-      <div className={`relative w-36 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${style.border}`}>
+      {/* Small FIFA Card - 20% bigger */}
+      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${style.border}`}>
         {/* Background Base */}
         <div 
           className="absolute inset-0"
@@ -511,9 +511,9 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
             <span className={`text-xs font-bold ${style.subtext} opacity-70`}>#{player.rank}</span>
           </div>
 
-          {/* Middle: Avatar and Bio */}
+          {/* Middle: Avatar and Bio - 20% bigger */}
           <div className="flex-1 relative flex flex-col items-center justify-start py-0.5">
-            <div className="relative w-12 h-12 rounded-full overflow-hidden shadow-lg border border-white/10 z-10">
+            <div className="relative w-14 h-14 rounded-full overflow-hidden shadow-lg border border-white/10 z-10">
               <Image
                 src={avatarSrc}
                 alt={player.name}
@@ -521,9 +521,9 @@ function ElitePlayerCard({ player }: { player: PlayerWithRating }) {
                 className="object-cover"
               />
             </div>
-            {/* Bio (below avatar) */}
+            {/* Bio (below avatar) - bigger text */}
             {player.bio && (
-              <p className={`text-[7px] ${style.subtext} text-center mt-0.5 px-1 italic opacity-80 line-clamp-2`}>
+              <p className={`text-[9px] font-semibold ${style.subtext} text-center mt-0.5 px-1 italic opacity-90 line-clamp-2`}>
                 &quot;{player.bio.slice(0, 50)}{player.bio.length > 50 ? '...' : ''}&quot;
               </p>
             )}
