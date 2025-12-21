@@ -15,6 +15,8 @@ interface FifaCardProps {
   currentIndex: number
   totalPlayers: number
   isSaving?: boolean
+  minRating?: number
+  maxRating?: number
 }
 
 // AAA+ Premium card styles with heavy textures
@@ -150,6 +152,8 @@ export function FifaCard({
   currentIndex,
   totalPlayers,
   isSaving = false,
+  minRating = 50,
+  maxRating = 99,
 }: FifaCardProps) {
   const style = getCardStyle(currentRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
@@ -304,12 +308,16 @@ export function FifaCard({
       
       {/* Rating Slider */}
       <div className="w-full max-w-xs bg-white/10 backdrop-blur-sm rounded-xl p-4 mt-2">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-white/50 text-xs">Min: {minRating}</span>
+          <span className="text-white/70 text-sm font-medium">Your Rating</span>
+          <span className="text-white/50 text-xs">Max: {maxRating}</span>
+        </div>
         <Slider
           value={currentRating}
           onChange={onRatingChange}
-          min={50}
-          max={99}
-          label="Your Rating"
+          min={minRating}
+          max={maxRating}
           dark
         />
       </div>

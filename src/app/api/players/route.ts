@@ -77,6 +77,8 @@ export async function GET(request: NextRequest) {
         avatar: player.avatar,
         division: calculatedDivision,
         clanLogo: player.clan ? clanLogos[player.clan] || null : null,
+        averageRating: Math.round(avgRating * 10) / 10,
+        totalRatings: player.ratings.length,
       }
     })
     

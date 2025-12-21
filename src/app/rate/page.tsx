@@ -5,8 +5,15 @@ import { useSession, signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button, Flag } from "@/components/ui"
 import { FifaCard, EligibilityProgress } from "@/components/rating"
-import { MIN_RATINGS } from "@/lib/utils"
+import { MIN_RATINGS, MAX_RATING_DEVIATION } from "@/lib/utils"
 import { Player, Division } from "@prisma/client"
+
+// Extended player type with average rating from API
+interface ExtendedPlayer extends Player {
+  averageRating?: number
+  totalRatings?: number
+  clanLogo?: string | null
+}
 import { useDebounce } from "@/hooks/useDebounce"
 
 interface RatingMap {
@@ -22,8 +29,8 @@ export default function RatePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   
-  const [players, setPlayers] = useState<Player[]>([])
-  const [filteredPlayers, setFilteredPlayers] = useState<Player[]>([])
+  const [players, setPlayers] = useState<ExtendedPlayer[]>([])
+  const [filteredPlayers, setFilteredPlayers] = useState<ExtendedPlayer[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [ratings, setRatings] = useState<RatingMap>({})
   const [originalRatings, setOriginalRatings] = useState<RatingMap>({})
@@ -38,7 +45,7 @@ export default function RatePage() {
   
   // Search
   const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<Player[]>([])
+  const [searchResults, setSearchResults] = useState<ExtendedPlayer[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const debouncedSearch = useDebounce(searchQuery, 300)
   
@@ -448,6 +455,16 @@ export default function RatePage() {
             currentIndex={currentIndex}
             totalPlayers={filteredPlayers.length}
             isSaving={isSaving}
+            minRating={
+              currentPlayer.totalRatings && currentPlayer.totalRatings > 0 && currentPlayer.averageRating
+                ? Math.max(50, Math.floor(currentPlayer.averageRating - MAX_RATING_DEVIATION))
+                : 50
+            }
+            maxRating={
+              currentPlayer.totalRatings && currentPlayer.totalRatings > 0 && currentPlayer.averageRating
+                ? Math.min(99, Math.ceil(currentPlayer.averageRating + MAX_RATING_DEVIATION))
+                : 99
+            }
           />
         ) : (
           <div className="text-center py-16 text-white/60">
