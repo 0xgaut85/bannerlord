@@ -211,12 +211,14 @@ export default function TeamBuilderPage() {
     setTeam(newTeam)
   }
 
-  // Calculate team score
-  const { baseScore, linkBonus, totalScore, links } = useMemo(() => {
+  // Calculate team score (average-based, max 99)
+  const { baseScore, linkBonus, totalScore, links, greenLinks, yellowLinks } = useMemo(() => {
     const players = team.filter((p): p is TeamPlayer => p !== null)
     
-    // Base score = sum of ratings
-    const baseScore = players.reduce((sum, p) => sum + p.averageRating, 0)
+    // Base score = average of ratings (0 if no players)
+    const baseScore = players.length > 0 
+      ? players.reduce((sum, p) => sum + p.averageRating, 0) / players.length
+      : 0
     
     // Calculate links and bonus
     const links: { from: number; to: number; type: LinkType }[] = []
@@ -234,14 +236,20 @@ export default function TeamBuilderPage() {
       }
     }
     
-    // Bonus: +5 per green link, +2 per yellow link
-    const linkBonus = (greenLinks * 5) + (yellowLinks * 2)
+    // Bonus: +1.0 per green link, +0.5 per yellow link (added to average)
+    const linkBonus = (greenLinks * 1.0) + (yellowLinks * 0.5)
+    
+    // Total score capped at 99
+    const rawTotal = baseScore + linkBonus
+    const totalScore = Math.min(99, rawTotal)
     
     return {
       baseScore: Math.round(baseScore * 10) / 10,
-      linkBonus,
-      totalScore: Math.round((baseScore + linkBonus) * 10) / 10,
-      links
+      linkBonus: Math.round(linkBonus * 10) / 10,
+      totalScore: Math.round(totalScore * 10) / 10,
+      links,
+      greenLinks,
+      yellowLinks
     }
   }, [team])
 
@@ -266,12 +274,21 @@ export default function TeamBuilderPage() {
           
           {/* Team Score */}
           <div className="text-right bg-gradient-to-br from-amber-500/20 to-amber-600/10 rounded-2xl p-6 border border-amber-500/30">
-            <p className="text-amber-400 text-sm uppercase tracking-wider mb-1">Team Score</p>
+            <p className="text-amber-400 text-sm uppercase tracking-wider mb-1">Team Rating</p>
             <p className="text-5xl font-black text-white">{totalScore}</p>
-            <div className="mt-2 text-sm">
-              <span className="text-white/50">Base: {baseScore}</span>
-              {linkBonus > 0 && (
-                <span className="text-green-400 ml-2">+{linkBonus} links</span>
+            <div className="mt-2 text-sm space-y-1">
+              <div>
+                <span className="text-white/50">Avg: {baseScore}</span>
+                {linkBonus > 0 && (
+                  <span className="text-green-400 ml-2">+{linkBonus}</span>
+                )}
+              </div>
+              {(greenLinks > 0 || yellowLinks > 0) && (
+                <div className="text-xs text-white/40">
+                  {greenLinks > 0 && <span className="text-green-400">{greenLinks} strong</span>}
+                  {greenLinks > 0 && yellowLinks > 0 && <span> · </span>}
+                  {yellowLinks > 0 && <span className="text-yellow-400">{yellowLinks} weak</span>}
+                </div>
               )}
             </div>
           </div>
@@ -403,12 +420,12 @@ export default function TeamBuilderPage() {
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-1 bg-green-500 rounded" />
                   <span className="text-white/70">Same Nation + Same Clan</span>
-                  <span className="text-green-400 ml-auto">+5</span>
+                  <span className="text-green-400 ml-auto">+1.0</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-1 bg-yellow-500 rounded" />
                   <span className="text-white/70">Same Nation OR Same Clan</span>
-                  <span className="text-yellow-400 ml-auto">+2</span>
+                  <span className="text-yellow-400 ml-auto">+0.5</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-1 bg-red-500 rounded" />
@@ -416,6 +433,9 @@ export default function TeamBuilderPage() {
                   <span className="text-red-400 ml-auto">+0</span>
                 </div>
               </div>
+              <p className="text-white/40 text-xs mt-3">
+                Score = Average rating + link bonuses (max 99)
+              </p>
             </div>
           </div>
 

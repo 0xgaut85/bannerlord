@@ -1,7 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
+import { Flag } from "@/components/ui"
 import { cn } from "@/lib/utils"
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
 
 interface StatsData {
   totalPlayers: number
@@ -13,10 +16,21 @@ interface StatsData {
     ARCHER: { count: number; avgRating: number }
   }
   byDivision: Record<string, { count: number; avgRating: number }>
-  topClans: { name: string; count: number; avgRating: number }[]
+  topClans: { name: string; shortName: string; logo: string | null; count: number; avgRating: number }[]
   topNationalities: { code: string; count: number; avgRating: number }[]
   ratingDistribution: { range: string; count: number }[]
 }
+
+// Colors for the pie chart
+const PIE_COLORS = [
+  "#6b7280", // 50-59 gray
+  "#a16207", // 60-69 brown
+  "#ea580c", // 70-79 orange
+  "#a3a3a3", // 80-84 silver
+  "#eab308", // 85-89 gold
+  "#f59e0b", // 90-94 bright gold
+  "#06b6d4", // 95-99 cyan (icon)
+]
 
 export default function StatsPage() {
   const [stats, setStats] = useState<StatsData | null>(null)
@@ -117,24 +131,56 @@ export default function StatsPage() {
           </div>
         </div>
 
-        {/* Rating Distribution */}
+        {/* Rating Distribution - Pie Chart */}
         <div className="bg-white/5 rounded-2xl border border-white/10 p-6 mb-8">
           <h2 className="text-xl font-semibold text-white mb-6">Rating Distribution</h2>
-          <div className="flex items-end justify-between gap-2 h-40">
-            {stats.ratingDistribution.map((bucket) => {
-              const maxCount = Math.max(...stats.ratingDistribution.map(b => b.count))
-              const height = maxCount > 0 ? (bucket.count / maxCount) * 100 : 0
-              return (
-                <div key={bucket.range} className="flex-1 flex flex-col items-center gap-2">
-                  <div 
-                    className="w-full bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-lg transition-all"
-                    style={{ height: `${height}%`, minHeight: bucket.count > 0 ? '4px' : '0' }}
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="w-64 h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.ratingDistribution.filter(d => d.count > 0)}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="count"
+                    nameKey="range"
+                  >
+                    {stats.ratingDistribution.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={PIE_COLORS[index % PIE_COLORS.length]}
+                        stroke="rgba(0,0,0,0.3)"
+                        strokeWidth={1}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      background: '#1e293b', 
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '8px'
+                    }}
+                    itemStyle={{ color: '#fff' }}
+                    formatter={(value: number, name: string) => [`${value} players`, name]}
                   />
-                  <span className="text-xs text-white/50 whitespace-nowrap">{bucket.range}</span>
-                  <span className="text-xs text-white/70">{bucket.count}</span>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex-1 grid grid-cols-2 gap-3">
+              {stats.ratingDistribution.map((bucket, idx) => (
+                <div key={bucket.range} className="flex items-center gap-3">
+                  <div 
+                    className="w-4 h-4 rounded"
+                    style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}
+                  />
+                  <span className="text-white/70 text-sm">{bucket.range}</span>
+                  <span className="text-white font-semibold ml-auto">{bucket.count}</span>
                 </div>
-              )
-            })}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -153,9 +199,23 @@ export default function StatsPage() {
                   )}>
                     {idx + 1}
                   </span>
-                  <div className="flex-1">
-                    <span className="text-white font-medium">{clan.name}</span>
-                    <span className="text-white/40 text-sm ml-2">({clan.count} players)</span>
+                  {/* Clan Logo */}
+                  <div className="w-8 h-8 bg-black rounded overflow-hidden flex-shrink-0">
+                    {clan.logo ? (
+                      <Image 
+                        src={clan.logo} 
+                        alt={clan.name} 
+                        width={32} 
+                        height={32} 
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-black" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-white font-medium truncate block">{clan.name}</span>
+                    <span className="text-white/40 text-xs">{clan.count} players</span>
                   </div>
                   <span className="text-amber-400 font-bold">{clan.avgRating.toFixed(1)}</span>
                 </div>
@@ -177,8 +237,9 @@ export default function StatsPage() {
                   )}>
                     {idx + 1}
                   </span>
-                  <div className="flex-1 flex items-center gap-2">
-                    <span className="text-white font-medium uppercase">{nation.code || "Unknown"}</span>
+                  {/* Country Flag */}
+                  <Flag code={nation.code} size="md" />
+                  <div className="flex-1">
                     <span className="text-white/40 text-sm">({nation.count} players)</span>
                   </div>
                   <span className="text-amber-400 font-bold">{nation.avgRating.toFixed(1)}</span>

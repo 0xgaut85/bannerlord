@@ -163,15 +163,28 @@ export async function GET() {
           }
         ])
       ),
-      topClans: Object.entries(clanStats)
-        .filter(([name]) => name !== "Free Agent")
-        .map(([name, data]) => ({
-          name,
-          count: data.count,
-          avgRating: data.count > 0 ? data.totalRating / data.count : 0
-        }))
-        .filter(c => c.count >= 3) // At least 3 players
-        .sort((a, b) => b.avgRating - a.avgRating),
+      topClans: await Promise.all(
+        Object.entries(clanStats)
+          .filter(([name]) => name !== "Free Agent")
+          .map(async ([name, data]) => {
+            // Get clan info including logo
+            const clanInfo = await prisma.clan.findFirst({
+              where: { shortName: name },
+              select: { name: true, shortName: true, logo: true }
+            })
+            return {
+              name: clanInfo?.name || name,
+              shortName: name,
+              logo: clanInfo?.logo || null,
+              count: data.count,
+              avgRating: data.count > 0 ? data.totalRating / data.count : 0
+            }
+          })
+      ).then(clans => 
+        clans
+          .filter(c => c.count >= 3)
+          .sort((a, b) => b.avgRating - a.avgRating)
+      ),
       topNationalities: Object.entries(nationalityStats)
         .map(([code, data]) => ({
           code,
