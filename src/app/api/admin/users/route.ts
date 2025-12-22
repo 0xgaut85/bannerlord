@@ -5,6 +5,9 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get("search") || ""
+    const page = parseInt(searchParams.get("page") || "1")
+    const limit = parseInt(searchParams.get("limit") || "50")
+    const skip = (page - 1) * limit
 
     // Base filter: exclude system users and only show users with ratings
     const baseWhere = {
@@ -12,14 +15,19 @@ export async function GET(request: NextRequest) {
       ratings: { some: {} } // Only users who have at least one rating
     }
 
+    const whereClause = search ? {
+      ...baseWhere,
+      OR: [
+        { discordName: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: "insensitive" } },
+      ]
+    } : baseWhere
+
+    // Get total count for pagination
+    const total = await prisma.user.count({ where: whereClause })
+
     const users = await prisma.user.findMany({
-      where: search ? {
-        ...baseWhere,
-        OR: [
-          { discordName: { contains: search, mode: "insensitive" } },
-          { name: { contains: search, mode: "insensitive" } },
-        ]
-      } : baseWhere,
+      where: whereClause,
       select: {
         id: true,
         name: true,
@@ -35,10 +43,13 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: "desc"
       },
-      take: 50
+      skip,
+      take: limit
     })
 
-    return NextResponse.json(users)
+    const hasMore = skip + users.length < total
+
+    return NextResponse.json({ users, hasMore, total })
   } catch (error) {
     console.error("Error fetching users:", error)
     return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 })

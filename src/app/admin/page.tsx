@@ -22,7 +22,11 @@ export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([])
   const [selectedUser, setSelectedUser] = useState<any | null>(null)
   const [anomalies, setAnomalies] = useState<any[]>([])
+  const [skippedAnomalies, setSkippedAnomalies] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState("players")
+  const [userSearch, setUserSearch] = useState("")
+  const [userPage, setUserPage] = useState(1)
+  const [hasMoreUsers, setHasMoreUsers] = useState(true)
   
   // Period management
   const [periodName, setPeriodName] = useState("")
@@ -49,7 +53,7 @@ export default function AdminPage() {
       fetchRequests()
       fetchClanRequests()
       fetchPlayerRequests()
-      fetchUsers()
+      fetchUsers(1, "", false)
       fetchAnomalies()
     } else {
       alert("Invalid credentials")
@@ -277,12 +281,22 @@ export default function AdminPage() {
     }
   }
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page: number = 1, searchQuery: string = "", append: boolean = false) => {
     try {
-      const res = await fetch("/api/admin/users")
+      const params = new URLSearchParams()
+      if (searchQuery) params.set("search", searchQuery)
+      params.set("page", page.toString())
+      params.set("limit", "50")
+      
+      const res = await fetch(`/api/admin/users?${params.toString()}`)
       if (res.ok) {
         const data = await res.json()
-        setUsers(data)
+        if (append) {
+          setUsers(prev => [...prev, ...data.users])
+        } else {
+          setUsers(data.users)
+        }
+        setHasMoreUsers(data.hasMore)
       }
     } catch (error) {
       console.error("Failed to fetch users", error)
@@ -311,7 +325,7 @@ export default function AdminPage() {
       if (res.ok) {
         alert("All ratings deleted successfully")
         setSelectedUser(null)
-        fetchUsers()
+        fetchUsers(userPage, userSearch, false)
       } else {
         alert("Failed to delete ratings")
       }
@@ -869,8 +883,24 @@ export default function AdminPage() {
                 </div>
               </div>
             ) : (
-              <div className="grid gap-4">
-                {users.map((user) => (
+              <div>
+                {/* Search input */}
+                <div className="mb-6">
+                  <input
+                    type="text"
+                    placeholder="Search by name..."
+                    value={userSearch}
+                    onChange={(e) => {
+                      setUserSearch(e.target.value)
+                      setUserPage(1)
+                      fetchUsers(1, e.target.value, false)
+                    }}
+                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  />
+                </div>
+                
+                <div className="grid gap-4">
+                  {users.map((user) => (
                   <div key={user.id} className="bg-white/5 p-6 rounded-xl border border-white/10 flex items-center justify-between">
                     <div>
                       <h3 className="text-white font-medium text-lg">
@@ -888,9 +918,26 @@ export default function AdminPage() {
                       View List
                     </Button>
                   </div>
-                ))}
-                {users.length === 0 && (
-                  <div className="text-center text-white/40 py-12">No users found</div>
+                  ))}
+                  {users.length === 0 && (
+                    <div className="text-center text-white/40 py-12">No users found</div>
+                  )}
+                </div>
+                
+                {/* Show more button */}
+                {hasMoreUsers && (
+                  <div className="mt-6 text-center">
+                    <Button
+                      className="!bg-amber-500/20 !text-amber-400 hover:!bg-amber-500/30"
+                      onClick={() => {
+                        const nextPage = userPage + 1
+                        setUserPage(nextPage)
+                        fetchUsers(nextPage, userSearch, true)
+                      }}
+                    >
+                      Show More
+                    </Button>
+                  </div>
                 )}
               </div>
             )}
@@ -1027,7 +1074,7 @@ export default function AdminPage() {
                 }`}
               >
                 <div className="flex justify-between items-start mb-3">
-                  <div>
+                  <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium text-white">
                         {anomaly.playerName}
@@ -1042,18 +1089,31 @@ export default function AdminPage() {
                       Rated by: {anomaly.raterName} (Div {anomaly.raterDivision || "?"})
                     </p>
                   </div>
-                  <div className="text-right">
-                    <div className={`text-2xl font-bold ${
-                      anomaly.type === "suspicious_boost" ? "text-purple-400" : "text-orange-400"
-                    }`}>
-                      {anomaly.score}
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className={`text-2xl font-bold ${
+                        anomaly.type === "suspicious_boost" ? "text-purple-400" : "text-orange-400"
+                      }`}>
+                        {anomaly.score}
+                      </div>
+                      <div className="text-xs text-white/50">
+                        {anomaly.type === "suspicious_boost" 
+                          ? "only 1 rating" 
+                          : `vs avg ${anomaly.averageScore}`
+                        }
+                      </div>
                     </div>
-                    <div className="text-xs text-white/50">
-                      {anomaly.type === "suspicious_boost" 
-                        ? "only 1 rating" 
-                        : `vs avg ${anomaly.averageScore}`
-                      }
-                    </div>
+                    <Button
+                      size="sm"
+                      className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30 !px-2 !py-1 !min-w-[32px] !h-8"
+                      onClick={() => {
+                        setSkippedAnomalies(prev => new Set([...prev, anomaly.id]))
+                        setAnomalies(prev => prev.filter(a => a.id !== anomaly.id))
+                      }}
+                      title="Skip (not an anomaly)"
+                    >
+                      ✕
+                    </Button>
                   </div>
                 </div>
                 
