@@ -51,7 +51,7 @@ export async function GET(
       for (const rating of realRatings) {
         const weight = rating.rater.division 
           ? DIVISION_WEIGHTS[rating.rater.division] 
-          : 0.5
+          : 0.075  // No division = lowest weight
         weightedSum += rating.score * weight
         totalWeight += weight
       }

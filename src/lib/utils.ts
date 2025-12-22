@@ -89,7 +89,7 @@ export function calculateWeightedAverage(
   let totalWeight = 0
   
   for (const rating of ratings) {
-    const weight = rating.raterDivision ? DIVISION_WEIGHTS[rating.raterDivision] : 0.5
+    const weight = rating.raterDivision ? DIVISION_WEIGHTS[rating.raterDivision] : 0.075  // No division = lowest weight
     weightedSum += rating.score * weight
     totalWeight += weight
   }
