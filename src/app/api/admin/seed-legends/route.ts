@@ -4,6 +4,29 @@ import { PlayerCategory } from "@prisma/client"
 
 export const dynamic = 'force-dynamic'
 
+// Check legend status
+export async function GET() {
+  try {
+    const legendCount = await prisma.player.count({
+      where: { isLegend: true }
+    })
+    
+    const legends = await prisma.player.findMany({
+      where: { isLegend: true },
+      select: { name: true, category: true, nationality: true }
+    })
+    
+    return NextResponse.json({ 
+      count: legendCount, 
+      legends,
+      message: legendCount === 0 ? "No legends found. POST to this endpoint to seed them." : "Legends exist."
+    })
+  } catch (error) {
+    console.error("Check legends error:", error)
+    return NextResponse.json({ error: "Failed to check legends" }, { status: 500 })
+  }
+}
+
 // Map nationality names to ISO country codes
 const nationalityMap: Record<string, string> = {
   france: "FR",
