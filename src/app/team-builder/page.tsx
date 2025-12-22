@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, DragEvent, useRef } from "react"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { Flag } from "@/components/ui"
-import { cn } from "@/lib/utils"
+import { cn, cleanPlayerName } from "@/lib/utils"
 
 interface Player {
   id: string
@@ -207,16 +207,19 @@ function FifaCard({
             </span>
           </div>
           <div className="text-right">
-            {player.name.includes(' ') ? (
-              <span className={`text-xs sm:text-sm font-bold ${style.text} uppercase block leading-tight`}>
-                <span className="block">{player.name.split(' ')[0]}</span>
-                <span className="block">{player.name.split(' ').slice(1).join(' ')}</span>
-              </span>
-            ) : (
-              <span className={`text-sm sm:text-base font-bold ${style.text} uppercase block`} style={{ fontSize: player.name.length > 12 ? 'clamp(0.625rem, 1.5vw, 0.875rem)' : undefined }}>
-                {player.name}
-              </span>
-            )}
+            {(() => {
+              const cleanName = cleanPlayerName(player.name)
+              return cleanName.includes(' ') ? (
+                <span className={`text-xs sm:text-sm font-bold ${style.text} uppercase block leading-tight`}>
+                  <span className="block">{cleanName.split(' ')[0]}</span>
+                  <span className="block">{cleanName.split(' ').slice(1).join(' ')}</span>
+                </span>
+              ) : (
+                <span className={`text-sm sm:text-base font-bold ${style.text} uppercase block`} style={{ fontSize: cleanName.length > 12 ? 'clamp(0.625rem, 1.5vw, 0.875rem)' : undefined }}>
+                  {cleanName}
+                </span>
+              )
+            })()}
           </div>
         </div>
         

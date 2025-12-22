@@ -3,6 +3,7 @@
 import { Player } from "@prisma/client"
 import { Button, Slider, Flag } from "@/components/ui"
 import Image from "next/image"
+import { cleanPlayerName } from "@/lib/utils"
 
 interface FifaCardProps {
   player: Player & { avatar?: string | null; division?: string | null; clanLogo?: string | null; bio?: string | null; isLegend?: boolean }
@@ -252,16 +253,18 @@ export function FifaCard({
             </div>
             
             <div className="flex-1 text-right mt-1 pl-4">
-              {player.name.includes(' ') ? (
-                <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
-                  <span className="block">{player.name.split(' ')[0]}</span>
-                  <span className="block">{player.name.split(' ').slice(1).join(' ')}</span>
+              {(() => {
+                const cleanName = cleanPlayerName(player.name)
+                return cleanName.includes(' ') ? (
+                  <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
+                    <span className="block">{cleanName.split(' ')[0]}</span>
+                    <span className="block">{cleanName.split(' ').slice(1).join(' ')}</span>
+                  </h2>
+                ) : (
+                  <h2 className={`text-xl sm:text-2xl font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)', fontSize: cleanName.length > 12 ? 'clamp(0.75rem, 2vw, 1.25rem)' : undefined }}>
+                  {cleanName}
                 </h2>
-              ) : (
-                <h2 className={`text-xl sm:text-2xl font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)', fontSize: player.name.length > 12 ? 'clamp(0.75rem, 2vw, 1.25rem)' : undefined }}>
-                  {player.name}
-                </h2>
-              )}
+              })()}
               {player.isLegend && (
                 <p className={`text-xs ${style.subtext} uppercase tracking-widest mt-0.5`}>
                   Prime

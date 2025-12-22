@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Flag } from "@/components/ui"
-import { cn } from "@/lib/utils"
+import { cn, cleanPlayerName } from "@/lib/utils"
 
 interface HistoryPoint {
   period: string
@@ -318,7 +318,7 @@ export default function AllTimePage() {
                         "truncate flex-1",
                         player.isLegend ? "text-white font-medium" : "text-white/80"
                       )}>
-                        {player.playerName}
+                        {cleanPlayerName(player.playerName)}
                         {player.isLegend && <span className="text-white/40 text-xs ml-1">LEG</span>}
                       </span>
                       <span className="text-white/60 font-mono">{player.averageRating.toFixed(1)}</span>
@@ -393,7 +393,7 @@ function FifaDisplayCard({
                 {rankLabels[rank as 1 | 2 | 3]}
               </div>
               <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight truncate`}>
-                {player.playerName}
+                {cleanPlayerName(player.playerName)}
               </h2>
               {player.isLegend && (
                 <p className={`text-xs ${style.subtext} uppercase tracking-widest mt-0.5`}>Prime</p>
@@ -471,7 +471,7 @@ function ElitePlayerCard({ player }: { player: AllTimeRanking }) {
         </div>
 
         <div className="text-center">
-          <h3 className={`text-sm font-bold ${style.text} truncate`}>{player.playerName}</h3>
+          <h3 className={`text-sm font-bold ${style.text} truncate`}>{cleanPlayerName(player.playerName)}</h3>
           {player.isLegend && <p className={`text-[10px] ${style.subtext} uppercase`}>Prime</p>}
           <div className="flex items-center justify-center gap-1 mt-1">
             <Flag code={player.nationality} size="sm" />
@@ -503,7 +503,7 @@ function CompactPlayerCard({ player }: { player: AllTimeRanking }) {
             "font-semibold truncate",
             player.isLegend ? "text-white" : "text-white/80"
           )}>
-            {player.playerName}
+            {cleanPlayerName(player.playerName)}
           </h3>
           {player.isLegend && <span className="text-white/40 text-xs">LEG</span>}
         </div>

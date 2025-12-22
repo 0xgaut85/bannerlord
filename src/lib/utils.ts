@@ -181,3 +181,8 @@ export function getTierFromRating(rating: number): string {
   if (rating >= 55) return "C-"
   return "D" // 50 and below
 }
+
+// Clean player name - replace "(Legend)" with "(L)" for display
+export function cleanPlayerName(name: string): string {
+  return name.replace(/ \(Legend\)/g, ' (L)')
+}

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { PlayerWithRating } from "@/types"
 import { Flag } from "@/components/ui"
-import { cn } from "@/lib/utils"
+import { cn, cleanPlayerName } from "@/lib/utils"
 
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
@@ -781,7 +781,7 @@ function FifaDisplayCard({
                 {rankLabels[rank as 1 | 2 | 3]}
               </div>
               <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md truncate`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
-                {player.name}
+                {cleanPlayerName(player.name)}
               </h2>
             </div>
           </div>
@@ -955,7 +955,7 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; 
           <div className="mt-auto">
             <div className={`h-px w-full bg-gradient-to-r ${style.accent} mb-1.5 opacity-40`} />
             <h3 className={`text-xs font-black ${style.text} uppercase truncate text-center`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
-              {player.name}
+              {cleanPlayerName(player.name)}
             </h3>
             {player.clan && (
               <p className={`text-[9px] ${style.subtext} text-center opacity-70 truncate`}>{player.clan}</p>
