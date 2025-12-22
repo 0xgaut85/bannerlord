@@ -257,12 +257,32 @@ export default function RatePage() {
   }, [currentPlayer, ratings, currentIndex, filteredPlayers.length])
   
   const handleSkip = useCallback(() => {
+    // When skipping, remove any unsaved rating for the current player
+    // This prevents the rating from being saved later when validating another player
+    if (currentPlayer) {
+      const wasOriginallyRated = originalRatings[currentPlayer.id] !== undefined
+      if (!wasOriginallyRated) {
+        // Remove the rating from state since it wasn't saved before
+        setRatings(prev => {
+          const updated = { ...prev }
+          delete updated[currentPlayer.id]
+          return updated
+        })
+      } else {
+        // Revert to original rating
+        setRatings(prev => ({
+          ...prev,
+          [currentPlayer.id]: originalRatings[currentPlayer.id]
+        }))
+      }
+    }
+    
     if (currentIndex < filteredPlayers.length - 1) {
       setCurrentIndex(i => i + 1)
     } else {
       setCurrentIndex(0)
     }
-  }, [currentIndex, filteredPlayers.length])
+  }, [currentIndex, filteredPlayers.length, currentPlayer, originalRatings])
   
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
