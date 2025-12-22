@@ -255,6 +255,11 @@ export function FifaCard({
               <h2 className={`text-xl sm:text-2xl font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md truncate`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
                 {player.name}
               </h2>
+              {player.isLegend && (
+                <p className={`text-xs ${style.subtext} uppercase tracking-widest mt-0.5`}>
+                  Prime
+                </p>
+              )}
             </div>
           </div>
 

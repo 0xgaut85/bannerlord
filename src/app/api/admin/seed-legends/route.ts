@@ -16,8 +16,6 @@ export async function GET() {
       const results: { name: string; status: string }[] = []
 
       for (const legend of legends) {
-        const nationalityCode = nationalityMap[legend.nationality.toLowerCase()] || legend.nationality.toUpperCase()
-        
         try {
           const existing = await prisma.player.findUnique({
             where: { name: legend.name }
@@ -26,7 +24,10 @@ export async function GET() {
           if (existing) {
             await prisma.player.update({
               where: { name: legend.name },
-              data: { isLegend: true }
+              data: { 
+                isLegend: true,
+                nationality: legend.nationality, // Update nationality too
+              }
             })
             results.push({ name: legend.name, status: "updated" })
           } else {
@@ -34,7 +35,7 @@ export async function GET() {
               data: {
                 name: legend.name,
                 category: legend.category as PlayerCategory,
-                nationality: nationalityCode,
+                nationality: legend.nationality,
                 isLegend: true,
               }
             })
@@ -69,63 +70,63 @@ export async function GET() {
   }
 }
 
-// Map nationality names to ISO country codes
+// Map nationality names to ISO country codes for flags
 const nationalityMap: Record<string, string> = {
-  france: "FR",
-  french: "FR",
-  francais: "FR",
-  poland: "PL",
-  german: "DE",
-  germany: "DE",
-  russian: "RU",
-  russia: "RU",
-  italy: "IT",
-  belgium: "BE",
-  turk: "TR",
-  turkey: "TR",
-  ukraine: "UA",
-  scotland: "GB",
-  england: "GB",
-  swiss: "CH",
-  switzerland: "CH",
-  czech: "CZ",
-  latvia: "LV",
+  france: "fr",
+  french: "fr",
+  francais: "fr",
+  poland: "pl",
+  german: "de",
+  germany: "de",
+  russian: "ru",
+  russia: "ru",
+  italy: "it",
+  belgium: "be",
+  turk: "tr",
+  turkey: "tr",
+  ukraine: "ua",
+  scotland: "gb",
+  england: "gb",
+  swiss: "ch",
+  switzerland: "ch",
+  czech: "cz",
+  latvia: "lv",
 }
 
-// Legend players data (names with proper capitalization)
+// Legend players data (names with proper capitalization, nationality as ISO codes)
 const legends = [
-  { name: "CTH", category: "INFANTRY", nationality: "france" },
-  { name: "SharZ", category: "INFANTRY", nationality: "france" },
-  { name: "Woj", category: "CAVALRY", nationality: "poland" },
-  { name: "Orpsel", category: "CAVALRY", nationality: "poland" },
-  { name: "Bard", category: "INFANTRY", nationality: "german" },
-  { name: "Dextrus", category: "INFANTRY", nationality: "german" },
-  { name: "Lars", category: "CAVALRY", nationality: "german" },
-  { name: "Roman", category: "CAVALRY", nationality: "german" },
-  { name: "Axder", category: "INFANTRY", nationality: "poland" },
-  { name: "Pacemaker", category: "INFANTRY", nationality: "poland" },
-  { name: "Apriko", category: "INFANTRY", nationality: "german" },
-  { name: "Ghazi", category: "CAVALRY", nationality: "poland" },
-  { name: "Indar", category: "CAVALRY", nationality: "russian" },
-  { name: "OneClips", category: "INFANTRY", nationality: "german" },
-  { name: "Scherdinger", category: "INFANTRY", nationality: "poland" },
-  { name: "Cosimo", category: "INFANTRY", nationality: "italy" },
-  { name: "Hodor", category: "INFANTRY", nationality: "belgium" },
-  { name: "Gobou", category: "INFANTRY", nationality: "belgium" },
-  { name: "Aran", category: "CAVALRY", nationality: "turk" },
-  { name: "Relynar", category: "CAVALRY", nationality: "ukraine" },
-  { name: "LK_Hemsworth", category: "CAVALRY", nationality: "turk" },
-  { name: "WilliamWallace", category: "INFANTRY", nationality: "scotland" },
-  { name: "Sarranid", category: "INFANTRY", nationality: "francais" },
-  { name: "Nord", category: "CAVALRY", nationality: "russian" },
-  { name: "Argentum", category: "INFANTRY", nationality: "russia" },
-  { name: "Dark", category: "CAVALRY", nationality: "french" },
-  { name: "AncientLunatic", category: "CAVALRY", nationality: "england" },
-  { name: "Kazu", category: "INFANTRY", nationality: "swiss" },
-  { name: "HypeZ", category: "INFANTRY", nationality: "german" },
-  { name: "Jufasto", category: "INFANTRY", nationality: "turk" },
-  { name: "Livso", category: "CAVALRY", nationality: "czech" },
-  { name: "Rangah", category: "CAVALRY", nationality: "latvia" },
+  { name: "CTH", category: "INFANTRY", nationality: "fr" },
+  { name: "SharZ", category: "INFANTRY", nationality: "fr" },
+  { name: "Woj", category: "CAVALRY", nationality: "pl" },
+  { name: "Orpsel", category: "CAVALRY", nationality: "pl" },
+  { name: "Bard", category: "INFANTRY", nationality: "de" },
+  { name: "Dextrus", category: "INFANTRY", nationality: "de" },
+  { name: "Lars", category: "CAVALRY", nationality: "de" },
+  { name: "Roman", category: "CAVALRY", nationality: "de" },
+  { name: "Axder", category: "INFANTRY", nationality: "pl" },
+  { name: "Pacemaker", category: "INFANTRY", nationality: "pl" },
+  { name: "Apriko", category: "INFANTRY", nationality: "de" },
+  { name: "Ghazi", category: "CAVALRY", nationality: "pl" },
+  { name: "Indar", category: "CAVALRY", nationality: "ru" },
+  { name: "OneClips", category: "INFANTRY", nationality: "de" },
+  { name: "Scherdinger", category: "INFANTRY", nationality: "pl" },
+  { name: "Cosimo", category: "INFANTRY", nationality: "it" },
+  { name: "Hodor", category: "INFANTRY", nationality: "be" },
+  { name: "Gobou", category: "INFANTRY", nationality: "be" },
+  { name: "Aran", category: "CAVALRY", nationality: "tr" },
+  { name: "Relynar", category: "CAVALRY", nationality: "ua" },
+  { name: "LK_Hemsworth", category: "CAVALRY", nationality: "tr" },
+  { name: "WilliamWallace", category: "INFANTRY", nationality: "gb" },
+  { name: "Sarranid", category: "INFANTRY", nationality: "fr" },
+  { name: "Nord", category: "CAVALRY", nationality: "ru" },
+  { name: "Argentum", category: "INFANTRY", nationality: "ru" },
+  { name: "Dark", category: "CAVALRY", nationality: "fr" },
+  { name: "AncientLunatic", category: "CAVALRY", nationality: "gb" },
+  { name: "Kazu", category: "INFANTRY", nationality: "ch" },
+  { name: "HypeZ", category: "INFANTRY", nationality: "de" },
+  { name: "Jufasto", category: "INFANTRY", nationality: "tr" },
+  { name: "Livso", category: "CAVALRY", nationality: "cz" },
+  { name: "Rangah", category: "CAVALRY", nationality: "lv" },
 ]
 
 export async function POST() {
@@ -133,8 +134,6 @@ export async function POST() {
     const results: { name: string; status: string }[] = []
 
     for (const legend of legends) {
-      const nationalityCode = nationalityMap[legend.nationality.toLowerCase()] || legend.nationality.toUpperCase()
-      
       try {
         // Check if player already exists
         const existing = await prisma.player.findUnique({
@@ -147,6 +146,7 @@ export async function POST() {
             where: { name: legend.name },
             data: {
               isLegend: true,
+              nationality: legend.nationality,
             }
           })
           results.push({ name: legend.name, status: "updated" })
@@ -156,7 +156,7 @@ export async function POST() {
             data: {
               name: legend.name,
               category: legend.category as PlayerCategory,
-              nationality: nationalityCode,
+              nationality: legend.nationality,
               isLegend: true,
             }
           })

@@ -502,11 +502,15 @@ export default function RatePage() {
               totalPlayers={filteredPlayers.length}
               isSaving={isSaving}
               minRating={
+                // Legends have no rating restrictions (50-99)
+                currentPlayer.isLegend ? 50 :
                 currentPlayer.totalRatings && currentPlayer.totalRatings > 0 && currentPlayer.averageRating
                   ? Math.max(50, Math.floor(currentPlayer.averageRating - MAX_RATING_DEVIATION))
                   : 50
               }
               maxRating={
+                // Legends have no rating restrictions (50-99)
+                currentPlayer.isLegend ? 99 :
                 currentPlayer.totalRatings && currentPlayer.totalRatings > 0 && currentPlayer.averageRating
                   ? Math.min(99, Math.ceil(currentPlayer.averageRating + MAX_RATING_DEVIATION))
                   : 99
