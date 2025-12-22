@@ -77,26 +77,26 @@ function getCardStyle(rating: number) {
     tierColor: "text-yellow-500",
   }
   if (rating >= 80) return {
-    // SILVER - Polished steel with industrial edge
-    bg: "linear-gradient(145deg, #2a2a2a 0%, #4a4a4a 25%, #6a6a6a 50%, #4a4a4a 75%, #2a2a2a 100%)",
-    border: "border-slate-300/50",
-    accent: "from-white via-slate-200 to-white",
-    text: "text-white",
-    subtext: "text-slate-200",
-    noiseOpacity: 0.22,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
-    boxBg: "bg-slate-400/20",
+    // BRIGHT SILVER - Shiny polished silver
+    bg: "linear-gradient(145deg, #6a6a6a 0%, #9a9a9a 25%, #c0c0c0 50%, #9a9a9a 75%, #6a6a6a 100%)",
+    border: "border-slate-200/60",
+    accent: "from-white via-slate-100 to-white",
+    text: "text-slate-900",
+    subtext: "text-slate-700",
+    noiseOpacity: 0.20,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 50%, rgba(255,255,255,0.1) 100%)",
+    boxBg: "bg-slate-300/25",
     tierColor: "text-slate-300",
   }
   if (rating >= 75) return {
-    // SILVER (Lower) - Weathered steel
-    bg: "linear-gradient(145deg, #1f1f1f 0%, #3a3a3a 25%, #505050 50%, #3a3a3a 75%, #1f1f1f 100%)",
-    border: "border-slate-400/40",
-    accent: "from-slate-300 via-white to-slate-300",
-    text: "text-slate-100",
+    // METAL GRAY - Darker metallic silver
+    bg: "linear-gradient(145deg, #3a3a3a 0%, #555555 25%, #707070 50%, #555555 75%, #3a3a3a 100%)",
+    border: "border-slate-400/50",
+    accent: "from-slate-300 via-slate-200 to-slate-300",
+    text: "text-white",
     subtext: "text-slate-300",
-    noiseOpacity: 0.28,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%)",
+    noiseOpacity: 0.25,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%)",
     boxBg: "bg-slate-500/20",
     tierColor: "text-slate-400",
   }
