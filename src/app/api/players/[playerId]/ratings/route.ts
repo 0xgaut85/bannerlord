@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { DIVISION_WEIGHTS } from "@/lib/utils"
 
 export const dynamic = 'force-dynamic'
 
@@ -50,10 +51,20 @@ export async function GET(
         raterDivision: r.rater.division,
       }))
 
-    // Calculate average from real ratings
-    const average = realRatings.length > 0
-      ? realRatings.reduce((sum, r) => sum + r.score, 0) / realRatings.length
-      : null
+    // Calculate WEIGHTED average from real ratings (same as rankings)
+    let averageRating: number | null = null
+    if (realRatings.length > 0) {
+      let weightedSum = 0
+      let totalWeight = 0
+      for (const rating of realRatings) {
+        const weight = rating.raterDivision 
+          ? DIVISION_WEIGHTS[rating.raterDivision] 
+          : 0.075  // No division = lowest weight
+        weightedSum += rating.score * weight
+        totalWeight += weight
+      }
+      averageRating = totalWeight > 0 ? weightedSum / totalWeight : null
+    }
 
     return NextResponse.json({
       player: {
@@ -64,7 +75,7 @@ export async function GET(
         nationality: player.nationality,
       },
       ratings: realRatings,
-      averageRating: average ? Math.round(average * 10) / 10 : null,
+      averageRating: averageRating ? Math.round(averageRating * 10) / 10 : null,
       totalRatings: realRatings.length,
     })
   } catch (error) {
