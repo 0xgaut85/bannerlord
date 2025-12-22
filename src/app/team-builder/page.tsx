@@ -152,16 +152,10 @@ function FifaCard({
       )}
     >
       {/* Background */}
-      <div className="absolute inset-0" style={{ background: style.bg }} />
+      <div className="absolute inset-0 rounded-2xl" style={{ background: style.bg }} />
       
-      {/* Noise */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay opacity-30">
-        <filter id={`noise-${player.id}`}>
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter={`url(#noise-${player.id})`} />
-      </svg>
+      {/* Subtle gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/20 pointer-events-none rounded-2xl" />
       
       {/* Inner border */}
       <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none" />
