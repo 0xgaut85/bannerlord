@@ -1,8 +1,55 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { DIVISION_WEIGHTS } from "@/lib/utils"
+import { DIVISION_WEIGHTS, MIN_RATINGS } from "@/lib/utils"
 
 export const dynamic = 'force-dynamic'
+
+// Get eligible user IDs (same logic as community route)
+async function getEligibleUserIds(): Promise<string[]> {
+  const users = await prisma.user.findMany({
+    where: { 
+      OR: [
+        { isProfileComplete: true },
+        { discordId: { startsWith: "system_" } }
+      ]
+    },
+    select: {
+      id: true,
+      discordId: true,
+      ratings: {
+        select: {
+          player: {
+            select: { category: true }
+          }
+        }
+      }
+    }
+  })
+  
+  const eligibleIds: string[] = []
+  
+  for (const user of users) {
+    // System users are always eligible
+    if (user.discordId && user.discordId.startsWith("system_")) {
+      eligibleIds.push(user.id)
+      continue
+    }
+
+    const infantryCount = user.ratings.filter(r => r.player.category === "INFANTRY").length
+    const cavalryCount = user.ratings.filter(r => r.player.category === "CAVALRY").length
+    const archerCount = user.ratings.filter(r => r.player.category === "ARCHER").length
+    
+    if (
+      infantryCount >= MIN_RATINGS.INFANTRY &&
+      cavalryCount >= MIN_RATINGS.CAVALRY &&
+      archerCount >= MIN_RATINGS.ARCHER
+    ) {
+      eligibleIds.push(user.id)
+    }
+  }
+  
+  return eligibleIds
+}
 
 export async function GET(
   request: NextRequest,
@@ -10,6 +57,9 @@ export async function GET(
 ) {
   try {
     const { playerId } = await params
+
+    // Get eligible user IDs first (same as rankings)
+    const eligibleUserIds = await getEligibleUserIds()
 
     const player = await prisma.player.findUnique({
       where: { id: playerId },
@@ -20,6 +70,9 @@ export async function GET(
         clan: true,
         nationality: true,
         ratings: {
+          where: {
+            raterId: { in: eligibleUserIds }  // Only eligible users
+          },
           include: {
             rater: {
               select: {
