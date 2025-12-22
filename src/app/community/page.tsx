@@ -49,6 +49,8 @@ function getCardStyle(rating: number) {
     subtext: "text-cyan-200",
     noiseOpacity: 0.35,
     overlayGradient: "linear-gradient(180deg, rgba(6,182,212,0.1) 0%, transparent 40%, rgba(6,182,212,0.05) 100%)",
+    boxBg: "bg-cyan-500/20",
+    tierColor: "text-cyan-400",
   }
   if (rating >= 90) return {
     // LEGEND - Deep molten gold with ember core
@@ -59,16 +61,20 @@ function getCardStyle(rating: number) {
     subtext: "text-amber-200",
     noiseOpacity: 0.30,
     overlayGradient: "linear-gradient(180deg, rgba(255,193,7,0.15) 0%, transparent 50%, rgba(255,152,0,0.1) 100%)",
+    boxBg: "bg-amber-500/20",
+    tierColor: "text-amber-400",
   }
   if (rating >= 85) return {
-    // GOLD - Burnished gold with depth
-    bg: "linear-gradient(145deg, #5c4a00 0%, #8b7500 25%, #b8960a 50%, #8b7500 75%, #5c4a00 100%)",
-    border: "border-yellow-400/50",
+    // GOLD - Bright yellow gold (not auburn)
+    bg: "linear-gradient(145deg, #8b7800 0%, #c9b000 25%, #e6d000 50%, #c9b000 75%, #8b7800 100%)",
+    border: "border-yellow-300/60",
     accent: "from-yellow-200 via-white to-yellow-200",
-    text: "text-white",
-    subtext: "text-yellow-100",
+    text: "text-yellow-950",
+    subtext: "text-yellow-900",
     noiseOpacity: 0.25,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,215,0,0.1) 100%)",
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,215,0,0.15) 100%)",
+    boxBg: "bg-yellow-500/25",
+    tierColor: "text-yellow-400",
   }
   if (rating >= 80) return {
     // SILVER - Polished steel with industrial edge
@@ -79,6 +85,8 @@ function getCardStyle(rating: number) {
     subtext: "text-slate-200",
     noiseOpacity: 0.22,
     overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
+    boxBg: "bg-slate-400/20",
+    tierColor: "text-slate-300",
   }
   if (rating >= 75) return {
     // SILVER (Lower) - Weathered steel
@@ -89,6 +97,8 @@ function getCardStyle(rating: number) {
     subtext: "text-slate-300",
     noiseOpacity: 0.28,
     overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%)",
+    boxBg: "bg-slate-500/20",
+    tierColor: "text-slate-400",
   }
   if (rating >= 70) return {
     // BRONZE - Rich copper patina
@@ -99,6 +109,8 @@ function getCardStyle(rating: number) {
     subtext: "text-orange-200",
     noiseOpacity: 0.30,
     overlayGradient: "linear-gradient(180deg, rgba(234,88,12,0.1) 0%, transparent 50%, rgba(194,65,12,0.08) 100%)",
+    boxBg: "bg-orange-500/20",
+    tierColor: "text-orange-400",
   }
   if (rating >= 65) return {
     // BRONZE (Lower) - Aged copper
@@ -109,6 +121,8 @@ function getCardStyle(rating: number) {
     subtext: "text-orange-300",
     noiseOpacity: 0.32,
     overlayGradient: "linear-gradient(180deg, rgba(194,65,12,0.08) 0%, transparent 50%)",
+    boxBg: "bg-orange-600/20",
+    tierColor: "text-orange-500",
   }
   // WOOD/COMMON - Dark oak with grain
   return {
@@ -119,6 +133,8 @@ function getCardStyle(rating: number) {
     subtext: "text-[#c2b299]",
     noiseOpacity: 0.45,
     overlayGradient: "linear-gradient(180deg, rgba(160,128,96,0.05) 0%, transparent 50%)",
+    boxBg: "bg-[#6b5344]/20",
+    tierColor: "text-[#a08060]",
   }
 }
 
@@ -666,18 +682,26 @@ export default function CommunityPage() {
               
               <div className="bg-black/20 rounded-xl p-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {rest.map((player) => (
-                    <button
-                      key={player.id}
-                      onClick={() => fetchPlayerRatings(player.id)}
-                      className="w-full flex items-center gap-2 p-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 transition-colors text-left"
-                    >
-                      <span className="text-white/40 w-8">#{player.rank}</span>
-                      <Flag code={player.nationality} size="sm" />
-                      <span className="text-white/80 truncate flex-1">{player.name}</span>
-                      <span className="text-white/60 font-mono">{player.averageRating.toFixed(1)}</span>
-                    </button>
-                  ))}
+                  {rest.map((player) => {
+                    const style = getCardStyle(player.averageRating)
+                    const tier = getTierFromRating(player.averageRating)
+                    return (
+                      <button
+                        key={player.id}
+                        onClick={() => fetchPlayerRatings(player.id)}
+                        className={cn(
+                          "w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left border border-white/10",
+                          style.boxBg
+                        )}
+                      >
+                        <span className="text-white/40 w-7 text-xs">#{player.rank}</span>
+                        <Flag code={player.nationality} size="sm" />
+                        <span className="text-white/80 truncate flex-1">{player.name}</span>
+                        <span className={cn("font-bold text-xs", style.tierColor)}>{tier}</span>
+                        <span className="text-white/60 font-mono text-xs">{player.averageRating.toFixed(1)}</span>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             </section>
@@ -867,6 +891,7 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; 
   const style = getCardStyle(player.averageRating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const clanLogo = (player as any).clanLogo || null
+  const playerTier = getTierFromRating(player.averageRating)
   
   return (
     <button onClick={() => onPlayerClick?.(player.id)} className="flex justify-center w-full">
@@ -904,7 +929,7 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; 
 
         {/* Content */}
         <div className="relative h-full flex flex-col p-2.5 z-30">
-          {/* Top: Rating & Rank */}
+          {/* Top: Rating & Rank & Tier */}
           <div className="flex justify-between items-start">
             <div className="flex flex-col items-center">
               <span className={`text-2xl font-black ${style.text} leading-none`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
@@ -914,7 +939,10 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; 
                 {categoryShort[player.category]}
               </span>
             </div>
-            <span className={`text-xs font-bold ${style.subtext} opacity-70`}>#{player.rank}</span>
+            <div className="text-right">
+              <span className={`text-xs font-bold ${style.subtext} opacity-70`}>#{player.rank}</span>
+              <div className={`text-sm font-black ${style.text}`}>{playerTier}</div>
+            </div>
           </div>
 
           {/* Middle: Avatar and Bio - 20% bigger */}
@@ -972,14 +1000,19 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; 
 // Compact player card (16-30) - Rising Stars with Avatar
 function CompactPlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; onPlayerClick?: (id: string) => void }) {
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
+  const style = getCardStyle(player.averageRating)
+  const playerTier = getTierFromRating(player.averageRating)
   
   return (
     <button 
       onClick={() => onPlayerClick?.(player.id)}
-      className="w-full bg-white/5 rounded-lg p-3 border border-white/5 hover:bg-white/10 text-left transition-colors"
+      className={cn(
+        "w-full rounded-lg p-3 border border-white/10 hover:brightness-125 text-left transition-all",
+        style.boxBg
+      )}
     >
       <div className="flex items-center gap-2">
-        <span className="text-white/30 text-sm w-6">#{player.rank}</span>
+        <span className="text-white/40 text-sm w-6">#{player.rank}</span>
         <Image 
           src={avatarSrc} 
           alt={player.name} 
@@ -992,7 +1025,10 @@ function CompactPlayerCard({ player, onPlayerClick }: { player: PlayerWithRating
       </div>
       <div className="flex items-center justify-between mt-1">
         {player.clan && <span className="text-white/30 text-xs truncate">{player.clan}</span>}
-        <span className="text-white/60 text-sm font-mono ml-auto">{player.averageRating.toFixed(1)}</span>
+        <div className="flex items-center gap-2 ml-auto">
+          <span className={cn("font-bold text-sm", style.tierColor)}>{playerTier}</span>
+          <span className="text-white/60 text-sm font-mono">{player.averageRating.toFixed(1)}</span>
+        </div>
       </div>
     </button>
   )
