@@ -35,10 +35,15 @@ export async function GET() {
 }
 
 // Helper to calculate current average rating for a player
+// IMPORTANT: For anti-troll purposes, we ONLY count real user ratings, never system ratings
 async function getPlayerAverageRating(playerId: string, excludeRaterId?: string): Promise<{ average: number; count: number }> {
   const ratings = await prisma.rating.findMany({
     where: { 
       playerId,
+      // Exclude system raters - they should NEVER count for anti-troll baseline
+      rater: {
+        discordId: { not: { startsWith: "system_" } }
+      },
       ...(excludeRaterId ? { raterId: { not: excludeRaterId } } : {})
     },
     include: {
@@ -48,21 +53,15 @@ async function getPlayerAverageRating(playerId: string, excludeRaterId?: string)
     }
   })
   
-  // Separate real ratings from system ratings
-  const realRatings = ratings.filter(r => !r.rater.discordId?.startsWith("system_"))
-  const systemRatings = ratings.filter(r => r.rater.discordId?.startsWith("system_"))
-  
-  // If player has at least 1 real rating, ignore system ratings completely
-  const ratingsToUse = realRatings.length > 0 ? realRatings : systemRatings
-  
-  if (ratingsToUse.length === 0) {
+  // Only real user ratings matter for anti-troll checks
+  if (ratings.length === 0) {
     return { average: 0, count: 0 }
   }
   
   let weightedSum = 0
   let totalWeight = 0
   
-  for (const rating of ratingsToUse) {
+  for (const rating of ratings) {
     const weight = rating.rater.division 
       ? DIVISION_WEIGHTS[rating.rater.division] 
       : 0.5
@@ -72,7 +71,7 @@ async function getPlayerAverageRating(playerId: string, excludeRaterId?: string)
   
   return { 
     average: totalWeight > 0 ? weightedSum / totalWeight : 0,
-    count: realRatings.length > 0 ? realRatings.length : ratingsToUse.length
+    count: ratings.length
   }
 }
 
@@ -129,12 +128,32 @@ export async function POST(request: NextRequest) {
       // }
       
       // Check if player has enough ratings (anti-troll protection)
+      // Get average WITHOUT the current user's rating to check their new submission
       const { average, count } = await getPlayerAverageRating(rating.playerId, session.user.id)
       
-      if (count >= MIN_PLAYER_RATINGS) {
-        // Player is established - enforce ±20 rule
+      // Also get the total count INCLUDING user's existing rating (if any)
+      const existingRating = await prisma.rating.findUnique({
+        where: {
+          raterId_playerId: {
+            raterId: session.user.id,
+            playerId: rating.playerId,
+          }
+        }
+      })
+      
+      // Player is considered "established" if they have MIN_PLAYER_RATINGS from OTHER users
+      // OR if total ratings (including user's current) >= MIN_PLAYER_RATINGS
+      const totalRatingsFromOthers = count
+      const hasExistingRating = existingRating !== null
+      
+      // Only enforce anti-troll if there are enough OTHER ratings to establish a baseline
+      // This means: at least MIN_PLAYER_RATINGS ratings from users OTHER than the current user
+      if (totalRatingsFromOthers >= MIN_PLAYER_RATINGS) {
+        // Player is established - enforce ±20 rule based on OTHER users' ratings
         const minAllowed = Math.max(50, Math.floor(average - MAX_RATING_DEVIATION))
         const maxAllowed = Math.min(99, Math.ceil(average + MAX_RATING_DEVIATION))
+        
+        console.log(`Anti-troll check for ${player?.name}: avg=${average.toFixed(1)}, count=${count}, range=${minAllowed}-${maxAllowed}, submitted=${rating.score}`)
         
         if (rating.score < minAllowed || rating.score > maxAllowed) {
           validationErrors.push(

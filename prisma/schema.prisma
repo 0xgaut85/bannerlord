@@ -98,7 +98,7 @@ model Rating {
   updatedAt DateTime @updatedAt
   player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
   rater     User     @relation(fields: [raterId], references: [id], onDelete: Cascade)
-
+  
   @@unique([raterId, playerId])
 }
 

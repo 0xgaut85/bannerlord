@@ -346,10 +346,10 @@ export default function CommunityPage() {
                 <div className="text-xs text-white/50 uppercase">Sec</div>
               </div>
             </div>
-          </div>
+      </div>
         )}
-        
-        {/* Category Tabs */}
+      
+      {/* Category Tabs */}
         <div className="flex justify-center gap-2 mt-8">
           {(Object.keys(categoryConfig) as Category[]).map((cat) => (
             <button
@@ -439,7 +439,7 @@ export default function CommunityPage() {
           </div>
         </div>
       )}
-
+      
       {/* Player Ratings Modal */}
       {selectedPlayer && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
@@ -455,9 +455,9 @@ export default function CommunityPage() {
                       </h2>
                       <p className="text-white/50 text-sm mt-1">
                         {selectedPlayer.player.category} · {selectedPlayer.player.clan || "FA"}
-                      </p>
-                    </div>
-                  </div>
+        </p>
+      </div>
+    </div>
                 </div>
                 <div className="text-right mr-4">
                   <div className="text-3xl font-bold text-amber-400">
