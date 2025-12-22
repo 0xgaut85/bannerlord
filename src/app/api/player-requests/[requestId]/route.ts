@@ -48,11 +48,12 @@ export async function PATCH(
           clan: playerRequest.clan,
           bio: playerRequest.bio,
           avatar: playerRequest.avatar,
+          isLegend: playerRequest.isLegend || false,
         }
       })
       
-      // Create default ratings from system raters if division is set
-      if (playerRequest.division) {
+      // Create default ratings from system raters if division is set (not for legends)
+      if (playerRequest.division && !playerRequest.isLegend) {
         const systemRaters = await prisma.user.findMany({
           where: { discordId: { startsWith: "system_" } }
         })

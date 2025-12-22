@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    const { playerName, category, division, nationality, clan, bio, avatar } = body
+    const { playerName, category, division, nationality, clan, bio, avatar, isLegend } = body
     
     if (!playerName || !category) {
       return NextResponse.json({ error: "Player name and category are required" }, { status: 400 })
@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
         clan: clan || null,
         bio: bio || null,
         avatar: avatar || null,
+        isLegend: isLegend || false,
       }
     })
     

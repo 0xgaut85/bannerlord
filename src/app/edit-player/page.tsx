@@ -108,6 +108,7 @@ export default function EditPlayerPage() {
   const [createPlayerClan, setCreatePlayerClan] = useState("")
   const [createPlayerBio, setCreatePlayerBio] = useState("")
   const [createPlayerAvatar, setCreatePlayerAvatar] = useState<string | null>(null)
+  const [createPlayerIsLegend, setCreatePlayerIsLegend] = useState(false)
   const [isSubmittingCreate, setIsSubmittingCreate] = useState(false)
   const [createPlayerSuccess, setCreatePlayerSuccess] = useState(false)
   const [createPlayerError, setCreatePlayerError] = useState<string | null>(null)
@@ -553,6 +554,7 @@ export default function EditPlayerPage() {
           category: createPlayerCategory,
           division: createPlayerDivision || null,
           nationality: createPlayerNationality || null,
+          isLegend: createPlayerIsLegend,
           clan: createPlayerClan || null,
           bio: createPlayerBio || null,
           avatar: createPlayerAvatar,
@@ -822,6 +824,21 @@ export default function EditPlayerPage() {
                     </button>
                   ))}
                 </div>
+              </div>
+              
+              {/* Legend Checkbox */}
+              <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-white/5 to-white/10 rounded-xl border border-white/20">
+                <input
+                  type="checkbox"
+                  id="createPlayerIsLegend"
+                  checked={createPlayerIsLegend}
+                  onChange={(e) => setCreatePlayerIsLegend(e.target.checked)}
+                  className="w-5 h-5 rounded border-white/30 bg-white/10 text-amber-500 focus:ring-amber-500/50"
+                />
+                <label htmlFor="createPlayerIsLegend" className="flex-1">
+                  <span className="text-white font-medium">Legend Player</span>
+                  <p className="text-white/50 text-sm">Mark this player as a legend (retired/iconic player from the past)</p>
+                </label>
               </div>
               
               {/* Clan */}
