@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,16 +11,16 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit
 
     // Base filter: exclude system users and only show users with ratings
-    const baseWhere = {
+    const baseWhere: Prisma.UserWhereInput = {
       NOT: { discordId: { startsWith: "system_" } },
       ratings: { some: {} } // Only users who have at least one rating
     }
 
-    const whereClause = search ? {
+    const whereClause: Prisma.UserWhereInput = search ? {
       ...baseWhere,
       OR: [
-        { discordName: { contains: search, mode: "insensitive" } },
-        { name: { contains: search, mode: "insensitive" } },
+        { discordName: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
       ]
     } : baseWhere
 
