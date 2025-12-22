@@ -43,19 +43,26 @@ async function getPlayerAverageRating(playerId: string, excludeRaterId?: string)
     },
     include: {
       rater: {
-        select: { division: true }
+        select: { division: true, discordId: true }
       }
     }
   })
   
-  if (ratings.length === 0) {
+  // Separate real ratings from system ratings
+  const realRatings = ratings.filter(r => !r.rater.discordId?.startsWith("system_"))
+  const systemRatings = ratings.filter(r => r.rater.discordId?.startsWith("system_"))
+  
+  // If player has at least 1 real rating, ignore system ratings completely
+  const ratingsToUse = realRatings.length > 0 ? realRatings : systemRatings
+  
+  if (ratingsToUse.length === 0) {
     return { average: 0, count: 0 }
   }
   
   let weightedSum = 0
   let totalWeight = 0
   
-  for (const rating of ratings) {
+  for (const rating of ratingsToUse) {
     const weight = rating.rater.division 
       ? DIVISION_WEIGHTS[rating.rater.division] 
       : 0.5
@@ -65,7 +72,7 @@ async function getPlayerAverageRating(playerId: string, excludeRaterId?: string)
   
   return { 
     average: totalWeight > 0 ? weightedSum / totalWeight : 0,
-    count: ratings.length
+    count: realRatings.length > 0 ? realRatings.length : ratingsToUse.length
   }
 }
 

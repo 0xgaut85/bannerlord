@@ -80,17 +80,21 @@ export async function GET(request: NextRequest) {
     
     // Calculate weighted average for each player
     const rankedPlayers = players.map(player => {
-      // Separate real user ratings from system ratings
-      // System ratings are just defaults and should be ignored when real ratings exist
+      // CRITICAL: Separate real user ratings from system ratings
+      // System ratings are ONLY used as defaults when NO real ratings exist
+      // Once a player has at least 1 real rating, system ratings are completely ignored
       const realRatings = player.ratings.filter(r => 
         !r.rater.discordId?.startsWith("system_")
+      )
+      const systemRatings = player.ratings.filter(r => 
+        r.rater.discordId?.startsWith("system_")
       )
       const hasRealRatings = realRatings.length > 0
       
       let averageRating: number
       
       if (hasRealRatings) {
-        // Calculate weighted average from ONLY real user ratings (ignore system defaults)
+        // Player has real user ratings - ONLY use real ratings, completely ignore system ratings
         let weightedSum = 0
         let totalWeight = 0
         
@@ -103,11 +107,23 @@ export async function GET(request: NextRequest) {
         }
         
         averageRating = totalWeight > 0 ? weightedSum / totalWeight : 0
-      } else if (player.division) {
-        // No real ratings yet - use default rating based on division
+      } else if (systemRatings.length > 0 && player.division) {
+        // No real ratings yet - use default rating based on division (system ratings are just placeholders)
         averageRating = DIVISION_DEFAULT_RATINGS[player.division as Division]
+      } else if (systemRatings.length > 0) {
+        // Has system ratings but no division - calculate from system ratings as fallback
+        let weightedSum = 0
+        let totalWeight = 0
+        for (const rating of systemRatings) {
+          const weight = rating.rater.division 
+            ? DIVISION_WEIGHTS[rating.rater.division] 
+            : 0.5
+          weightedSum += rating.score * weight
+          totalWeight += weight
+        }
+        averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
       } else {
-        // No division set and no ratings - use 70 as default
+        // No ratings at all - use 70 as default
         averageRating = 70
       }
       
