@@ -25,6 +25,25 @@ interface AllTimeRanking {
   isLegend?: boolean
 }
 
+interface PlayerRatingsDetails {
+  player: {
+    id: string
+    name: string
+    category: string
+    clan: string | null
+    nationality: string | null
+  }
+  ratings: {
+    id: string
+    score: number
+    raterName: string | null
+    raterDiscordName: string | null
+    raterDivision: string | null
+  }[]
+  averageRating: number | null
+  totalRatings: number
+}
+
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
 const categoryConfig = {
@@ -76,7 +95,7 @@ const LEGEND_STYLE = {
 
 // AAA+ Premium card styles with heavy textures
 function getCardStyle(rating: number, isLegend?: boolean) {
-  if (isLegend) return LEGEND_STYLE
+  if (isLegend) return { ...LEGEND_STYLE, boxBg: "bg-[#d4c4a8]/20", tierColor: "text-[#8b7355]" }
   
   if (rating >= 95) return {
     bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
@@ -86,6 +105,8 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     subtext: "text-cyan-200",
     noiseOpacity: 0.35,
     overlayGradient: "linear-gradient(180deg, rgba(6,182,212,0.1) 0%, transparent 40%, rgba(6,182,212,0.05) 100%)",
+    boxBg: "bg-cyan-500/20",
+    tierColor: "text-cyan-400",
   }
   if (rating >= 90) return {
     bg: "linear-gradient(145deg, #1a0f00 0%, #3d2200 20%, #5c3a00 40%, #4a2c00 60%, #2d1800 80%, #1a0f00 100%)",
@@ -95,15 +116,20 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     subtext: "text-amber-200",
     noiseOpacity: 0.30,
     overlayGradient: "linear-gradient(180deg, rgba(255,193,7,0.15) 0%, transparent 50%, rgba(255,152,0,0.1) 100%)",
+    boxBg: "bg-amber-500/20",
+    tierColor: "text-amber-400",
   }
   if (rating >= 85) return {
-    bg: "linear-gradient(145deg, #5c4a00 0%, #8b7500 25%, #b8960a 50%, #8b7500 75%, #5c4a00 100%)",
-    border: "border-yellow-400/50",
+    // Bright yellow gold - not auburn
+    bg: "linear-gradient(145deg, #8b7800 0%, #c9b000 25%, #e6d000 50%, #c9b000 75%, #8b7800 100%)",
+    border: "border-yellow-300/60",
     accent: "from-yellow-200 via-white to-yellow-200",
-    text: "text-white",
-    subtext: "text-yellow-100",
+    text: "text-yellow-950",
+    subtext: "text-yellow-900",
     noiseOpacity: 0.25,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,215,0,0.1) 100%)",
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,215,0,0.15) 100%)",
+    boxBg: "bg-yellow-500/25",
+    tierColor: "text-yellow-400",
   }
   if (rating >= 80) return {
     bg: "linear-gradient(145deg, #2a2a2a 0%, #4a4a4a 25%, #6a6a6a 50%, #4a4a4a 75%, #2a2a2a 100%)",
@@ -113,6 +139,8 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     subtext: "text-slate-200",
     noiseOpacity: 0.22,
     overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
+    boxBg: "bg-slate-400/20",
+    tierColor: "text-slate-300",
   }
   if (rating >= 75) return {
     bg: "linear-gradient(145deg, #1f1f1f 0%, #3a3a3a 25%, #505050 50%, #3a3a3a 75%, #1f1f1f 100%)",
@@ -122,6 +150,8 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     subtext: "text-slate-300",
     noiseOpacity: 0.28,
     overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%)",
+    boxBg: "bg-slate-500/20",
+    tierColor: "text-slate-400",
   }
   if (rating >= 70) return {
     bg: "linear-gradient(145deg, #1a0800 0%, #4a1c00 25%, #6d3500 50%, #4a1c00 75%, #1a0800 100%)",
@@ -131,6 +161,8 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     subtext: "text-orange-200",
     noiseOpacity: 0.30,
     overlayGradient: "linear-gradient(180deg, rgba(234,88,12,0.1) 0%, transparent 50%, rgba(194,65,12,0.08) 100%)",
+    boxBg: "bg-orange-500/20",
+    tierColor: "text-orange-400",
   }
   if (rating >= 65) return {
     bg: "linear-gradient(145deg, #120500 0%, #2d1000 25%, #451a00 50%, #2d1000 75%, #120500 100%)",
@@ -140,6 +172,8 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     subtext: "text-orange-300",
     noiseOpacity: 0.32,
     overlayGradient: "linear-gradient(180deg, rgba(194,65,12,0.08) 0%, transparent 50%)",
+    boxBg: "bg-orange-600/20",
+    tierColor: "text-orange-500",
   }
   return {
     bg: "linear-gradient(145deg, #0f0a06 0%, #1f150d 25%, #2a1f15 50%, #1f150d 75%, #0f0a06 100%)",
@@ -149,6 +183,8 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     subtext: "text-[#c2b299]",
     noiseOpacity: 0.45,
     overlayGradient: "linear-gradient(180deg, rgba(160,128,96,0.05) 0%, transparent 50%)",
+    boxBg: "bg-[#6b5344]/20",
+    tierColor: "text-[#a08060]",
   }
 }
 
@@ -156,6 +192,22 @@ export default function AllTimePage() {
   const [rankings, setRankings] = useState<AllTimeRanking[]>([])
   const [category, setCategory] = useState<Category>("INFANTRY")
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerRatingsDetails | null>(null)
+  const [loadingPlayerRatings, setLoadingPlayerRatings] = useState(false)
+
+  const fetchPlayerRatings = async (playerId: string) => {
+    setLoadingPlayerRatings(true)
+    try {
+      const res = await fetch(`/api/players/${playerId}/ratings`)
+      if (res.ok) {
+        setSelectedPlayer(await res.json())
+      }
+    } catch (error) {
+      console.error("Error fetching player ratings:", error)
+    } finally {
+      setLoadingPlayerRatings(false)
+    }
+  }
 
   useEffect(() => {
     async function fetchRankings() {
@@ -222,6 +274,79 @@ export default function AllTimePage() {
         </div>
       </div>
 
+      {/* Player Ratings Modal */}
+      {selectedPlayer && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-white/10">
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <Flag code={selectedPlayer.player.nationality} size="md" />
+                    <div>
+                      <h2 className="text-2xl font-display text-white">
+                        {selectedPlayer.player.name}
+                      </h2>
+                      <p className="text-white/50 text-sm mt-1">
+                        {selectedPlayer.player.category} · {selectedPlayer.player.clan || "FA"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right mr-4">
+                  <div className="text-3xl font-bold text-amber-400">
+                    {selectedPlayer.averageRating || "-"}
+                  </div>
+                  <div className="text-white/50 text-xs">
+                    {selectedPlayer.totalRatings} rating{selectedPlayer.totalRatings !== 1 ? "s" : ""}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedPlayer(null)}
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {loadingPlayerRatings ? (
+                <div className="flex justify-center py-8">
+                  <div className="w-8 h-8 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+                </div>
+              ) : selectedPlayer.ratings.length === 0 ? (
+                <div className="text-center text-white/40 py-8">
+                  No ratings yet from real users
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {selectedPlayer.ratings.map((rating) => (
+                    <div 
+                      key={rating.id}
+                      className="flex items-center justify-between bg-black/20 rounded-lg p-3"
+                    >
+                      <div>
+                        <span className="text-white font-medium">
+                          {rating.raterDiscordName || rating.raterName || "Anonymous"}
+                        </span>
+                        {rating.raterDiscordName && rating.raterName && rating.raterDiscordName !== rating.raterName && (
+                          <span className="text-white/40 text-sm ml-2">({rating.raterName})</span>
+                        )}
+                        <span className="text-white/30 text-sm ml-2">
+                          Div {rating.raterDivision || "?"}
+                        </span>
+                      </div>
+                      <span className="text-amber-400 font-bold text-lg">{rating.score}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="flex justify-center py-20">
           <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
@@ -255,6 +380,7 @@ export default function AllTimePage() {
                       player={player} 
                       rank={actualRank}
                       isCenter={idx === 1}
+                      onPlayerClick={fetchPlayerRatings}
                     />
                   )
                 })}
@@ -274,7 +400,7 @@ export default function AllTimePage() {
               
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {elite.map((player) => (
-                  <ElitePlayerCard key={player.playerId} player={player} />
+                  <ElitePlayerCard key={player.playerId} player={player} onPlayerClick={fetchPlayerRatings} />
                 ))}
               </div>
             </section>
@@ -292,7 +418,7 @@ export default function AllTimePage() {
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {promising.map((player) => (
-                  <CompactPlayerCard key={player.playerId} player={player} />
+                  <CompactPlayerCard key={player.playerId} player={player} onPlayerClick={fetchPlayerRatings} />
                 ))}
               </div>
             </section>
@@ -307,23 +433,32 @@ export default function AllTimePage() {
               
               <div className="bg-black/20 rounded-xl p-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {rest.map((player) => (
-                    <div
-                      key={player.playerId}
-                      className="w-full flex items-center gap-2 p-2 rounded-lg bg-white/5 text-sm hover:bg-white/10 transition-colors text-left"
-                    >
-                      <span className="text-white/40 w-8">#{player.rank}</span>
-                      <Flag code={player.nationality} size="sm" />
-                      <span className={cn(
-                        "truncate flex-1",
-                        player.isLegend ? "text-white font-medium" : "text-white/80"
-                      )}>
-                        {cleanPlayerName(player.playerName)}
-                        {player.isLegend && <span className="text-white/40 text-xs ml-1">LEG</span>}
-                      </span>
-                      <span className="text-white/60 font-mono">{player.averageRating.toFixed(1)}</span>
-                    </div>
-                  ))}
+                  {rest.map((player) => {
+                    const style = getCardStyle(player.averageRating, player.isLegend)
+                    const tier = getTierFromRating(player.averageRating)
+                    return (
+                      <button
+                        key={player.playerId}
+                        onClick={() => fetchPlayerRatings(player.playerId)}
+                        className={cn(
+                          "w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer border border-white/10",
+                          style.boxBg
+                        )}
+                      >
+                        <span className="text-white/40 w-7 text-xs">#{player.rank}</span>
+                        <Flag code={player.nationality} size="sm" />
+                        <span className={cn(
+                          "truncate flex-1",
+                          player.isLegend ? "text-white font-medium" : "text-white/80"
+                        )}>
+                          {cleanPlayerName(player.playerName)}
+                          {player.isLegend && <span className="text-white/40 text-xs ml-1">LEG</span>}
+                        </span>
+                        <span className={cn("font-bold text-xs", style.tierColor)}>{tier}</span>
+                        <span className="text-white/60 font-mono text-xs">{player.averageRating.toFixed(1)}</span>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             </section>
@@ -338,11 +473,13 @@ export default function AllTimePage() {
 function FifaDisplayCard({ 
   player, 
   rank, 
-  isCenter
+  isCenter,
+  onPlayerClick
 }: { 
   player: AllTimeRanking
   rank: number
   isCenter: boolean
+  onPlayerClick?: (id: string) => void
 }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
@@ -351,11 +488,14 @@ function FifaDisplayCard({
   const rankLabels = { 1: "#1", 2: "#2", 3: "#3" }
   
   return (
-    <div className={cn(
-      "flex justify-center",
-      isCenter ? "md:scale-110 z-10" : ""
-    )}>
-      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} hover:scale-105 transition-transform`}>
+    <button 
+      onClick={() => onPlayerClick?.(player.playerId)}
+      className={cn(
+        "flex justify-center",
+        isCenter ? "md:scale-110 z-10" : ""
+      )}
+    >
+      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} hover:scale-105 transition-transform cursor-pointer`}>
         {/* Background */}
         <div className="absolute inset-0" style={{ background: style.bg }} />
         <div className="absolute inset-0 pointer-events-none" style={{ background: style.overlayGradient }} />
@@ -430,18 +570,18 @@ function FifaDisplayCard({
           </div>
         </div>
       </div>
-    </div>
+    </button>
   )
 }
 
 // Elite player card (ranks 4-15)
-function ElitePlayerCard({ player }: { player: AllTimeRanking }) {
+function ElitePlayerCard({ player, onPlayerClick }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const playerTier = getTierFromRating(player.averageRating)
 
   return (
-    <div className={`relative aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-2 ${style.border} hover:scale-105 transition-transform`}>
+    <button onClick={() => onPlayerClick?.(player.playerId)} className={`relative aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-2 ${style.border} hover:scale-105 transition-transform cursor-pointer w-full`}>
       <div className="absolute inset-0" style={{ background: style.bg }} />
       <div className="absolute inset-0 pointer-events-none" style={{ background: style.overlayGradient }} />
       
@@ -461,7 +601,10 @@ function ElitePlayerCard({ player }: { player: AllTimeRanking }) {
             <span className={`text-2xl font-black ${style.text} leading-none`}>{player.averageRating.toFixed(0)}</span>
             <div className={`text-[8px] font-bold ${style.subtext} uppercase tracking-wider mt-0.5`}>{categoryShort[player.category]}</div>
           </div>
-          <span className={`text-xs font-bold ${style.subtext} opacity-70`}>#{player.rank}</span>
+          <div className="text-right">
+            <span className={`text-xs font-bold ${style.subtext} opacity-70`}>#{player.rank}</span>
+            <div className={`text-sm font-black ${style.text}`}>{playerTier}</div>
+          </div>
         </div>
 
         <div className="flex-1 flex items-center justify-center py-2">
@@ -479,15 +622,21 @@ function ElitePlayerCard({ player }: { player: AllTimeRanking }) {
           </div>
         </div>
       </div>
-    </div>
+    </button>
   )
 }
 
 // Compact player card (ranks 16-30)
-function CompactPlayerCard({ player }: { player: AllTimeRanking }) {
+function CompactPlayerCard({ player, onPlayerClick }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void }) {
+  const style = getCardStyle(player.averageRating, player.isLegend)
+  const playerTier = getTierFromRating(player.averageRating)
+  
   return (
-    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5">
-      <span className="text-white/30 w-8 text-sm font-bold">#{player.rank}</span>
+    <button onClick={() => onPlayerClick?.(player.playerId)} className={cn(
+      "flex items-center gap-3 p-3 rounded-xl hover:brightness-125 transition-all border border-white/10 w-full text-left cursor-pointer",
+      style.boxBg
+    )}>
+      <span className="text-white/40 w-8 text-sm font-bold">#{player.rank}</span>
       <div className="w-10 h-10 rounded-full overflow-hidden bg-black/30">
         <Image 
           src={player.avatar || getDefaultAvatar(player.category)} 
@@ -512,7 +661,10 @@ function CompactPlayerCard({ player }: { player: AllTimeRanking }) {
           <span>{player.clan || "FA"}</span>
         </div>
       </div>
-      <div className="text-amber-400 font-bold">{player.averageRating.toFixed(1)}</div>
-    </div>
+      <div className="flex flex-col items-end">
+        <span className={cn("font-bold text-sm", style.tierColor)}>{playerTier}</span>
+        <span className="text-white/60 text-sm font-mono">{player.averageRating.toFixed(1)}</span>
+      </div>
+    </button>
   )
 }
