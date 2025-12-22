@@ -12,6 +12,8 @@ const navigation = [
   { name: "Current Ranking", href: "/community" },
   { name: "All Time", href: "/alltime" },
   { name: "History", href: "/history" },
+  { name: "Stats", href: "/stats" },
+  { name: "Team Builder", href: "/team-builder" },
   { name: "Rate", href: "/rate" },
   { name: "Q&A", href: "/qa" },
   { name: "Edit", href: "/edit-player" },

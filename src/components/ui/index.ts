@@ -5,5 +5,6 @@ export { Badge } from "./Badge"
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs"
 export { Slider } from "./Slider"
 export { Flag } from "./Flag"
+export { FifaDisplayCard } from "./FifaDisplayCard"
 
 
