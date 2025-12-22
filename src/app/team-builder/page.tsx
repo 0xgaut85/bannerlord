@@ -125,11 +125,13 @@ const linkPairs = [
 function FifaCard({ 
   player, 
   onDragStart,
+  onDragEnd,
   isDragging,
   size = "lg"
 }: { 
   player: TeamPlayer
   onDragStart: (e: DragEvent, player: TeamPlayer) => void
+  onDragEnd: () => void
   isDragging: boolean
   size?: "md" | "lg"
 }) {
@@ -145,10 +147,11 @@ function FifaCard({
     <div
       draggable
       onDragStart={(e) => onDragStart(e, player)}
+      onDragEnd={onDragEnd}
       className={cn(
-        `${sizeClasses} aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 cursor-grab active:cursor-grabbing transition-all`,
+        `${sizeClasses} aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 cursor-grab active:cursor-grabbing`,
         style.border,
-        isDragging ? "opacity-50 scale-95" : "hover:scale-105"
+        isDragging ? "opacity-30 scale-95" : ""
       )}
     >
       {/* Background */}
@@ -288,38 +291,57 @@ export default function TeamBuilderPage() {
 
   // Drag handlers
   const handleDragStart = (e: DragEvent, player: TeamPlayer) => {
-    setDraggedPlayer(player)
+    // Set drag data
+    e.dataTransfer.setData("text/plain", player.id)
     e.dataTransfer.effectAllowed = "move"
+    // Delay setting dragged player to allow the drag image to be created
+    setTimeout(() => setDraggedPlayer(player), 0)
   }
 
   const handleDragOver = (e: DragEvent, slotIndex: number) => {
     e.preventDefault()
     e.dataTransfer.dropEffect = "move"
-    setDragOverSlot(slotIndex)
+    // Only update if different slot
+    if (dragOverSlot !== slotIndex) {
+      setDragOverSlot(slotIndex)
+    }
   }
 
-  const handleDragLeave = () => {
-    setDragOverSlot(null)
+  const handleDragLeave = (e: DragEvent) => {
+    // Only clear if leaving the slot container, not a child
+    const relatedTarget = e.relatedTarget as HTMLElement
+    const currentTarget = e.currentTarget as HTMLElement
+    if (!currentTarget.contains(relatedTarget)) {
+      setDragOverSlot(null)
+    }
   }
 
   const handleDrop = (e: DragEvent, targetSlotIndex: number) => {
     e.preventDefault()
-    setDragOverSlot(null)
+    e.stopPropagation()
     
-    if (!draggedPlayer) return
+    const playerId = e.dataTransfer.getData("text/plain")
+    const sourceIndex = team.findIndex(p => p?.id === playerId)
     
-    const sourceIndex = team.findIndex(p => p?.id === draggedPlayer.id)
-    if (sourceIndex === -1) return
+    if (sourceIndex === -1 || sourceIndex === targetSlotIndex) {
+      setDraggedPlayer(null)
+      setDragOverSlot(null)
+      return
+    }
     
     const newTeam = [...team]
+    const sourcePlayer = newTeam[sourceIndex]
     const targetPlayer = newTeam[targetSlotIndex]
     
     // Swap players
-    newTeam[targetSlotIndex] = { ...draggedPlayer, position: targetSlotIndex }
+    if (sourcePlayer) {
+      newTeam[targetSlotIndex] = { ...sourcePlayer, position: targetSlotIndex }
+    }
     newTeam[sourceIndex] = targetPlayer ? { ...targetPlayer, position: sourceIndex } : null
     
     setTeam(newTeam)
     setDraggedPlayer(null)
+    setDragOverSlot(null)
   }
 
   const handleDragEnd = () => {
@@ -546,24 +568,23 @@ export default function TeamBuilderPage() {
               <div className="relative z-10 grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 h-full">
                 {team.map((player, idx) => (
                   <div
-                    key={idx}
+                    key={`slot-${idx}`}
                     onDragOver={(e) => handleDragOver(e, idx)}
                     onDragLeave={handleDragLeave}
                     onDrop={(e) => handleDrop(e, idx)}
                     className={cn(
-                      "flex items-center justify-center transition-all rounded-2xl",
-                      dragOverSlot === idx && "bg-amber-500/20 ring-2 ring-amber-500/50",
-                      !player && "border-2 border-dashed border-white/20 hover:border-white/30"
+                      "flex items-center justify-center rounded-2xl min-h-[200px] sm:min-h-[280px]",
+                      dragOverSlot === idx && draggedPlayer && "bg-amber-500/20 ring-2 ring-amber-500/50",
+                      !player && "border-2 border-dashed border-white/20"
                     )}
                   >
                     {player ? (
-                      <div onDragEnd={handleDragEnd}>
-                        <FifaCard
-                          player={player}
-                          onDragStart={handleDragStart}
-                          isDragging={draggedPlayer?.id === player.id}
-                        />
-                      </div>
+                      <FifaCard
+                        player={player}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                        isDragging={draggedPlayer?.id === player.id}
+                      />
                     ) : (
                       <div className="text-center p-4">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-2">
