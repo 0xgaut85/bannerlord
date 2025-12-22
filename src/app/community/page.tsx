@@ -53,19 +53,7 @@ function getCardStyle(rating: number) {
     tierColor: "text-cyan-400",
   }
   if (rating >= 90) return {
-    // LEGEND - Deep molten gold with ember core
-    bg: "linear-gradient(145deg, #1a0f00 0%, #3d2200 20%, #5c3a00 40%, #4a2c00 60%, #2d1800 80%, #1a0f00 100%)",
-    border: "border-amber-400/60",
-    accent: "from-amber-300 via-yellow-200 to-amber-300",
-    text: "text-amber-50",
-    subtext: "text-amber-200",
-    noiseOpacity: 0.30,
-    overlayGradient: "linear-gradient(180deg, rgba(255,193,7,0.15) 0%, transparent 50%, rgba(255,152,0,0.1) 100%)",
-    boxBg: "bg-amber-500/20",
-    tierColor: "text-amber-400",
-  }
-  if (rating >= 85) return {
-    // GOLD - Bright yellow gold (not auburn)
+    // BRIGHT GOLD - Bright yellow gold
     bg: "linear-gradient(145deg, #8b7800 0%, #c9b000 25%, #e6d000 50%, #c9b000 75%, #8b7800 100%)",
     border: "border-yellow-300/60",
     accent: "from-yellow-200 via-white to-yellow-200",
@@ -75,6 +63,18 @@ function getCardStyle(rating: number) {
     overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,215,0,0.15) 100%)",
     boxBg: "bg-yellow-500/25",
     tierColor: "text-yellow-400",
+  }
+  if (rating >= 85) return {
+    // GOLD - Normal yellow gold
+    bg: "linear-gradient(145deg, #5c4a00 0%, #8b7500 25%, #a89000 50%, #8b7500 75%, #5c4a00 100%)",
+    border: "border-yellow-500/50",
+    accent: "from-yellow-300 via-yellow-100 to-yellow-300",
+    text: "text-white",
+    subtext: "text-yellow-100",
+    noiseOpacity: 0.28,
+    overlayGradient: "linear-gradient(180deg, rgba(255,215,0,0.1) 0%, transparent 50%, rgba(200,170,0,0.1) 100%)",
+    boxBg: "bg-yellow-600/20",
+    tierColor: "text-yellow-500",
   }
   if (rating >= 80) return {
     // SILVER - Polished steel with industrial edge
