@@ -15,9 +15,22 @@ const sizes = {
   xl: { width: 64, height: 48 },
 }
 
+// Map alternative flag names to their file names
+const FLAG_ALIASES: Record<string, string> = {
+  kazakhstan: "kazakhstan",
+  liban: "liban",
+  belarus: "belarus",
+  // Standard ISO codes that might be used
+  kz: "kz",
+  lb: "lb",
+  by: "by",
+}
+
 export function Flag({ code, size = "md", className = "" }: FlagProps) {
   // Default to EU flag if no code or invalid
-  const flagCode = code?.toLowerCase() || "eu"
+  const rawCode = code?.toLowerCase() || "eu"
+  // Use alias if exists, otherwise use the code directly
+  const flagCode = FLAG_ALIASES[rawCode] || rawCode
   const { width, height } = sizes[size]
   
   return (
