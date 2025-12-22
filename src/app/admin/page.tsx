@@ -673,6 +673,58 @@ export default function AdminPage() {
 
         {activeTab === "players" && (
           <>
+            <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
+              <h3 className="text-white font-medium mb-3">Adjust Player Ratings</h3>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Player name (e.g., Obelix)"
+                  id="adjust-player-name"
+                  defaultValue="Obelix"
+                  className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                />
+                <input
+                  type="number"
+                  placeholder="Adjustment (+/-)"
+                  id="adjust-amount"
+                  defaultValue="2"
+                  className="w-32 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                />
+                <Button
+                  onClick={async () => {
+                    const playerName = (document.getElementById("adjust-player-name") as HTMLInputElement).value
+                    const adjustment = parseInt((document.getElementById("adjust-amount") as HTMLInputElement).value || "0")
+                    if (!playerName) {
+                      alert("Please enter a player name")
+                      return
+                    }
+                    if (!adjustment) {
+                      alert("Please enter an adjustment amount")
+                      return
+                    }
+                    if (!confirm(`Add ${adjustment > 0 ? "+" : ""}${adjustment} to all ratings for "${playerName}"?`)) return
+                    try {
+                      const res = await fetch("/api/admin/adjust-ratings", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ playerName, adjustment }),
+                      })
+                      const data = await res.json()
+                      if (res.ok) {
+                        alert(`Success! ${data.message}\nUpdated ${data.updatedCount} ratings.`)
+                        fetchPlayers()
+                      } else {
+                        alert(`Error: ${data.error}`)
+                      }
+                    } catch (error) {
+                      alert("Failed to adjust ratings")
+                    }
+                  }}
+                >
+                  Adjust Ratings
+                </Button>
+              </div>
+            </div>
             <div className="mb-6">
               <input
                 placeholder="Search players..."
