@@ -1,55 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
+import { DIVISION_WEIGHTS, DIVISION_DEFAULT_RATINGS } from "@/lib/utils"
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ playerId: string }> }
-) {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
-    }
-    
-    const { playerId } = await params
-    const body = await request.json()
-    const { nationality, clan } = body
-    
-    // Check if player exists
-    const player = await prisma.player.findUnique({
-      where: { id: playerId },
-    })
-    
-    if (!player) {
-      return NextResponse.json(
-        { error: "Player not found" },
-        { status: 404 }
-      )
-    }
-    
-    // Update player
-    const updatedPlayer = await prisma.player.update({
-      where: { id: playerId },
-      data: {
-        nationality: nationality || null,
-        clan: clan || null,
-      },
-    })
-    
-    return NextResponse.json(updatedPlayer)
-  } catch (error) {
-    console.error("Error updating player:", error)
-    return NextResponse.json(
-      { error: "Failed to update player" },
-      { status: 500 }
-    )
-  }
+export const dynamic = 'force-dynamic'
+
+function isSystemRater(discordId: string | null): boolean {
+  return discordId?.startsWith("system_") ?? false
 }
 
 export async function GET(
@@ -58,26 +14,71 @@ export async function GET(
 ) {
   try {
     const { playerId } = await params
-    
+
     const player = await prisma.player.findUnique({
       where: { id: playerId },
+      include: {
+        ratings: {
+          include: {
+            rater: {
+              select: { division: true, discordId: true }
+            }
+          }
+        }
+      }
     })
-    
+
     if (!player) {
-      return NextResponse.json(
-        { error: "Player not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Player not found" }, { status: 404 })
     }
-    
-    return NextResponse.json(player)
+
+    // Get clan logo
+    let clanLogo = null
+    if (player.clan) {
+      const clan = await prisma.clan.findFirst({
+        where: { shortName: player.clan },
+        select: { logo: true }
+      })
+      clanLogo = clan?.logo || null
+    }
+
+    // Calculate rating
+    let averageRating: number
+    if (player.isLegend && player.legendRating) {
+      averageRating = player.legendRating
+    } else {
+      const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
+      if (realRatings.length > 0) {
+        let weightedSum = 0
+        let totalWeight = 0
+        for (const rating of realRatings) {
+          const weight = rating.rater.division 
+            ? DIVISION_WEIGHTS[rating.rater.division] 
+            : 0.5
+          weightedSum += rating.score * weight
+          totalWeight += weight
+        }
+        averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
+      } else {
+        averageRating = player.division 
+          ? DIVISION_DEFAULT_RATINGS[player.division] 
+          : 70
+      }
+    }
+
+    return NextResponse.json({
+      id: player.id,
+      name: player.name,
+      category: player.category,
+      nationality: player.nationality,
+      clan: player.clan,
+      avatar: player.avatar,
+      clanLogo,
+      averageRating: Math.round(averageRating * 10) / 10,
+      isLegend: player.isLegend,
+    })
   } catch (error) {
-    console.error("Error fetching player:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch player" },
-      { status: 500 }
-    )
+    console.error("Player GET error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
-
-

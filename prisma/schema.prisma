@@ -74,6 +74,8 @@ model Player {
   bio          String?
   avatar       String?
   division     Division?
+  isLegend     Boolean        @default(false)
+  legendRating Float?         // Fixed rating for legends (their prime)
   editRequests EditRequest[]
   ratings      Rating[]
 }
@@ -142,6 +144,8 @@ model PlayerCreateRequest {
   clan        String?
   bio         String?
   avatar      String?
+  isLegend    Boolean         @default(false)
+  legendRating Float?
   status      RequestStatus   @default(PENDING)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
@@ -204,4 +208,16 @@ model SiteSettings {
   id                  String    @id @default("settings")
   currentPeriodEnd    DateTime?
   currentPeriodName   String?
+}
+
+// Saved Dream Teams
+model SavedTeam {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  playerIds String[] // Array of 6 player IDs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
 }

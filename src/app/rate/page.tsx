@@ -13,6 +13,7 @@ interface ExtendedPlayer extends Player {
   averageRating?: number
   totalRatings?: number
   clanLogo?: string | null
+  isLegend?: boolean
 }
 import { useDebounce } from "@/hooks/useDebounce"
 
@@ -23,7 +24,7 @@ interface RatingMap {
 // Display divisions for filter buttons (H+ covers H, I, J)
 const DIVISION_BUTTONS = ["A", "B", "C", "D", "E", "F", "G", "H+"] as const
 type DivisionButton = typeof DIVISION_BUTTONS[number]
-const CATEGORIES = ["ALL", "INFANTRY", "CAVALRY", "ARCHER"] as const
+const CATEGORIES = ["ALL", "INFANTRY", "CAVALRY", "ARCHER", "LEGENDS"] as const
 
 export default function RatePage() {
   const { data: session, status } = useSession()
@@ -140,9 +141,14 @@ export default function RatePage() {
       })
     }
     
-    // Filter by category
-    if (selectedCategory !== "ALL") {
-      filtered = filtered.filter(p => p.category === selectedCategory)
+    // Filter by category (LEGENDS is a special filter for legend players)
+    if (selectedCategory === "LEGENDS") {
+      filtered = filtered.filter(p => p.isLegend === true)
+    } else if (selectedCategory !== "ALL") {
+      filtered = filtered.filter(p => p.category === selectedCategory && !p.isLegend)
+    } else {
+      // ALL shows non-legends by default
+      filtered = filtered.filter(p => !p.isLegend)
     }
     
     setFilteredPlayers(filtered)

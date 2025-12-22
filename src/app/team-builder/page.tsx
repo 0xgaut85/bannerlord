@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect, useMemo, DragEvent } from "react"
+import { useState, useEffect, useMemo, DragEvent, useRef } from "react"
 import Image from "next/image"
+import { useSession } from "next-auth/react"
 import { Flag } from "@/components/ui"
 import { cn } from "@/lib/utils"
 
@@ -14,14 +15,29 @@ interface Player {
   avatar: string | null
   clanLogo: string | null
   averageRating: number
+  isLegend?: boolean
 }
 
 interface TeamPlayer extends Player {
   position: number
 }
 
-// Card styling based on rating
-function getCardStyle(rating: number) {
+interface SavedTeam {
+  id: string
+  name: string
+  playerIds: string[]
+}
+
+// Card styling based on rating (with legend style)
+function getCardStyle(rating: number, isLegend?: boolean) {
+  // Special legend style - white/marble
+  if (isLegend) return {
+    bg: "linear-gradient(145deg, #f8f8f8 0%, #e8e8e8 20%, #ffffff 40%, #f0f0f0 60%, #e0e0e0 80%, #f5f5f5 100%)",
+    border: "border-white",
+    text: "text-slate-800",
+    subtext: "text-slate-600",
+    isLegend: true,
+  }
   if (rating >= 95) return {
     bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
     border: "border-cyan-300/60",
@@ -135,9 +151,9 @@ function FifaCard({
   isDragging: boolean
   size?: "md" | "lg"
 }) {
-  const style = getCardStyle(player.averageRating)
+  const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
-  const tier = getTierFromRating(player.averageRating)
+  const tier = player.isLegend ? "LEG" : getTierFromRating(player.averageRating)
   
   const sizeClasses = size === "lg" 
     ? "w-40 sm:w-48 md:w-52" 
@@ -216,12 +232,112 @@ function FifaCard({
 }
 
 export default function TeamBuilderPage() {
+  const { data: session } = useSession()
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<Player[]>([])
   const [team, setTeam] = useState<(TeamPlayer | null)[]>([null, null, null, null, null, null])
   const [isSearching, setIsSearching] = useState(false)
   const [draggedPlayer, setDraggedPlayer] = useState<TeamPlayer | null>(null)
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null)
+  const [savedTeams, setSavedTeams] = useState<SavedTeam[]>([])
+  const [teamName, setTeamName] = useState("")
+  const [isSaving, setIsSaving] = useState(false)
+  const [showSaveModal, setShowSaveModal] = useState(false)
+  const [showLoadModal, setShowLoadModal] = useState(false)
+  const teamGridRef = useRef<HTMLDivElement>(null)
+
+  // Fetch saved teams
+  useEffect(() => {
+    if (session?.user) {
+      fetch("/api/teams")
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) setSavedTeams(data)
+        })
+        .catch(console.error)
+    }
+  }, [session])
+
+  // Save team
+  const handleSaveTeam = async () => {
+    if (!teamName.trim() || team.filter(p => p).length !== 6) return
+    setIsSaving(true)
+    try {
+      const playerIds = team.map(p => p?.id || "")
+      const res = await fetch("/api/teams", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: teamName, playerIds })
+      })
+      if (res.ok) {
+        const newTeam = await res.json()
+        setSavedTeams(prev => {
+          const filtered = prev.filter(t => t.name !== newTeam.name)
+          return [newTeam, ...filtered]
+        })
+        setShowSaveModal(false)
+        setTeamName("")
+      }
+    } catch (error) {
+      console.error("Save error:", error)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Load team
+  const handleLoadTeam = async (savedTeam: SavedTeam) => {
+    // Fetch player details for each ID
+    const players: (TeamPlayer | null)[] = []
+    for (let i = 0; i < savedTeam.playerIds.length; i++) {
+      const playerId = savedTeam.playerIds[i]
+      if (!playerId) {
+        players.push(null)
+        continue
+      }
+      try {
+        const res = await fetch(`/api/players/${playerId}`)
+        if (res.ok) {
+          const player = await res.json()
+          players.push({ ...player, position: i })
+        } else {
+          players.push(null)
+        }
+      } catch {
+        players.push(null)
+      }
+    }
+    setTeam(players)
+    setShowLoadModal(false)
+  }
+
+  // Delete saved team
+  const handleDeleteTeam = async (teamId: string) => {
+    try {
+      await fetch(`/api/teams?id=${teamId}`, { method: "DELETE" })
+      setSavedTeams(prev => prev.filter(t => t.id !== teamId))
+    } catch (error) {
+      console.error("Delete error:", error)
+    }
+  }
+
+  // Screenshot
+  const handleScreenshot = async () => {
+    if (!teamGridRef.current) return
+    try {
+      const html2canvas = (await import("html2canvas")).default
+      const canvas = await html2canvas(teamGridRef.current, {
+        backgroundColor: "#1e293b",
+        scale: 2,
+      })
+      const link = document.createElement("a")
+      link.download = `dream-team-${Date.now()}.png`
+      link.href = canvas.toDataURL()
+      link.click()
+    } catch (error) {
+      console.error("Screenshot error:", error)
+    }
+  }
 
   // Search for players
   useEffect(() => {
@@ -388,6 +504,74 @@ export default function TeamBuilderPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      {/* Save Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-6 max-w-md w-full border border-white/10">
+            <h3 className="text-xl font-bold text-white mb-4">Save Dream Team</h3>
+            <input
+              type="text"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              placeholder="Team name..."
+              className="w-full px-4 py-3 bg-black/30 rounded-lg border border-white/20 text-white mb-4"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSaveModal(false)}
+                className="flex-1 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveTeam}
+                disabled={!teamName.trim() || isSaving}
+                className="flex-1 px-4 py-2 bg-amber-500 text-black rounded-lg hover:bg-amber-400 disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Load Modal */}
+      {showLoadModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-6 max-w-md w-full border border-white/10 max-h-[80vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-white mb-4">Load Dream Team</h3>
+            {savedTeams.length === 0 ? (
+              <p className="text-white/50 text-center py-8">No saved teams yet</p>
+            ) : (
+              <div className="space-y-2 mb-4">
+                {savedTeams.map(t => (
+                  <div key={t.id} className="flex items-center gap-3 p-3 bg-black/30 rounded-lg">
+                    <button
+                      onClick={() => handleLoadTeam(t)}
+                      className="flex-1 text-left text-white font-medium hover:text-amber-400"
+                    >
+                      {t.name}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTeam(t.id)}
+                      className="text-red-400 hover:text-red-300 text-sm px-2"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button
+              onClick={() => setShowLoadModal(false)}
+              className="w-full px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-black/30 border-b border-white/10">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4">
@@ -401,16 +585,44 @@ export default function TeamBuilderPage() {
               </p>
             </div>
             
-            {/* Team Score */}
-            <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/10 rounded-xl px-6 py-3 border border-amber-500/30">
-              <div className="flex items-center gap-4">
-                <div>
-                  <p className="text-amber-400 text-xs uppercase tracking-wider">Team Rating</p>
-                  <p className="text-4xl font-black text-white">{totalScore}</p>
-                </div>
-                <div className="text-right text-sm">
-                  <div className="text-white/50">Avg: {baseScore}</div>
-                  {linkBonus > 0 && <div className="text-green-400">+{linkBonus} links</div>}
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              {session && (
+                <>
+                  <button
+                    onClick={() => setShowLoadModal(true)}
+                    className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 text-sm"
+                  >
+                    Load Team
+                  </button>
+                  <button
+                    onClick={() => teamPlayers.length === 6 && setShowSaveModal(true)}
+                    disabled={teamPlayers.length !== 6}
+                    className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50 text-sm"
+                  >
+                    Save Team
+                  </button>
+                </>
+              )}
+              <button
+                onClick={handleScreenshot}
+                disabled={teamPlayers.length === 0}
+                className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 disabled:opacity-50 text-sm"
+              >
+                Screenshot
+              </button>
+              
+              {/* Team Score */}
+              <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/10 rounded-xl px-6 py-3 border border-amber-500/30">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <p className="text-amber-400 text-xs uppercase tracking-wider">Team Rating</p>
+                    <p className="text-4xl font-black text-white">{totalScore}</p>
+                  </div>
+                  <div className="text-right text-sm">
+                    <div className="text-white/50">Avg: {baseScore}</div>
+                    {linkBonus > 0 && <div className="text-green-400">+{linkBonus} links</div>}
+                  </div>
                 </div>
               </div>
             </div>
@@ -532,7 +744,7 @@ export default function TeamBuilderPage() {
 
           {/* Main Area: Team Grid */}
           <div className="flex-1 min-h-[600px] lg:min-h-[700px]">
-            <div className="relative w-full h-full bg-gradient-to-br from-slate-800/50 to-slate-900/80 rounded-2xl border border-white/10 p-4 sm:p-8">
+            <div ref={teamGridRef} className="relative w-full h-full bg-gradient-to-br from-slate-800/50 to-slate-900/80 rounded-2xl border border-white/10 p-4 sm:p-8">
               
               {/* SVG for link lines */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>

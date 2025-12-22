@@ -12,18 +12,21 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get("q")
+    const includeLegends = searchParams.get("legends") === "true"
     
     if (!query || query.length < 2) {
       return NextResponse.json([])
     }
 
-    // Search players by name
+    // Search players by name (include legends if requested)
     const players = await prisma.player.findMany({
       where: {
         name: {
           contains: query,
           mode: 'insensitive'
-        }
+        },
+        // If not specifically requesting legends, include all
+        ...(includeLegends ? {} : {})
       },
       include: {
         ratings: {
@@ -45,24 +48,28 @@ export async function GET(request: NextRequest) {
 
     // Calculate ratings and format response
     const results = players.map(player => {
-      const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
-      
       let averageRating: number
-      if (realRatings.length > 0) {
-        let weightedSum = 0
-        let totalWeight = 0
-        for (const rating of realRatings) {
-          const weight = rating.rater.division 
-            ? DIVISION_WEIGHTS[rating.rater.division] 
-            : 0.5
-          weightedSum += rating.score * weight
-          totalWeight += weight
-        }
-        averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
+      
+      if (player.isLegend && player.legendRating) {
+        averageRating = player.legendRating
       } else {
-        averageRating = player.division 
-          ? DIVISION_DEFAULT_RATINGS[player.division] 
-          : 70
+        const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
+        if (realRatings.length > 0) {
+          let weightedSum = 0
+          let totalWeight = 0
+          for (const rating of realRatings) {
+            const weight = rating.rater.division 
+              ? DIVISION_WEIGHTS[rating.rater.division] 
+              : 0.5
+            weightedSum += rating.score * weight
+            totalWeight += weight
+          }
+          averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
+        } else {
+          averageRating = player.division 
+            ? DIVISION_DEFAULT_RATINGS[player.division] 
+            : 70
+        }
       }
 
       return {
@@ -74,6 +81,7 @@ export async function GET(request: NextRequest) {
         avatar: player.avatar,
         clanLogo: player.clan ? clanLogos[player.clan] || null : null,
         averageRating: Math.round(averageRating * 10) / 10,
+        isLegend: player.isLegend,
       }
     })
 

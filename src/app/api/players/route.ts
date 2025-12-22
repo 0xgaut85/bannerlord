@@ -85,6 +85,8 @@ export async function GET(request: NextRequest) {
         clanLogo: player.clan ? clanLogos[player.clan] || null : null,
         averageRating: Math.round(avgRating * 10) / 10,
         totalRatings: player.ratings.length,
+        isLegend: player.isLegend,
+        legendRating: player.legendRating,
       }
     })
     

@@ -32,9 +32,12 @@ export async function GET(request: NextRequest) {
     // AND system raters who are always eligible
     const eligibleUserIds = await getEligibleUserIds()
     
-    // Get all players with their ratings from eligible users
+    // Get all players with their ratings from eligible users (exclude legends)
     const players = await prisma.player.findMany({
-      where: { category },
+      where: { 
+        category,
+        isLegend: false  // Exclude legends from current rankings
+      },
       include: {
         ratings: {
           where: {
