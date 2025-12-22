@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { DIVISION_WEIGHTS } from "@/lib/utils"
+import { DIVISION_WEIGHTS, MIN_RATINGS } from "@/lib/utils"
 
 export const dynamic = 'force-dynamic'
 
@@ -8,11 +8,61 @@ function isSystemRater(discordId: string | null): boolean {
   return discordId?.startsWith("system_") ?? false
 }
 
+// Get eligible user IDs (same logic as community route)
+async function getEligibleUserIds(): Promise<string[]> {
+  const users = await prisma.user.findMany({
+    where: { 
+      OR: [
+        { isProfileComplete: true },
+        { discordId: { startsWith: "system_" } }
+      ]
+    },
+    select: {
+      id: true,
+      discordId: true,
+      ratings: {
+        select: {
+          player: {
+            select: { category: true }
+          }
+        }
+      }
+    }
+  })
+  
+  const eligibleIds: string[] = []
+  
+  for (const user of users) {
+    // System users are always eligible
+    if (user.discordId && user.discordId.startsWith("system_")) {
+      eligibleIds.push(user.id)
+      continue
+    }
+
+    const infantryCount = user.ratings.filter(r => r.player.category === "INFANTRY").length
+    const cavalryCount = user.ratings.filter(r => r.player.category === "CAVALRY").length
+    const archerCount = user.ratings.filter(r => r.player.category === "ARCHER").length
+    
+    if (
+      infantryCount >= MIN_RATINGS.INFANTRY &&
+      cavalryCount >= MIN_RATINGS.CAVALRY &&
+      archerCount >= MIN_RATINGS.ARCHER
+    ) {
+      eligibleIds.push(user.id)
+    }
+  }
+  
+  return eligibleIds
+}
+
 // Get all-time rankings (average of all monthly rankings + legends)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get("category")
+    
+    // Get eligible users first
+    const eligibleUserIds = await getEligibleUserIds()
     
     // Get all periods ordered by date
     const periods = await prisma.rankingPeriod.findMany({
@@ -87,6 +137,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Also fetch legends and add them to all-time rankings
+    // Only include ratings from eligible users
     const legends = await prisma.player.findMany({
       where: {
         isLegend: true,
@@ -94,6 +145,9 @@ export async function GET(request: NextRequest) {
       },
       include: {
         ratings: {
+          where: {
+            raterId: { in: eligibleUserIds }  // Only eligible users
+          },
           include: {
             rater: {
               select: { division: true, discordId: true }
@@ -104,9 +158,9 @@ export async function GET(request: NextRequest) {
     })
     
     for (const legend of legends) {
-      // Calculate legend's rating from actual votes
+      // Calculate legend's rating from actual votes (already filtered to eligible users)
       const realRatings = legend.ratings.filter(r => !isSystemRater(r.rater.discordId))
-      let avgRating = 70 // Default
+      let avgRating = 70 // Default if no eligible ratings
       
       if (realRatings.length > 0) {
         let weightedSum = 0

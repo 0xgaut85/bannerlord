@@ -3,9 +3,10 @@ import prisma from "@/lib/prisma"
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { requestId: string } }
+  { params }: { params: Promise<{ requestId: string }> }
 ) {
   try {
+    const { requestId } = await params
     const body = await request.json()
     const { action } = body
     
@@ -14,7 +15,7 @@ export async function PATCH(
     }
     
     const editRequest = await prisma.clanEditRequest.findUnique({
-      where: { id: params.requestId }
+      where: { id: requestId }
     })
     
     if (!editRequest) {
@@ -68,7 +69,7 @@ export async function PATCH(
       
       // Mark request as approved
       await prisma.clanEditRequest.update({
-        where: { id: params.requestId },
+        where: { id: requestId },
         data: { status: "APPROVED" }
       })
       
@@ -76,7 +77,7 @@ export async function PATCH(
     } else {
       // Reject
       await prisma.clanEditRequest.update({
-        where: { id: params.requestId },
+        where: { id: requestId },
         data: { status: "REJECTED" }
       })
       
