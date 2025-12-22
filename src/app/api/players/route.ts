@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    const { name, category, nationality, clan, bio, division, avatar } = body
+    const { name, category, nationality, clan, bio, division, avatar, isLegend } = body
     
     if (!name || !category) {
       return NextResponse.json({ error: "Name and category are required" }, { status: 400 })
@@ -116,25 +116,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid category" }, { status: 400 })
     }
     
-    // Check if player already exists
+    // Check if player already exists - allow duplicate names for legends
     const existing = await prisma.player.findUnique({
       where: { name }
     })
     
-    if (existing) {
+    if (existing && !isLegend) {
       return NextResponse.json({ error: "A player with this name already exists" }, { status: 400 })
+    }
+    
+    // For legends with existing name, create a unique name with suffix
+    let finalName = name
+    if (existing && isLegend) {
+      finalName = `${name} (Legend)`
     }
     
     // Create the player
     const player = await prisma.player.create({
       data: {
-        name,
+        name: finalName,
         category,
         nationality: nationality || null,
         clan: clan || null,
         bio: bio?.slice(0, 240) || null,
         division: division || null,
         avatar: avatar || null,
+        isLegend: isLegend || false,
       }
     })
     

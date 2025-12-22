@@ -21,12 +21,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Player name and category are required" }, { status: 400 })
     }
     
-    // Check if player already exists
+    // Check if player already exists - allow duplicate names for legends
     const existingPlayer = await prisma.player.findUnique({
       where: { name: playerName }
     })
     
-    if (existingPlayer) {
+    if (existingPlayer && !isLegend) {
       return NextResponse.json({ error: "A player with this name already exists" }, { status: 400 })
     }
     

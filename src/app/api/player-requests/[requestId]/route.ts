@@ -24,13 +24,13 @@ export async function PATCH(
     }
     
     if (action === "approve") {
-      // Check if player name is still available
+      // Check if player name is still available - allow duplicate names for legends
       const existingPlayer = await prisma.player.findUnique({
         where: { name: playerRequest.playerName }
       })
       
-      if (existingPlayer) {
-        // Reject the request since player now exists
+      if (existingPlayer && !playerRequest.isLegend) {
+        // Reject the request since player now exists (only for non-legends)
         await prisma.playerCreateRequest.update({
           where: { id: resolvedParams.requestId },
           data: { status: "REJECTED" }
@@ -38,10 +38,16 @@ export async function PATCH(
         return NextResponse.json({ error: "Player with this name already exists" }, { status: 400 })
       }
       
+      // For legends with existing name, use name with suffix
+      let finalName = playerRequest.playerName
+      if (existingPlayer && playerRequest.isLegend) {
+        finalName = `${playerRequest.playerName} (Legend)`
+      }
+      
       // Create the player
       const newPlayer = await prisma.player.create({
         data: {
-          name: playerRequest.playerName,
+          name: finalName,
           category: playerRequest.category,
           division: playerRequest.division,
           nationality: playerRequest.nationality,
