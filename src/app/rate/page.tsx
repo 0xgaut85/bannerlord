@@ -426,16 +426,16 @@ export default function RatePage() {
       </div>
       
       {/* Filters Bar */}
-      <div className="bg-black/10 border-b border-white/5 px-4 py-2">
-        <div className="max-w-6xl mx-auto flex items-center gap-4 flex-wrap">
+      <div className="bg-black/10 border-b border-white/5 px-4 py-2 overflow-x-auto">
+        <div className="max-w-6xl mx-auto flex items-center gap-4 min-w-max">
           {/* Division Filters */}
-          <div className="flex items-center gap-2">
-            <span className="text-white/40 text-xs font-medium">Division:</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <span className="text-white/40 text-xs font-medium hidden sm:inline">Division:</span>
             {DIVISION_BUTTONS.map(div => (
               <button
                 key={div}
                 onClick={() => toggleDivision(div)}
-                className={`px-2 py-0.5 rounded text-xs font-bold transition-all ${
+                className={`px-1.5 sm:px-2 py-0.5 rounded text-xs font-bold transition-all ${
                   selectedDivisions.includes(div)
                     ? "bg-amber-500 text-black"
                     : "bg-white/10 text-white/60 hover:bg-white/20"
@@ -447,21 +447,21 @@ export default function RatePage() {
             {selectedDivisions.length > 0 && (
               <button
                 onClick={() => setSelectedDivisions([])}
-                className="px-2 py-0.5 text-xs text-white/40 hover:text-white/60"
+                className="px-1.5 sm:px-2 py-0.5 text-xs text-white/40 hover:text-white/60"
               >
-                Clear
+                ✕
               </button>
             )}
           </div>
           
           {/* Category Filters */}
-          <div className="flex items-center gap-2 ml-4">
-            <span className="text-white/40 text-xs font-medium">Class:</span>
+          <div className="flex items-center gap-1 sm:gap-2 ml-2 sm:ml-4">
+            <span className="text-white/40 text-xs font-medium hidden sm:inline">Class:</span>
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-2 py-0.5 rounded text-xs font-bold transition-all ${
+                className={`px-1.5 sm:px-2 py-0.5 rounded text-xs font-bold transition-all ${
                   selectedCategory === cat
                     ? "bg-amber-500 text-black"
                     : "bg-white/10 text-white/60 hover:bg-white/20"
@@ -473,7 +473,7 @@ export default function RatePage() {
           </div>
           
           {/* Player count */}
-          <div className="ml-auto text-white/40 text-xs">
+          <div className="ml-auto text-white/40 text-xs whitespace-nowrap pl-2">
             {filteredPlayers.length} players
           </div>
         </div>

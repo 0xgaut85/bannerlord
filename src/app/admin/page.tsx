@@ -457,83 +457,97 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 p-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-display text-white">Admin Panel</h1>
-          <div className="flex gap-4">
-            <div className="flex gap-2">
-              <Button 
-                variant={activeTab === "players" ? "primary" : "ghost"} 
-                onClick={() => setActiveTab("players")}
-                className={activeTab === "players" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}
-              >
-                Players
-              </Button>
-              <Button 
-                variant={activeTab === "requests" ? "primary" : "ghost"} 
-                onClick={() => setActiveTab("requests")}
-                className={`relative ${activeTab === "requests" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
-              >
-                Requests
-                {requests.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
-                    {requests.length}
-                  </span>
-                )}
-              </Button>
-              <Button 
-                variant={activeTab === "clans" ? "primary" : "ghost"} 
-                onClick={() => setActiveTab("clans")}
-                className={`relative ${activeTab === "clans" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
-              >
-                Clan Requests
-                {clanRequests.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
-                    {clanRequests.length}
-                  </span>
-                )}
-              </Button>
-              <Button 
-                variant={activeTab === "users" ? "primary" : "ghost"} 
-                onClick={() => setActiveTab("users")}
-                className={activeTab === "users" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}
-              >
-                User Lists
-              </Button>
-              <Button 
-                variant={activeTab === "newplayers" ? "primary" : "ghost"} 
-                onClick={() => setActiveTab("newplayers")}
-                className={`relative ${activeTab === "newplayers" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
-              >
-                New Players
-                {playerRequests.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
-                    {playerRequests.length}
-                  </span>
-                )}
-              </Button>
-              <Button 
-                variant={activeTab === "anomalies" ? "primary" : "ghost"} 
-                onClick={() => { setActiveTab("anomalies"); fetchAnomalies(); }}
-                className={`relative ${activeTab === "anomalies" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
-              >
-                Anomalies
-                {anomalies.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full text-xs flex items-center justify-center text-white">
-                    {anomalies.length}
-                  </span>
-                )}
-              </Button>
-              <Button 
-                variant={activeTab === "periods" ? "primary" : "ghost"} 
-                onClick={() => setActiveTab("periods")}
-                className={activeTab === "periods" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}
-              >
-                Periods
-              </Button>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+          <div className="flex justify-between items-center w-full sm:w-auto">
+            <h1 className="text-2xl sm:text-3xl font-display text-white">Admin Panel</h1>
+            <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/10 !text-white hover:!bg-white/20 sm:hidden">
+              Logout
+            </Button>
+          </div>
+          <div className="w-full sm:w-auto flex gap-2 sm:gap-4 items-center">
+            <div className="flex-1 sm:flex-none overflow-x-auto pb-2 sm:pb-0">
+              <div className="flex gap-1 sm:gap-2 min-w-max">
+                <Button 
+                  size="sm"
+                  variant={activeTab === "players" ? "primary" : "ghost"} 
+                  onClick={() => setActiveTab("players")}
+                  className={`text-xs sm:text-sm ${activeTab === "players" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                >
+                  Players
+                </Button>
+                <Button 
+                  size="sm"
+                  variant={activeTab === "requests" ? "primary" : "ghost"} 
+                  onClick={() => setActiveTab("requests")}
+                  className={`relative text-xs sm:text-sm ${activeTab === "requests" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                >
+                  Req
+                  {requests.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full text-[10px] sm:text-xs flex items-center justify-center text-white">
+                      {requests.length}
+                    </span>
+                  )}
+                </Button>
+                <Button 
+                  size="sm"
+                  variant={activeTab === "clans" ? "primary" : "ghost"} 
+                  onClick={() => setActiveTab("clans")}
+                  className={`relative text-xs sm:text-sm ${activeTab === "clans" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                >
+                  Clans
+                  {clanRequests.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full text-[10px] sm:text-xs flex items-center justify-center text-white">
+                      {clanRequests.length}
+                    </span>
+                  )}
+                </Button>
+                <Button 
+                  size="sm"
+                  variant={activeTab === "users" ? "primary" : "ghost"} 
+                  onClick={() => setActiveTab("users")}
+                  className={`text-xs sm:text-sm ${activeTab === "users" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                >
+                  Users
+                </Button>
+                <Button 
+                  size="sm"
+                  variant={activeTab === "newplayers" ? "primary" : "ghost"} 
+                  onClick={() => setActiveTab("newplayers")}
+                  className={`relative text-xs sm:text-sm ${activeTab === "newplayers" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                >
+                  New
+                  {playerRequests.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full text-[10px] sm:text-xs flex items-center justify-center text-white">
+                      {playerRequests.length}
+                    </span>
+                  )}
+                </Button>
+                <Button 
+                  size="sm"
+                  variant={activeTab === "anomalies" ? "primary" : "ghost"} 
+                  onClick={() => { setActiveTab("anomalies"); fetchAnomalies(); }}
+                  className={`relative text-xs sm:text-sm ${activeTab === "anomalies" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                >
+                  Anom
+                  {anomalies.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-orange-500 rounded-full text-[10px] sm:text-xs flex items-center justify-center text-white">
+                      {anomalies.length}
+                    </span>
+                  )}
+                </Button>
+                <Button 
+                  size="sm"
+                  variant={activeTab === "periods" ? "primary" : "ghost"} 
+                  onClick={() => setActiveTab("periods")}
+                  className={`text-xs sm:text-sm ${activeTab === "periods" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                >
+                  Timer
+                </Button>
+              </div>
             </div>
-            <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/10 !text-white hover:!bg-white/20">
+            <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/10 !text-white hover:!bg-white/20 hidden sm:block">
               Logout
             </Button>
           </div>

@@ -324,58 +324,60 @@ export default function CommunityPage() {
         
         {/* Countdown Timer */}
         {timeLeft && periodName && (
-          <div className="mb-8">
+          <div className="mb-8 px-4">
             <p className="text-white/50 text-sm mb-3">
               {periodName} period closes in:
             </p>
-            <div className="flex justify-center gap-3">
-              <div className="bg-black/40 rounded-lg px-4 py-2 border border-amber-500/30">
-                <div className="text-2xl font-bold text-amber-400">{timeLeft.days}</div>
-                <div className="text-xs text-white/50 uppercase">Days</div>
+            <div className="flex justify-center gap-2 sm:gap-3">
+              <div className="bg-black/40 rounded-lg px-2 sm:px-4 py-2 border border-amber-500/30">
+                <div className="text-xl sm:text-2xl font-bold text-amber-400">{timeLeft.days}</div>
+                <div className="text-[10px] sm:text-xs text-white/50 uppercase">Days</div>
               </div>
-              <div className="bg-black/40 rounded-lg px-4 py-2 border border-amber-500/30">
-                <div className="text-2xl font-bold text-amber-400">{String(timeLeft.hours).padStart(2, '0')}</div>
-                <div className="text-xs text-white/50 uppercase">Hours</div>
+              <div className="bg-black/40 rounded-lg px-2 sm:px-4 py-2 border border-amber-500/30">
+                <div className="text-xl sm:text-2xl font-bold text-amber-400">{String(timeLeft.hours).padStart(2, '0')}</div>
+                <div className="text-[10px] sm:text-xs text-white/50 uppercase">Hours</div>
               </div>
-              <div className="bg-black/40 rounded-lg px-4 py-2 border border-amber-500/30">
-                <div className="text-2xl font-bold text-amber-400">{String(timeLeft.minutes).padStart(2, '0')}</div>
-                <div className="text-xs text-white/50 uppercase">Min</div>
+              <div className="bg-black/40 rounded-lg px-2 sm:px-4 py-2 border border-amber-500/30">
+                <div className="text-xl sm:text-2xl font-bold text-amber-400">{String(timeLeft.minutes).padStart(2, '0')}</div>
+                <div className="text-[10px] sm:text-xs text-white/50 uppercase">Min</div>
               </div>
-              <div className="bg-black/40 rounded-lg px-4 py-2 border border-amber-500/30">
-                <div className="text-2xl font-bold text-amber-400">{String(timeLeft.seconds).padStart(2, '0')}</div>
-                <div className="text-xs text-white/50 uppercase">Sec</div>
+              <div className="bg-black/40 rounded-lg px-2 sm:px-4 py-2 border border-amber-500/30">
+                <div className="text-xl sm:text-2xl font-bold text-amber-400">{String(timeLeft.seconds).padStart(2, '0')}</div>
+                <div className="text-[10px] sm:text-xs text-white/50 uppercase">Sec</div>
               </div>
             </div>
       </div>
         )}
       
       {/* Category Tabs */}
-        <div className="flex justify-center gap-2 mt-8">
-          {(Object.keys(categoryConfig) as Category[]).map((cat) => (
+        <div className="flex justify-center gap-2 mt-8 px-4 overflow-x-auto pb-2">
+          <div className="flex gap-2 min-w-max">
+            {(Object.keys(categoryConfig) as Category[]).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => { setCategory(cat); setShowVoters(false) }}
+                className={cn(
+                  "px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap",
+                  category === cat && !showVoters
+                    ? "bg-amber-500 text-black shadow-xl"
+                    : "bg-white/10 text-white/70 hover:bg-white/20"
+                )}
+              >
+                {categoryConfig[cat].label}
+              </button>
+            ))}
             <button
-              key={cat}
-              onClick={() => { setCategory(cat); setShowVoters(false) }}
+              onClick={handleShowVoters}
               className={cn(
-                "px-6 py-3 rounded-xl font-semibold",
-                category === cat && !showVoters
+                "px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap",
+                showVoters
                   ? "bg-amber-500 text-black shadow-xl"
                   : "bg-white/10 text-white/70 hover:bg-white/20"
               )}
             >
-              {categoryConfig[cat].label}
+              Voters
             </button>
-          ))}
-          <button
-            onClick={handleShowVoters}
-            className={cn(
-              "px-6 py-3 rounded-xl font-semibold",
-              showVoters
-                ? "bg-amber-500 text-black shadow-xl"
-                : "bg-white/10 text-white/70 hover:bg-white/20"
-            )}
-          >
-            Community Voters
-          </button>
+          </div>
         </div>
       </div>
       

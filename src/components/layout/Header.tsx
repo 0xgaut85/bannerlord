@@ -162,7 +162,7 @@ export function Header() {
         {/* Mobile Navigation */}
         <div className={cn(
           "md:hidden overflow-hidden transition-all duration-300",
-          mobileMenuOpen ? "max-h-64 pb-4" : "max-h-0"
+          mobileMenuOpen ? "max-h-[400px] pb-4" : "max-h-0"
         )}>
           <div className={cn(
             "pt-2 border-t",

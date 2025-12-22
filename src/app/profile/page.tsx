@@ -146,7 +146,7 @@ export default function ProfilePage() {
             <label className="block text-sm font-medium text-[#1a1a1a] mb-3">
               Division
             </label>
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {divisions.map((d) => (
                 <button
                   key={d}
@@ -164,7 +164,7 @@ export default function ProfilePage() {
               ))}
             </div>
             <p className="mt-3 text-xs text-[#8a8a8a]">
-              Division affects your vote weight: A (100%) · B (75%) · C/D (50%) · E/F (25%)
+              Division affects your vote weight: A (100%) · B (80%) · C (70%) · D (50%) · E (40%) · F (30%)
             </p>
           </div>
           
