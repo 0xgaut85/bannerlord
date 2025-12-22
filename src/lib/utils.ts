@@ -150,10 +150,7 @@ export const COUNTRY_NAMES: Record<string, string> = {
   JP: "Japan",
   KR: "South Korea",
   CN: "China",
-  KZ: "Kazakhstan",
-  LB: "Lebanon",
-  BY: "Belarus",
-  // Alternative names (for custom flags)
+  // Custom flag files
   kazakhstan: "Kazakhstan",
   liban: "Lebanon",
   belarus: "Belarus",
