@@ -41,23 +41,23 @@ export default function QAPage() {
               </li>
               <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
                 <span>Division B</span>
-                <span className="font-semibold text-[#c9a962]">81% weight</span>
+                <span className="font-semibold text-[#c9a962]">80% weight</span>
               </li>
               <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
                 <span>Division C</span>
-                <span className="font-semibold text-[#c9a962]">72% weight</span>
+                <span className="font-semibold text-[#c9a962]">70% weight</span>
               </li>
               <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
                 <span>Division D</span>
-                <span className="font-semibold text-[#c9a962]">56% weight</span>
+                <span className="font-semibold text-[#c9a962]">50% weight</span>
               </li>
               <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
                 <span>Division E</span>
-                <span className="font-semibold text-[#c9a962]">48% weight</span>
+                <span className="font-semibold text-[#c9a962]">40% weight</span>
               </li>
               <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
                 <span>Division F & lower</span>
-                <span className="font-semibold text-[#c9a962]">40% weight</span>
+                <span className="font-semibold text-[#c9a962]">30% weight</span>
               </li>
             </ul>
           </div>
