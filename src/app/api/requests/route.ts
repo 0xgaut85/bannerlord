@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           )
         }
-        // Legends are allowed - the approval will add "(Legend)" suffix
+        // Legends are allowed - the approval will add "(L)" suffix
       }
     }
 

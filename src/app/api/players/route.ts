@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     // For legends with existing name, create a unique name with suffix
     let finalName = name
     if (existing && isLegend) {
-      finalName = `${name} (Legend)`
+      finalName = `${name} (L)`
     }
     
     // Create the player

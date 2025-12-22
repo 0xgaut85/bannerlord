@@ -252,13 +252,13 @@ export function FifaCard({
             </div>
             
             <div className="flex-1 text-right mt-1 pl-4">
-              {player.name.length > 10 ? (
+              {player.name.includes(' ') ? (
                 <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
-                  <span className="block">{player.name.slice(0, Math.ceil(player.name.length / 2))}</span>
-                  <span className="block">{player.name.slice(Math.ceil(player.name.length / 2))}</span>
+                  <span className="block">{player.name.split(' ')[0]}</span>
+                  <span className="block">{player.name.split(' ').slice(1).join(' ')}</span>
                 </h2>
               ) : (
-                <h2 className={`text-xl sm:text-2xl font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
+                <h2 className={`text-xl sm:text-2xl font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)', fontSize: player.name.length > 12 ? 'clamp(0.75rem, 2vw, 1.25rem)' : undefined }}>
                   {player.name}
                 </h2>
               )}

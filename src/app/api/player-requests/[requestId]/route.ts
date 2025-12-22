@@ -41,7 +41,7 @@ export async function PATCH(
       // For legends with existing name, use name with suffix
       let finalName = playerRequest.playerName
       if (existingPlayer && playerRequest.isLegend) {
-        finalName = `${playerRequest.playerName} (Legend)`
+        finalName = `${playerRequest.playerName} (L)`
       }
       
       // Create the player

@@ -207,13 +207,13 @@ function FifaCard({
             </span>
           </div>
           <div className="text-right">
-            {player.name.length > 10 ? (
+            {player.name.includes(' ') ? (
               <span className={`text-xs sm:text-sm font-bold ${style.text} uppercase block leading-tight`}>
-                <span className="block">{player.name.slice(0, Math.ceil(player.name.length / 2))}</span>
-                <span className="block">{player.name.slice(Math.ceil(player.name.length / 2))}</span>
+                <span className="block">{player.name.split(' ')[0]}</span>
+                <span className="block">{player.name.split(' ').slice(1).join(' ')}</span>
               </span>
             ) : (
-              <span className={`text-sm sm:text-base font-bold ${style.text} uppercase block`}>
+              <span className={`text-sm sm:text-base font-bold ${style.text} uppercase block`} style={{ fontSize: player.name.length > 12 ? 'clamp(0.625rem, 1.5vw, 0.875rem)' : undefined }}>
                 {player.name}
               </span>
             )}

@@ -33,7 +33,7 @@ export async function POST(
           // Name exists - only allow if the player being updated is a legend
           if (editRequest.player.isLegend) {
             // Allow legend to have duplicate name with suffix
-            updateData.name = `${editRequest.suggestedName} (Legend)`
+            updateData.name = `${editRequest.suggestedName} (L)`
           } else {
             return NextResponse.json({ 
               error: "A player with this name already exists" 
