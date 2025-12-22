@@ -180,6 +180,19 @@ export function FifaCard({
   // Get clan logo if available
   const clanLogo = (player as any).clanLogo || null
   
+  // Clean player name and prepare display
+  const cleanName = cleanPlayerName(player.name)
+  const playerNameDisplay = cleanName.includes(' ') ? (
+    <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
+      <span className="block">{cleanName.split(' ')[0]}</span>
+      <span className="block">{cleanName.split(' ').slice(1).join(' ')}</span>
+    </h2>
+  ) : (
+    <h2 className={`text-xl sm:text-2xl font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)', fontSize: cleanName.length > 12 ? 'clamp(0.75rem, 2vw, 1.25rem)' : undefined }}>
+      {cleanName}
+    </h2>
+  )
+  
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
       {/* Progress indicator */}
@@ -253,18 +266,7 @@ export function FifaCard({
             </div>
             
             <div className="flex-1 text-right mt-1 pl-4">
-              {(() => {
-                const cleanName = cleanPlayerName(player.name)
-                return cleanName.includes(' ') ? (
-                  <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
-                    <span className="block">{cleanName.split(' ')[0]}</span>
-                    <span className="block">{cleanName.split(' ').slice(1).join(' ')}</span>
-                  </h2>
-                ) : (
-                  <h2 className={`text-xl sm:text-2xl font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)', fontSize: cleanName.length > 12 ? 'clamp(0.75rem, 2vw, 1.25rem)' : undefined }}>
-                  {cleanName}
-                </h2>
-              })()}
+              {playerNameDisplay}
               {player.isLegend && (
                 <p className={`text-xs ${style.subtext} uppercase tracking-widest mt-0.5`}>
                   Prime
