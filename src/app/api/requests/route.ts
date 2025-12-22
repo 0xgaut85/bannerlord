@@ -36,6 +36,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // If name change is requested, check if the new name already exists
+    if (name && name !== player.name) {
+      const existingPlayer = await prisma.player.findUnique({
+        where: { name }
+      })
+      
+      if (existingPlayer && existingPlayer.id !== playerId) {
+        // Name exists - only allow if the current player is a legend
+        if (!player.isLegend) {
+          return NextResponse.json(
+            { error: "A player with this name already exists" },
+            { status: 400 }
+          )
+        }
+        // Legends are allowed - the approval will add "(Legend)" suffix
+      }
+    }
+
     // Check if there is already a pending request for this player by this user
     const existingRequest = await prisma.editRequest.findFirst({
       where: {

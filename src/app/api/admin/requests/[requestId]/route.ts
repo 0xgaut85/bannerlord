@@ -24,7 +24,24 @@ export async function POST(
       const updateData: Record<string, any> = {}
       
       if (editRequest.suggestedName) {
-        updateData.name = editRequest.suggestedName
+        // Check if the new name already exists (and it's not the same player)
+        const existingPlayer = await prisma.player.findUnique({
+          where: { name: editRequest.suggestedName }
+        })
+        
+        if (existingPlayer && existingPlayer.id !== editRequest.playerId) {
+          // Name exists - only allow if the player being updated is a legend
+          if (editRequest.player.isLegend) {
+            // Allow legend to have duplicate name with suffix
+            updateData.name = `${editRequest.suggestedName} (Legend)`
+          } else {
+            return NextResponse.json({ 
+              error: "A player with this name already exists" 
+            }, { status: 400 })
+          }
+        } else {
+          updateData.name = editRequest.suggestedName
+        }
       }
       if (editRequest.suggestedNationality) {
         updateData.nationality = editRequest.suggestedNationality
