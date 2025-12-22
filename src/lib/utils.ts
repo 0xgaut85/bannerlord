@@ -14,15 +14,15 @@ export function isSelfRating(discordName: string | null, playerName: string): bo
 // Division weight coefficients
 export const DIVISION_WEIGHTS: Record<Division, number> = {
   A: 1.0,
-  B: 0.9,
-  C: 0.8,
-  D: 0.7,
-  E: 0.6,
-  F: 0.5,
-  G: 0.5,
-  H: 0.5,
-  I: 0.5,
-  J: 0.5,
+  B: 0.81,  // Lowered by 10% (0.9 * 0.9)
+  C: 0.72,  // Lowered by 10% (0.8 * 0.9)
+  D: 0.56,  // Lowered by 20% (0.7 * 0.8)
+  E: 0.48,  // Lowered by 20% (0.6 * 0.8)
+  F: 0.4,   // Lowered by 20% (0.5 * 0.8)
+  G: 0.4,   // Lowered by 20% (0.5 * 0.8)
+  H: 0.4,   // Lowered by 20% (0.5 * 0.8)
+  I: 0.4,   // Lowered by 20% (0.5 * 0.8)
+  J: 0.4,   // Lowered by 20% (0.5 * 0.8)
 }
 
 // Default ratings for new players based on division
