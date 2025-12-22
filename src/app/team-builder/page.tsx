@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, DragEvent } from "react"
 import Image from "next/image"
 import { Flag } from "@/components/ui"
 import { cn } from "@/lib/utils"
@@ -17,7 +17,7 @@ interface Player {
 }
 
 interface TeamPlayer extends Player {
-  position: number // 0-5 for the 6 slots
+  position: number
 }
 
 // Card styling based on rating
@@ -94,13 +94,11 @@ function getTierFromRating(rating: number): string {
   return "D"
 }
 
-// Link types between players
 type LinkType = "green" | "yellow" | "red"
 
 function getLinkType(p1: TeamPlayer, p2: TeamPlayer): LinkType {
   const sameNation = p1.nationality && p2.nationality && p1.nationality === p2.nationality
   const sameClan = p1.clan && p2.clan && p1.clan === p2.clan
-  
   if (sameNation && sameClan) return "green"
   if (sameNation || sameClan) return "yellow"
   return "red"
@@ -114,17 +112,7 @@ function getLinkColor(type: LinkType): string {
   }
 }
 
-// Card positions for hexagonal layout (2 rows of 3)
-const cardPositions = [
-  { x: 80, y: 60 },   // Top left
-  { x: 250, y: 60 },  // Top center
-  { x: 420, y: 60 },  // Top right
-  { x: 80, y: 280 },  // Bottom left
-  { x: 250, y: 280 }, // Bottom center
-  { x: 420, y: 280 }, // Bottom right
-]
-
-// Define links between adjacent positions
+// Link pairs for the 2x3 grid
 const linkPairs = [
   [0, 1], [1, 2], // Top row
   [3, 4], [4, 5], // Bottom row
@@ -133,11 +121,110 @@ const linkPairs = [
   [2, 4], [2, 5], // Top-right to bottom
 ]
 
+// FIFA Card Component (draggable)
+function FifaCard({ 
+  player, 
+  onDragStart,
+  isDragging,
+  size = "lg"
+}: { 
+  player: TeamPlayer
+  onDragStart: (e: DragEvent, player: TeamPlayer) => void
+  isDragging: boolean
+  size?: "md" | "lg"
+}) {
+  const style = getCardStyle(player.averageRating)
+  const avatarSrc = player.avatar || getDefaultAvatar(player.category)
+  const tier = getTierFromRating(player.averageRating)
+  
+  const sizeClasses = size === "lg" 
+    ? "w-40 sm:w-48 md:w-52" 
+    : "w-32 sm:w-36"
+  
+  return (
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, player)}
+      className={cn(
+        `${sizeClasses} aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 cursor-grab active:cursor-grabbing transition-all`,
+        style.border,
+        isDragging ? "opacity-50 scale-95" : "hover:scale-105"
+      )}
+    >
+      {/* Background */}
+      <div className="absolute inset-0" style={{ background: style.bg }} />
+      
+      {/* Noise */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay opacity-30">
+        <filter id={`noise-${player.id}`}>
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter={`url(#noise-${player.id})`} />
+      </svg>
+      
+      {/* Inner border */}
+      <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none" />
+      
+      {/* Content */}
+      <div className="relative h-full flex flex-col p-3 sm:p-4 z-20">
+        {/* Top: Rating & Name */}
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col">
+            <span className={`text-3xl sm:text-4xl font-black ${style.text} leading-none drop-shadow-lg`}>
+              {Math.round(player.averageRating)}
+            </span>
+            <span className={`text-xs sm:text-sm font-bold ${style.subtext} uppercase mt-1`}>
+              {categoryShort[player.category]}
+            </span>
+          </div>
+          <div className="text-right">
+            <span className={`text-sm sm:text-base font-bold ${style.text} uppercase block truncate max-w-[80px]`}>
+              {player.name.split(' ')[0]}
+            </span>
+          </div>
+        </div>
+        
+        {/* Avatar */}
+        <div className="flex-1 flex items-center justify-center py-2">
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white/20 shadow-xl">
+            <Image src={avatarSrc} alt="" fill className="object-cover" />
+          </div>
+        </div>
+        
+        {/* Bottom */}
+        <div className="flex justify-between items-end">
+          <div className="flex items-center gap-1">
+            {player.clanLogo && (
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-black overflow-hidden">
+                <Image src={player.clanLogo} alt="" width={24} height={24} className="object-cover" />
+              </div>
+            )}
+            <Flag code={player.nationality} size="md" />
+          </div>
+          <span className={`text-lg sm:text-xl font-bold ${style.text}`}>{tier}</span>
+        </div>
+        
+        {/* Clan */}
+        {player.clan && (
+          <div className="mt-2 text-center">
+            <span className={`text-xs sm:text-sm ${style.subtext} bg-black/40 px-2 py-1 rounded`}>
+              {player.clan}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function TeamBuilderPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<Player[]>([])
   const [team, setTeam] = useState<(TeamPlayer | null)[]>([null, null, null, null, null, null])
   const [isSearching, setIsSearching] = useState(false)
+  const [draggedPlayer, setDraggedPlayer] = useState<TeamPlayer | null>(null)
+  const [dragOverSlot, setDragOverSlot] = useState<number | null>(null)
 
   // Search for players
   useEffect(() => {
@@ -146,7 +233,6 @@ export default function TeamBuilderPage() {
         setSearchResults([])
         return
       }
-      
       setIsSearching(true)
       try {
         const res = await fetch(`/api/players/search?q=${encodeURIComponent(searchQuery)}`)
@@ -160,7 +246,6 @@ export default function TeamBuilderPage() {
         setIsSearching(false)
       }
     }
-
     const debounce = setTimeout(search, 300)
     return () => clearTimeout(debounce)
   }, [searchQuery])
@@ -176,32 +261,28 @@ export default function TeamBuilderPage() {
 
   // Check if can add player
   const canAddPlayer = (player: Player): boolean => {
-    // Check if already in team
     if (team.some(p => p?.id === player.id)) return false
-    
-    // Check team size
     if (team.filter(p => p !== null).length >= 6) return false
-    
-    // Check category limits (max 2 cav, max 2 archer)
     if (player.category === "CAVALRY" && categoryCounts.CAVALRY >= 2) return false
     if (player.category === "ARCHER" && categoryCounts.ARCHER >= 2) return false
-    
     return true
   }
 
-  // Add player to team
-  const addPlayer = (player: Player) => {
+  // Add player to specific slot
+  const addPlayerToSlot = (player: Player, slotIndex: number) => {
     if (!canAddPlayer(player)) return
-    
-    // Find first empty slot
-    const emptyIndex = team.findIndex(p => p === null)
-    if (emptyIndex === -1) return
-    
     const newTeam = [...team]
-    newTeam[emptyIndex] = { ...player, position: emptyIndex }
+    newTeam[slotIndex] = { ...player, position: slotIndex }
     setTeam(newTeam)
     setSearchQuery("")
     setSearchResults([])
+  }
+
+  // Add player to first empty slot
+  const addPlayer = (player: Player) => {
+    const emptyIndex = team.findIndex(p => p === null)
+    if (emptyIndex === -1) return
+    addPlayerToSlot(player, emptyIndex)
   }
 
   // Remove player from team
@@ -211,16 +292,54 @@ export default function TeamBuilderPage() {
     setTeam(newTeam)
   }
 
-  // Calculate team score (average-based, max 99)
+  // Drag handlers
+  const handleDragStart = (e: DragEvent, player: TeamPlayer) => {
+    setDraggedPlayer(player)
+    e.dataTransfer.effectAllowed = "move"
+  }
+
+  const handleDragOver = (e: DragEvent, slotIndex: number) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+    setDragOverSlot(slotIndex)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverSlot(null)
+  }
+
+  const handleDrop = (e: DragEvent, targetSlotIndex: number) => {
+    e.preventDefault()
+    setDragOverSlot(null)
+    
+    if (!draggedPlayer) return
+    
+    const sourceIndex = team.findIndex(p => p?.id === draggedPlayer.id)
+    if (sourceIndex === -1) return
+    
+    const newTeam = [...team]
+    const targetPlayer = newTeam[targetSlotIndex]
+    
+    // Swap players
+    newTeam[targetSlotIndex] = { ...draggedPlayer, position: targetSlotIndex }
+    newTeam[sourceIndex] = targetPlayer ? { ...targetPlayer, position: sourceIndex } : null
+    
+    setTeam(newTeam)
+    setDraggedPlayer(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedPlayer(null)
+    setDragOverSlot(null)
+  }
+
+  // Calculate team score
   const { baseScore, linkBonus, totalScore, links, greenLinks, yellowLinks } = useMemo(() => {
     const players = team.filter((p): p is TeamPlayer => p !== null)
-    
-    // Base score = average of ratings (0 if no players)
     const baseScore = players.length > 0 
       ? players.reduce((sum, p) => sum + p.averageRating, 0) / players.length
       : 0
     
-    // Calculate links and bonus
     const links: { from: number; to: number; type: LinkType }[] = []
     let greenLinks = 0
     let yellowLinks = 0
@@ -236,12 +355,8 @@ export default function TeamBuilderPage() {
       }
     }
     
-    // Bonus: +1.0 per green link, +0.5 per yellow link (added to average)
     const linkBonus = (greenLinks * 1.0) + (yellowLinks * 0.5)
-    
-    // Total score capped at 99
-    const rawTotal = baseScore + linkBonus
-    const totalScore = Math.min(99, rawTotal)
+    const totalScore = Math.min(99, baseScore + linkBonus)
     
     return {
       baseScore: Math.round(baseScore * 10) / 10,
@@ -256,314 +371,216 @@ export default function TeamBuilderPage() {
   const teamPlayers = team.filter((p): p is TeamPlayer => p !== null)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header with Score */}
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-2">
-              Build Your Squad
-            </p>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-white">
-              Team Builder
-            </h1>
-            <p className="text-white/50 mt-2">
-              Max 2 Cavalry, Max 2 Archers · Links boost your team score
-            </p>
-          </div>
-          
-          {/* Team Score */}
-          <div className="text-right bg-gradient-to-br from-amber-500/20 to-amber-600/10 rounded-2xl p-6 border border-amber-500/30">
-            <p className="text-amber-400 text-sm uppercase tracking-wider mb-1">Team Rating</p>
-            <p className="text-5xl font-black text-white">{totalScore}</p>
-            <div className="mt-2 text-sm space-y-1">
-              <div>
-                <span className="text-white/50">Avg: {baseScore}</span>
-                {linkBonus > 0 && (
-                  <span className="text-green-400 ml-2">+{linkBonus}</span>
-                )}
-              </div>
-              {(greenLinks > 0 || yellowLinks > 0) && (
-                <div className="text-xs text-white/40">
-                  {greenLinks > 0 && <span className="text-green-400">{greenLinks} strong</span>}
-                  {greenLinks > 0 && yellowLinks > 0 && <span> · </span>}
-                  {yellowLinks > 0 && <span className="text-yellow-400">{yellowLinks} weak</span>}
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      {/* Header */}
+      <div className="bg-black/30 border-b border-white/10">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="font-display text-2xl sm:text-3xl font-bold text-white">
+                Team Builder
+              </h1>
+              <p className="text-white/50 text-sm mt-1">
+                Drag cards to rearrange · Max 2 Cavalry, Max 2 Archers
+              </p>
+            </div>
+            
+            {/* Team Score */}
+            <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/10 rounded-xl px-6 py-3 border border-amber-500/30">
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-amber-400 text-xs uppercase tracking-wider">Team Rating</p>
+                  <p className="text-4xl font-black text-white">{totalScore}</p>
                 </div>
-              )}
+                <div className="text-right text-sm">
+                  <div className="text-white/50">Avg: {baseScore}</div>
+                  {linkBonus > 0 && <div className="text-green-400">+{linkBonus} links</div>}
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left: Search & Team List */}
-          <div className="space-y-6">
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-6">
+        <div className="flex flex-col xl:flex-row gap-6">
+          
+          {/* Left Panel: Search & Controls */}
+          <div className="xl:w-80 flex-shrink-0 space-y-4">
             {/* Search */}
-            <div className="bg-white/5 rounded-2xl border border-white/10 p-4">
+            <div className="bg-white/5 rounded-xl border border-white/10 p-4">
               <label className="block text-white/70 text-sm mb-2">Search Players</label>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Type player name..."
-                className="w-full px-4 py-3 bg-black/30 rounded-xl border border-white/20 text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-4 py-3 bg-black/30 rounded-lg border border-white/20 text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50"
               />
               
-              {/* Search Results */}
               {searchResults.length > 0 && (
-                <div className="mt-3 space-y-2 max-h-64 overflow-y-auto">
+                <div className="mt-3 space-y-2 max-h-60 overflow-y-auto">
                   {searchResults.map((player) => {
                     const canAdd = canAddPlayer(player)
                     return (
                       <div
                         key={player.id}
-                        className={cn(
-                          "flex items-center gap-3 p-3 rounded-lg transition-colors",
-                          canAdd 
-                            ? "bg-black/20 hover:bg-black/40 cursor-pointer" 
-                            : "bg-black/10 opacity-50"
-                        )}
                         onClick={() => canAdd && addPlayer(player)}
+                        className={cn(
+                          "flex items-center gap-3 p-2 rounded-lg transition-colors",
+                          canAdd ? "bg-black/20 hover:bg-black/40 cursor-pointer" : "opacity-40"
+                        )}
                       >
                         <div className="w-8 h-8 rounded-full overflow-hidden bg-black/30">
                           <Image
                             src={player.avatar || getDefaultAvatar(player.category)}
-                            alt=""
-                            width={32}
-                            height={32}
-                            className="object-cover"
+                            alt="" width={32} height={32} className="object-cover"
                           />
                         </div>
-                        <div className="flex-1">
-                          <p className="text-white font-medium text-sm">{player.name}</p>
-                          <p className="text-white/40 text-xs">{player.category} · {player.clan || "FA"}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-medium text-sm truncate">{player.name}</p>
+                          <p className="text-white/40 text-xs">{player.category}</p>
                         </div>
-                        <span className="text-amber-400 font-bold">{Math.round(player.averageRating)}</span>
-                        {canAdd && (
-                          <button className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium">
-                            Add
-                          </button>
-                        )}
+                        <span className="text-amber-400 font-bold text-sm">{Math.round(player.averageRating)}</span>
                       </div>
                     )
                   })}
                 </div>
               )}
-              {isSearching && (
-                <p className="text-white/30 text-sm mt-3">Searching...</p>
-              )}
+              {isSearching && <p className="text-white/30 text-sm mt-2">Searching...</p>}
             </div>
 
-            {/* Team List */}
-            <div className="bg-white/5 rounded-2xl border border-white/10 p-4">
-              <h3 className="text-white font-semibold mb-4">Your Team ({teamPlayers.length}/6)</h3>
-              
-              {/* Category limits */}
-              <div className="flex gap-3 mb-4 text-xs">
-                <span className={cn(
-                  "px-2 py-1 rounded",
-                  categoryCounts.INFANTRY > 0 ? "bg-red-500/20 text-red-400" : "bg-white/10 text-white/40"
-                )}>
-                  INF: {categoryCounts.INFANTRY}
-                </span>
-                <span className={cn(
-                  "px-2 py-1 rounded",
-                  categoryCounts.CAVALRY >= 2 ? "bg-blue-500/40 text-blue-300" : 
-                  categoryCounts.CAVALRY > 0 ? "bg-blue-500/20 text-blue-400" : "bg-white/10 text-white/40"
-                )}>
-                  CAV: {categoryCounts.CAVALRY}/2
-                </span>
-                <span className={cn(
-                  "px-2 py-1 rounded",
-                  categoryCounts.ARCHER >= 2 ? "bg-green-500/40 text-green-300" : 
-                  categoryCounts.ARCHER > 0 ? "bg-green-500/20 text-green-400" : "bg-white/10 text-white/40"
-                )}>
-                  ARC: {categoryCounts.ARCHER}/2
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                {team.map((player, idx) => (
-                  <div
-                    key={idx}
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-lg border",
-                      player ? "bg-black/20 border-white/10" : "border-dashed border-white/20"
-                    )}
-                  >
-                    {player ? (
-                      <>
-                        <span className="text-white/40 w-4">{idx + 1}</span>
-                        <div className="flex-1">
-                          <p className="text-white font-medium text-sm">{player.name}</p>
-                          <p className="text-white/40 text-xs">{player.category}</p>
-                        </div>
-                        <span className="text-amber-400 font-bold text-sm">{Math.round(player.averageRating)}</span>
-                        <button
-                          onClick={() => removePlayer(idx)}
-                          className="px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs hover:bg-red-500/30"
-                        >
-                          Remove
-                        </button>
-                      </>
-                    ) : (
-                      <span className="text-white/30 text-sm">Empty slot {idx + 1}</span>
-                    )}
-                  </div>
-                ))}
+            {/* Category Limits */}
+            <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+              <h3 className="text-white font-semibold mb-3 text-sm">Squad Composition</h3>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className={cn("p-2 rounded-lg", categoryCounts.INFANTRY > 0 ? "bg-red-500/20" : "bg-white/5")}>
+                  <div className="text-lg font-bold text-white">{categoryCounts.INFANTRY}</div>
+                  <div className="text-xs text-white/50">INF</div>
+                </div>
+                <div className={cn("p-2 rounded-lg", categoryCounts.CAVALRY >= 2 ? "bg-blue-500/40" : categoryCounts.CAVALRY > 0 ? "bg-blue-500/20" : "bg-white/5")}>
+                  <div className="text-lg font-bold text-white">{categoryCounts.CAVALRY}/2</div>
+                  <div className="text-xs text-white/50">CAV</div>
+                </div>
+                <div className={cn("p-2 rounded-lg", categoryCounts.ARCHER >= 2 ? "bg-green-500/40" : categoryCounts.ARCHER > 0 ? "bg-green-500/20" : "bg-white/5")}>
+                  <div className="text-lg font-bold text-white">{categoryCounts.ARCHER}/2</div>
+                  <div className="text-xs text-white/50">ARC</div>
+                </div>
               </div>
             </div>
 
             {/* Link Legend */}
-            <div className="bg-white/5 rounded-2xl border border-white/10 p-4">
-              <h3 className="text-white font-semibold mb-3">Link Bonuses</h3>
+            <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+              <h3 className="text-white font-semibold mb-3 text-sm">Link Bonuses</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-1 bg-green-500 rounded" />
-                  <span className="text-white/70">Same Nation + Same Clan</span>
-                  <span className="text-green-400 ml-auto">+1.0</span>
+                  <div className="w-6 h-1 bg-green-500 rounded" />
+                  <span className="text-white/60 flex-1">Nation + Clan</span>
+                  <span className="text-green-400">+1.0</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-1 bg-yellow-500 rounded" />
-                  <span className="text-white/70">Same Nation OR Same Clan</span>
-                  <span className="text-yellow-400 ml-auto">+0.5</span>
+                  <div className="w-6 h-1 bg-yellow-500 rounded" />
+                  <span className="text-white/60 flex-1">Nation or Clan</span>
+                  <span className="text-yellow-400">+0.5</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-1 bg-red-500 rounded" />
-                  <span className="text-white/70">No Connection</span>
-                  <span className="text-red-400 ml-auto">+0</span>
+                  <div className="w-6 h-1 bg-red-500 rounded" />
+                  <span className="text-white/60 flex-1">No link</span>
+                  <span className="text-red-400">+0</span>
                 </div>
               </div>
-              <p className="text-white/40 text-xs mt-3">
-                Score = Average rating + link bonuses (max 99)
-              </p>
+            </div>
+
+            {/* Team List (for removing) */}
+            <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+              <h3 className="text-white font-semibold mb-3 text-sm">Remove Players</h3>
+              <div className="space-y-1">
+                {team.map((player, idx) => player && (
+                  <div key={idx} className="flex items-center gap-2 p-2 bg-black/20 rounded-lg">
+                    <span className="text-white/40 text-xs w-4">{idx + 1}</span>
+                    <span className="text-white text-sm flex-1 truncate">{player.name}</span>
+                    <button
+                      onClick={() => removePlayer(idx)}
+                      className="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-500/10 rounded"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+                {teamPlayers.length === 0 && (
+                  <p className="text-white/30 text-sm text-center py-2">No players yet</p>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Right: Team Visualization with Cards */}
-          <div className="lg:col-span-2">
-            <div className="relative bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-3xl border border-white/10 p-8 min-h-[550px]">
+          {/* Main Area: Team Grid */}
+          <div className="flex-1 min-h-[600px] lg:min-h-[700px]">
+            <div className="relative w-full h-full bg-gradient-to-br from-slate-800/50 to-slate-900/80 rounded-2xl border border-white/10 p-4 sm:p-8">
+              
               {/* SVG for link lines */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
                 {links.map((link, idx) => {
-                  const from = cardPositions[link.from]
-                  const to = cardPositions[link.to]
-                  // Offset to card center
-                  const x1 = from.x + 70
-                  const y1 = from.y + 100
-                  const x2 = to.x + 70
-                  const y2 = to.y + 100
+                  // Calculate positions based on grid (responsive)
+                  const cols = 3
+                  const fromRow = Math.floor(link.from / cols)
+                  const fromCol = link.from % cols
+                  const toRow = Math.floor(link.to / cols)
+                  const toCol = link.to % cols
+                  
+                  // Percentage-based positions
+                  const x1 = `${(fromCol + 0.5) * (100 / cols)}%`
+                  const y1 = `${(fromRow + 0.5) * 50}%`
+                  const x2 = `${(toCol + 0.5) * (100 / cols)}%`
+                  const y2 = `${(toRow + 0.5) * 50}%`
                   
                   return (
                     <line
                       key={idx}
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
+                      x1={x1} y1={y1}
+                      x2={x2} y2={y2}
                       stroke={getLinkColor(link.type)}
-                      strokeWidth={3}
+                      strokeWidth={4}
                       strokeLinecap="round"
-                      opacity={0.8}
+                      opacity={0.7}
                     />
                   )
                 })}
               </svg>
 
-              {/* Player Cards */}
-              {cardPositions.map((pos, idx) => {
-                const player = team[idx]
-                
-                if (!player) {
-                  return (
-                    <div
-                      key={idx}
-                      className="absolute w-36 aspect-[2/3] rounded-2xl border-2 border-dashed border-white/20 flex items-center justify-center"
-                      style={{ left: pos.x, top: pos.y, zIndex: 2 }}
-                    >
-                      <span className="text-white/30 text-sm">Slot {idx + 1}</span>
-                    </div>
-                  )
-                }
-
-                const style = getCardStyle(player.averageRating)
-                const avatarSrc = player.avatar || getDefaultAvatar(player.category)
-                const tier = getTierFromRating(player.averageRating)
-
-                return (
+              {/* Grid of slots */}
+              <div className="relative z-10 grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 h-full">
+                {team.map((player, idx) => (
                   <div
                     key={idx}
-                    className={`absolute w-36 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-2 ${style.border}`}
-                    style={{ left: pos.x, top: pos.y, zIndex: 10 }}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, idx)}
+                    className={cn(
+                      "flex items-center justify-center transition-all rounded-2xl",
+                      dragOverSlot === idx && "bg-amber-500/20 ring-2 ring-amber-500/50",
+                      !player && "border-2 border-dashed border-white/20 hover:border-white/30"
+                    )}
                   >
-                    {/* Background */}
-                    <div className="absolute inset-0" style={{ background: style.bg }} />
-                    
-                    {/* Noise */}
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay opacity-30">
-                      <filter id={`noise-team-${idx}`}>
-                        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
-                        <feColorMatrix type="saturate" values="0" />
-                      </filter>
-                      <rect width="100%" height="100%" filter={`url(#noise-team-${idx})`} />
-                    </svg>
-                    
-                    {/* Inner border */}
-                    <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none" />
-                    
-                    {/* Content */}
-                    <div className="relative h-full flex flex-col p-3 z-20">
-                      {/* Top: Rating */}
-                      <div className="flex justify-between items-start">
-                        <div className="flex flex-col">
-                          <span className={`text-2xl font-black ${style.text} leading-none`}>
-                            {Math.round(player.averageRating)}
-                          </span>
-                          <span className={`text-[10px] font-bold ${style.subtext} uppercase`}>
-                            {categoryShort[player.category]}
-                          </span>
-                        </div>
-                        <span className={`text-xs font-bold ${style.text} uppercase truncate max-w-[60px]`}>
-                          {player.name.split(' ')[0]}
-                        </span>
+                    {player ? (
+                      <div onDragEnd={handleDragEnd}>
+                        <FifaCard
+                          player={player}
+                          onDragStart={handleDragStart}
+                          isDragging={draggedPlayer?.id === player.id}
+                        />
                       </div>
-                      
-                      {/* Avatar */}
-                      <div className="flex-1 flex items-center justify-center py-1">
-                        <div className="relative w-12 h-12 rounded-full overflow-hidden border border-white/20">
-                          <Image
-                            src={avatarSrc}
-                            alt=""
-                            fill
-                            className="object-cover"
-                          />
+                    ) : (
+                      <div className="text-center p-4">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-2">
+                          <span className="text-2xl sm:text-3xl text-white/20">+</span>
                         </div>
+                        <span className="text-white/30 text-sm">Slot {idx + 1}</span>
                       </div>
-                      
-                      {/* Bottom */}
-                      <div className="flex justify-between items-end">
-                        <div className="flex items-center gap-1">
-                          {player.clanLogo && (
-                            <div className="w-4 h-4 bg-black overflow-hidden">
-                              <Image src={player.clanLogo} alt="" width={16} height={16} className="object-cover" />
-                            </div>
-                          )}
-                          <Flag code={player.nationality} size="sm" />
-                        </div>
-                        <span className={`text-sm font-bold ${style.text}`}>{tier}</span>
-                      </div>
-                      
-                      {/* Clan */}
-                      {player.clan && (
-                        <div className="mt-1 text-center">
-                          <span className={`text-[9px] ${style.subtext} bg-black/30 px-1.5 py-0.5 rounded`}>
-                            {player.clan}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
-                )
-              })}
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -571,4 +588,3 @@ export default function TeamBuilderPage() {
     </div>
   )
 }
-
