@@ -25,13 +25,12 @@ interface AllTimeRanking {
   isLegend?: boolean
 }
 
-type Category = "INFANTRY" | "CAVALRY" | "ARCHER" | "ALL"
+type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
 const categoryConfig = {
   INFANTRY: { label: "Infantry" },
   CAVALRY: { label: "Cavalry" },
   ARCHER: { label: "Archers" },
-  ALL: { label: "All Classes" },
 }
 
 // Get default avatar based on category
@@ -155,16 +154,14 @@ function getCardStyle(rating: number, isLegend?: boolean) {
 
 export default function AllTimePage() {
   const [rankings, setRankings] = useState<AllTimeRanking[]>([])
-  const [category, setCategory] = useState<Category>("ALL")
+  const [category, setCategory] = useState<Category>("INFANTRY")
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function fetchRankings() {
       setIsLoading(true)
       try {
-        const url = category === "ALL" 
-          ? "/api/rankings/alltime"
-          : `/api/rankings/alltime?category=${category}`
+        const url = `/api/rankings/alltime?category=${category}`
         const res = await fetch(url)
         if (res.ok) {
           const data = await res.json()
@@ -207,7 +204,7 @@ export default function AllTimePage() {
 
           {/* Category Filter */}
           <div className="flex justify-center gap-2">
-            {(["ALL", "INFANTRY", "CAVALRY", "ARCHER"] as Category[]).map((cat) => (
+            {(["INFANTRY", "CAVALRY", "ARCHER"] as Category[]).map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}
@@ -218,7 +215,7 @@ export default function AllTimePage() {
                     : "bg-white/10 text-white/70 hover:bg-white/20"
                 )}
               >
-                {cat === "ALL" ? "All Classes" : cat.charAt(0) + cat.slice(1).toLowerCase()}
+                {categoryConfig[cat].label}
               </button>
             ))}
           </div>
