@@ -15,14 +15,14 @@ export function isSelfRating(discordName: string | null, playerName: string): bo
 export const DIVISION_WEIGHTS: Record<Division, number> = {
   A: 1.0,
   B: 0.8,
-  C: 0.7,
-  D: 0.5,
-  E: 0.4,
-  F: 0.3,
-  G: 0.3,
-  H: 0.3,
-  I: 0.3,
-  J: 0.3,
+  C: 0.5,
+  D: 0.3,
+  E: 0.15,
+  F: 0.075,
+  G: 0.075,
+  H: 0.075,
+  I: 0.075,
+  J: 0.075,
 }
 
 // Default ratings for new players based on division
