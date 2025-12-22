@@ -208,6 +208,7 @@ model SiteSettings {
   id                  String    @id @default("settings")
   currentPeriodEnd    DateTime?
   currentPeriodName   String?
+  skippedAnomalies    String[]  @default([]) // Array of rating IDs that were marked as safe/valid
 }
 
 // Saved Dream Teams

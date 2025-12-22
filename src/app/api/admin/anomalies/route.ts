@@ -32,6 +32,13 @@ interface Anomaly {
 
 export async function GET() {
   try {
+    // Get skipped anomalies from settings
+    const settings = await prisma.siteSettings.findUnique({
+      where: { id: "settings" },
+      select: { skippedAnomalies: true },
+    })
+    const skippedAnomalyIds = new Set(settings?.skippedAnomalies || [])
+
     // Get all players with their ratings - fresh from DB
     const players = await prisma.player.findMany({
       include: {
@@ -67,6 +74,8 @@ export async function GET() {
       if (realRatings.length < BOOST_MIN_RATINGS && average >= BOOST_AVG_THRESHOLD) {
         // Add each rating as a boost anomaly (so they can be deleted individually)
         for (const rating of realRatings) {
+          // Skip if this rating was marked as safe
+          if (skippedAnomalyIds.has(rating.id)) continue
           const otherRatings = realRatings
             .filter(r => r.id !== rating.id)
             .map(r => r.score)
@@ -95,6 +104,9 @@ export async function GET() {
 
       // Find anomalies (only check real user ratings)
       for (const rating of realRatings) {
+        // Skip if this rating was marked as safe
+        if (skippedAnomalyIds.has(rating.id)) continue
+        
         const deviation = Math.abs(rating.score - average)
         
         if (deviation >= ANOMALY_THRESHOLD) {

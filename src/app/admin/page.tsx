@@ -22,7 +22,6 @@ export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([])
   const [selectedUser, setSelectedUser] = useState<any | null>(null)
   const [anomalies, setAnomalies] = useState<any[]>([])
-  const [skippedAnomalies, setSkippedAnomalies] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState("players")
   const [userSearch, setUserSearch] = useState("")
   const [userPage, setUserPage] = useState(1)
@@ -1158,9 +1157,23 @@ export default function AdminPage() {
                     <Button
                       size="sm"
                       className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30 !px-2 !py-1 !min-w-[32px] !h-8"
-                      onClick={() => {
-                        setSkippedAnomalies(prev => new Set([...prev, anomaly.id]))
-                        setAnomalies(prev => prev.filter(a => a.id !== anomaly.id))
+                      onClick={async () => {
+                        try {
+                          const res = await fetch("/api/admin/anomalies/skip", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ ratingId: anomaly.id }),
+                          })
+                          if (res.ok) {
+                            // Remove from local state
+                            setAnomalies(prev => prev.filter(a => a.id !== anomaly.id))
+                          } else {
+                            alert("Failed to mark anomaly as safe")
+                          }
+                        } catch (error) {
+                          console.error("Error skipping anomaly:", error)
+                          alert("Failed to mark anomaly as safe")
+                        }
                       }}
                       title="Skip (not an anomaly)"
                     >
