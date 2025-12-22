@@ -164,7 +164,7 @@ export default function StatsPage() {
                       borderRadius: '8px'
                     }}
                     itemStyle={{ color: '#fff' }}
-                    formatter={(value: number, name: string) => [`${value} players`, name]}
+                    formatter={(value) => [`${value} players`, ""]}
                   />
                 </PieChart>
               </ResponsiveContainer>
