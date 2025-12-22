@@ -30,13 +30,14 @@ interface SavedTeam {
 
 // Card styling based on rating (with legend style)
 function getCardStyle(rating: number, isLegend?: boolean) {
-  // Special legend style - white/marble
+  // Special legend style - old school marble/cream with heavy grain
   if (isLegend) return {
-    bg: "linear-gradient(145deg, #f8f8f8 0%, #e8e8e8 20%, #ffffff 40%, #f0f0f0 60%, #e0e0e0 80%, #f5f5f5 100%)",
-    border: "border-white",
-    text: "text-slate-800",
-    subtext: "text-slate-600",
+    bg: "linear-gradient(145deg, #e8dcc8 0%, #d4c4a8 15%, #f0e6d2 30%, #c8b898 50%, #e0d4c0 70%, #d8c8a8 85%, #f4ead6 100%)",
+    border: "border-[#c0a878]",
+    text: "text-[#3d3020]",
+    subtext: "text-[#5d4d30]",
     isLegend: true,
+    noiseOpacity: 0.65,
   }
   if (rating >= 95) return {
     bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
@@ -176,8 +177,22 @@ function FifaCard({
       {/* Subtle gradient overlay for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/20 pointer-events-none" />
       
+      {/* Heavy grain/noise texture for legends */}
+      {(style as any).noiseOpacity && (
+        <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: (style as any).noiseOpacity }}>
+          <filter id={`legend-noise-${player.id}`}>
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="5" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter={`url(#legend-noise-${player.id})`} />
+        </svg>
+      )}
+      
       {/* Inner border */}
-      <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none" />
+      <div className={cn(
+        "absolute inset-2 border border-dashed rounded-xl pointer-events-none",
+        player.isLegend ? "border-[#a08050]/30" : "border-white/15"
+      )} />
       
       {/* Content */}
       <div className="relative h-full flex flex-col p-3 sm:p-4 z-20">

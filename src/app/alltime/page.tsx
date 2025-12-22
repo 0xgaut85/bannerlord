@@ -64,15 +64,15 @@ const categoryShort: Record<string, string> = {
   ARCHER: "ARC",
 }
 
-// Legend style - white/marble
+// Legend style - old school marble/cream with heavy grain
 const LEGEND_STYLE = {
-  bg: "linear-gradient(145deg, #f0f0f0 0%, #e8e8e8 15%, #ffffff 30%, #f5f5f5 50%, #e0e0e0 70%, #f8f8f8 85%, #ffffff 100%)",
-  border: "border-white",
-  accent: "from-slate-400 via-white to-slate-400",
-  text: "text-slate-800",
-  subtext: "text-slate-600",
-  noiseOpacity: 0.15,
-  overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 40%, rgba(200,200,200,0.2) 100%)",
+  bg: "linear-gradient(145deg, #e8dcc8 0%, #d4c4a8 15%, #f0e6d2 30%, #c8b898 50%, #e0d4c0 70%, #d8c8a8 85%, #f4ead6 100%)",
+  border: "border-[#c0a878]",
+  accent: "from-[#a08050] via-[#d0c0a0] to-[#a08050]",
+  text: "text-[#3d3020]",
+  subtext: "text-[#5d4d30]",
+  noiseOpacity: 0.65, // Very heavy grain for old school look
+  overlayGradient: "linear-gradient(180deg, rgba(255,245,230,0.4) 0%, transparent 30%, rgba(180,160,120,0.2) 70%, rgba(160,140,100,0.3) 100%)",
 }
 
 // AAA+ Premium card styles with heavy textures
