@@ -252,9 +252,16 @@ export function FifaCard({
             </div>
             
             <div className="flex-1 text-right mt-1 pl-4">
-              <h2 className={`text-xl sm:text-2xl font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md truncate`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
-                {player.name}
-              </h2>
+              {player.name.length > 10 ? (
+                <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
+                  <span className="block">{player.name.slice(0, Math.ceil(player.name.length / 2))}</span>
+                  <span className="block">{player.name.slice(Math.ceil(player.name.length / 2))}</span>
+                </h2>
+              ) : (
+                <h2 className={`text-xl sm:text-2xl font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
+                  {player.name}
+                </h2>
+              )}
               {player.isLegend && (
                 <p className={`text-xs ${style.subtext} uppercase tracking-widest mt-0.5`}>
                   Prime

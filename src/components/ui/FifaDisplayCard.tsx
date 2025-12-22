@@ -158,9 +158,16 @@ export function FifaDisplayCard({ player, rating, size = "md", onClick }: FifaDi
             </span>
           </div>
           <div className="text-right flex-1 pl-2">
-            <h3 className={`text-xs font-bold ${style.text} uppercase tracking-tight truncate`}>
-              {player.name}
-            </h3>
+            {player.name.length > 10 ? (
+              <h3 className={`text-[9px] font-bold ${style.text} uppercase tracking-tight leading-tight`}>
+                <span className="block">{player.name.slice(0, Math.ceil(player.name.length / 2))}</span>
+                <span className="block">{player.name.slice(Math.ceil(player.name.length / 2))}</span>
+              </h3>
+            ) : (
+              <h3 className={`text-xs font-bold ${style.text} uppercase tracking-tight`}>
+                {player.name}
+              </h3>
+            )}
           </div>
         </div>
         
