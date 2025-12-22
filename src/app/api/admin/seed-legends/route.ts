@@ -4,22 +4,64 @@ import { PlayerCategory } from "@prisma/client"
 
 export const dynamic = 'force-dynamic'
 
-// Check legend status
+// Check legend status - auto-seed if none exist
 export async function GET() {
   try {
     const legendCount = await prisma.player.count({
       where: { isLegend: true }
     })
     
-    const legends = await prisma.player.findMany({
+    // Auto-seed if no legends exist
+    if (legendCount === 0) {
+      const results: { name: string; status: string }[] = []
+
+      for (const legend of legends) {
+        const nationalityCode = nationalityMap[legend.nationality.toLowerCase()] || legend.nationality.toUpperCase()
+        
+        try {
+          const existing = await prisma.player.findUnique({
+            where: { name: legend.name }
+          })
+
+          if (existing) {
+            await prisma.player.update({
+              where: { name: legend.name },
+              data: { isLegend: true }
+            })
+            results.push({ name: legend.name, status: "updated" })
+          } else {
+            await prisma.player.create({
+              data: {
+                name: legend.name,
+                category: legend.category as PlayerCategory,
+                nationality: nationalityCode,
+                isLegend: true,
+              }
+            })
+            results.push({ name: legend.name, status: "created" })
+          }
+        } catch (error) {
+          console.error(`Error with ${legend.name}:`, error)
+          results.push({ name: legend.name, status: "error" })
+        }
+      }
+
+      return NextResponse.json({ 
+        message: "Auto-seeded legends!",
+        count: results.filter(r => r.status !== "error").length,
+        results
+      })
+    }
+    
+    const legendsList = await prisma.player.findMany({
       where: { isLegend: true },
       select: { name: true, category: true, nationality: true }
     })
     
     return NextResponse.json({ 
       count: legendCount, 
-      legends,
-      message: legendCount === 0 ? "No legends found. POST to this endpoint to seed them." : "Legends exist."
+      legends: legendsList,
+      message: "Legends exist."
     })
   } catch (error) {
     console.error("Check legends error:", error)
