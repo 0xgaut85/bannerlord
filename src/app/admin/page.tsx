@@ -333,6 +333,47 @@ export default function AdminPage() {
     }
   }
 
+  const handleBanUser = async (userId: string, userName: string) => {
+    const reason = prompt(`Ban user "${userName}"?\n\nEnter a reason for the ban (or leave empty):`)
+    if (reason === null) return // User cancelled
+    
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/ban`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reason || "Violation of community guidelines" })
+      })
+      const data = await res.json()
+      if (res.ok) {
+        alert(data.message)
+        fetchUsers(userPage, userSearch, false)
+      } else {
+        alert(data.error || "Failed to ban user")
+      }
+    } catch (error) {
+      alert("Error banning user")
+    }
+  }
+
+  const handleUnbanUser = async (userId: string, userName: string) => {
+    if (!confirm(`Unban user "${userName}"? They will be able to submit ratings again.`)) return
+    
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/ban`, {
+        method: "DELETE"
+      })
+      const data = await res.json()
+      if (res.ok) {
+        alert(data.message)
+        fetchUsers(userPage, userSearch, false)
+      } else {
+        alert(data.error || "Failed to unban user")
+      }
+    } catch (error) {
+      alert("Error unbanning user")
+    }
+  }
+
   const handleRequestAction = async (requestId: string, action: "approve" | "reject") => {
     try {
       const res = await fetch(`/api/admin/requests/${requestId}`, {
@@ -880,22 +921,55 @@ export default function AdminPage() {
         {activeTab === "users" && (
           <>
             {selectedUser ? (
-              <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                <div className="flex justify-between items-start mb-6">
+              <div className={`bg-white/5 p-6 rounded-xl border ${selectedUser.isBanned ? 'border-red-500/50' : 'border-white/10'}`}>
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
                   <div>
-                    <h2 className="text-2xl font-display text-white mb-2">
-                      {selectedUser.discordName || selectedUser.name}
-                    </h2>
-                    <p className="text-white/50">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <h2 className="text-2xl font-display text-white">
+                        {selectedUser.discordName || selectedUser.name}
+                      </h2>
+                      {selectedUser.isBanned && (
+                        <span className="px-3 py-1 bg-red-500/20 text-red-400 text-sm font-semibold rounded-lg">
+                          BANNED
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-white/50 mt-1">
                       Division: {selectedUser.division || "N/A"} | Total Ratings: {selectedUser.ratings.length}
                     </p>
+                    {selectedUser.isBanned && selectedUser.banReason && (
+                      <p className="text-red-400/70 text-sm mt-2">
+                        <span className="font-semibold">Ban reason:</span> {selectedUser.banReason}
+                      </p>
+                    )}
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 flex-wrap">
+                    {selectedUser.isBanned ? (
+                      <Button 
+                        className="!bg-green-500/20 !text-green-400 hover:!bg-green-500/30"
+                        onClick={() => {
+                          handleUnbanUser(selectedUser.id, selectedUser.discordName || selectedUser.name)
+                          setSelectedUser(null)
+                        }}
+                      >
+                        Unban User
+                      </Button>
+                    ) : (
+                      <Button 
+                        className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30"
+                        onClick={() => {
+                          handleBanUser(selectedUser.id, selectedUser.discordName || selectedUser.name)
+                          setSelectedUser(null)
+                        }}
+                      >
+                        Ban User
+                      </Button>
+                    )}
                     <Button 
                       className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30"
                       onClick={() => deleteUserRatings(selectedUser.id)}
                     >
-                      Delete All Ratings
+                      Delete Ratings
                     </Button>
                     <Button 
                       className="!bg-white/10 !text-white hover:!bg-white/20"
@@ -966,22 +1040,51 @@ export default function AdminPage() {
                 
                 <div className="grid gap-4">
                   {users.map((user) => (
-                  <div key={user.id} className="bg-white/5 p-6 rounded-xl border border-white/10 flex items-center justify-between">
-                    <div>
-                      <h3 className="text-white font-medium text-lg">
-                        {user.discordName || user.name || "Unknown User"}
-                      </h3>
+                  <div key={user.id} className={`bg-white/5 p-4 sm:p-6 rounded-xl border ${user.isBanned ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4`}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-white font-medium text-lg truncate">
+                          {user.discordName || user.name || "Unknown User"}
+                        </h3>
+                        {user.isBanned && (
+                          <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-semibold rounded">
+                            BANNED
+                          </span>
+                        )}
+                      </div>
                       <p className="text-white/50 text-sm">
                         Division: {user.division || "N/A"} | Ratings: {user._count.ratings}
                       </p>
+                      {user.isBanned && user.banReason && (
+                        <p className="text-red-400/70 text-xs mt-1">Reason: {user.banReason}</p>
+                      )}
                     </div>
-                    <Button 
-                      size="sm"
-                      className="!bg-amber-500/20 !text-amber-400 hover:!bg-amber-500/30"
-                      onClick={() => fetchUserRatings(user.id)}
-                    >
-                      View List
-                    </Button>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <Button 
+                        size="sm"
+                        className="flex-1 sm:flex-none !bg-amber-500/20 !text-amber-400 hover:!bg-amber-500/30"
+                        onClick={() => fetchUserRatings(user.id)}
+                      >
+                        View
+                      </Button>
+                      {user.isBanned ? (
+                        <Button 
+                          size="sm"
+                          className="flex-1 sm:flex-none !bg-green-500/20 !text-green-400 hover:!bg-green-500/30"
+                          onClick={() => handleUnbanUser(user.id, user.discordName || user.name)}
+                        >
+                          Unban
+                        </Button>
+                      ) : (
+                        <Button 
+                          size="sm"
+                          className="flex-1 sm:flex-none !bg-red-500/20 !text-red-400 hover:!bg-red-500/30"
+                          onClick={() => handleBanUser(user.id, user.discordName || user.name)}
+                        >
+                          Ban
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   ))}
                   {users.length === 0 && (

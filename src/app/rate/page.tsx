@@ -350,6 +350,38 @@ export default function RatePage() {
     )
   }
   
+  // User is banned
+  if (session?.user?.isBanned) {
+    return (
+      <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
+        <div className="max-w-md w-full text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
+            <span className="text-4xl">🚫</span>
+          </div>
+          <p className="text-xs font-medium tracking-[0.3em] uppercase text-red-500 mb-4">
+            Account Banned
+          </p>
+          <h1 className="font-display text-4xl font-bold text-white mb-4">
+            You Have Been Banned
+          </h1>
+          <p className="text-white/60 mb-4">
+            Your account has been banned from submitting ratings.
+          </p>
+          {session.user.banReason && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
+              <p className="text-red-400 text-sm">
+                <span className="font-semibold">Reason:</span> {session.user.banReason}
+              </p>
+            </div>
+          )}
+          <p className="text-white/40 text-sm">
+            If you believe this is a mistake, please contact an administrator.
+          </p>
+        </div>
+      </div>
+    )
+  }
+  
   // Profile not complete
   if (session && !session.user?.isProfileComplete) {
     return (

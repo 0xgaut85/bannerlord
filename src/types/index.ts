@@ -15,6 +15,8 @@ declare module "next-auth" {
       division?: Division | null
       lastEditAt?: Date | null
       isProfileComplete?: boolean
+      isBanned?: boolean
+      banReason?: string | null
     }
   }
 }

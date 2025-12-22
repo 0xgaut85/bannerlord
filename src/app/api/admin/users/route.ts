@@ -35,6 +35,9 @@ export async function GET(request: NextRequest) {
         discordName: true,
         division: true,
         team: true,
+        isBanned: true,
+        banReason: true,
+        bannedAt: true,
         _count: {
           select: {
             ratings: true

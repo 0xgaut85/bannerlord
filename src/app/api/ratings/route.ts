@@ -83,11 +83,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
     
-    // Check if profile is complete and get user details for self-rating check
+    // Check if profile is complete, user is banned, and get user details for self-rating check
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { isProfileComplete: true, division: true, name: true, discordName: true }
+      select: { isProfileComplete: true, division: true, name: true, discordName: true, isBanned: true, banReason: true }
     })
+    
+    // Check if user is banned
+    if (user?.isBanned) {
+      return NextResponse.json({ 
+        error: "Your account has been banned from submitting ratings.",
+        banned: true,
+        banReason: user.banReason
+      }, { status: 403 })
+    }
     
     if (!user?.isProfileComplete) {
       return NextResponse.json({ 

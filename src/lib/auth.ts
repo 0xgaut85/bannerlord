@@ -26,6 +26,8 @@ export const authOptions: NextAuthOptions = {
             division: true,
             lastEditAt: true,
             isProfileComplete: true,
+            isBanned: true,
+            banReason: true,
           }
         })
         
@@ -35,6 +37,8 @@ export const authOptions: NextAuthOptions = {
           session.user.division = dbUser.division
           session.user.lastEditAt = dbUser.lastEditAt
           session.user.isProfileComplete = dbUser.isProfileComplete
+          session.user.isBanned = dbUser.isBanned
+          session.user.banReason = dbUser.banReason
         }
       }
       return session
