@@ -13,7 +13,6 @@ interface ExtendedPlayer extends Player {
   averageRating?: number
   totalRatings?: number
   clanLogo?: string | null
-  isLegend?: boolean
 }
 import { useDebounce } from "@/hooks/useDebounce"
 
