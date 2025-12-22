@@ -259,7 +259,7 @@ export default function CommunityPage() {
     async function fetchRankings() {
       setIsLoading(true)
       try {
-        const res = await fetch(`/api/community?category=${category}`, { cache: 'no-store' })
+        const res = await fetch(`/api/community?category=${category}&t=${Date.now()}`, { cache: 'no-store' })
         if (res.ok) {
           setPlayers(await res.json())
         }
