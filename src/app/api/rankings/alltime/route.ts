@@ -9,6 +9,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get("category")
     
+    // Get all periods ordered by date
+    const periods = await prisma.rankingPeriod.findMany({
+      orderBy: { endDate: 'asc' },
+      select: { id: true, name: true }
+    })
+    
     // Get all historical rankings grouped by player
     const allRankings = await prisma.historicalRanking.findMany({
       where: category ? { category: category as any } : undefined,
@@ -19,9 +25,13 @@ export async function GET(request: NextRequest) {
         clan: true,
         nationality: true,
         averageRating: true,
+        periodId: true,
         period: {
-          select: { name: true }
+          select: { name: true, endDate: true }
         }
+      },
+      orderBy: {
+        period: { endDate: 'asc' }
       }
     })
     
@@ -33,14 +43,19 @@ export async function GET(request: NextRequest) {
       clan: string | null
       nationality: string | null
       ratings: number[]
-      periods: string[]
+      periodNames: string[]
+      history: { period: string; rating: number }[]
     }>()
     
     for (const ranking of allRankings) {
       const existing = playerMap.get(ranking.playerId)
       if (existing) {
         existing.ratings.push(ranking.averageRating)
-        existing.periods.push(ranking.period.name)
+        existing.periodNames.push(ranking.period.name)
+        existing.history.push({
+          period: ranking.period.name,
+          rating: ranking.averageRating
+        })
         // Update to latest info
         existing.playerName = ranking.playerName
         existing.clan = ranking.clan
@@ -53,7 +68,11 @@ export async function GET(request: NextRequest) {
           clan: ranking.clan,
           nationality: ranking.nationality,
           ratings: [ranking.averageRating],
-          periods: [ranking.period.name],
+          periodNames: [ranking.period.name],
+          history: [{
+            period: ranking.period.name,
+            rating: ranking.averageRating
+          }]
         })
       }
     }
@@ -67,7 +86,8 @@ export async function GET(request: NextRequest) {
       nationality: player.nationality,
       averageRating: Math.round((player.ratings.reduce((a, b) => a + b, 0) / player.ratings.length) * 10) / 10,
       periodCount: player.ratings.length,
-      periods: player.periods,
+      periods: player.periodNames,
+      history: player.history,
     }))
     
     // Sort by average rating
@@ -79,7 +99,10 @@ export async function GET(request: NextRequest) {
       rank: idx + 1,
     }))
     
-    return NextResponse.json(rankedRankings)
+    return NextResponse.json({
+      rankings: rankedRankings,
+      periods: periods.map(p => p.name)
+    })
   } catch (error) {
     console.error("All-time GET error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
