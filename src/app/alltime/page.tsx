@@ -349,7 +349,7 @@ function FifaDisplayCard({
 }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
-  const playerTier = player.isLegend ? "LEG" : getTierFromRating(player.averageRating)
+  const playerTier = getTierFromRating(player.averageRating)
   
   const rankLabels = { 1: "#1", 2: "#2", 3: "#3" }
   
@@ -441,7 +441,7 @@ function FifaDisplayCard({
 function ElitePlayerCard({ player }: { player: AllTimeRanking }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
-  const playerTier = player.isLegend ? "LEG" : getTierFromRating(player.averageRating)
+  const playerTier = getTierFromRating(player.averageRating)
 
   return (
     <div className={`relative aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-2 ${style.border} hover:scale-105 transition-transform`}>

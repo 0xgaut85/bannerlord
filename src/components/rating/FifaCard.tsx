@@ -173,8 +173,8 @@ export function FifaCard({
   const style = getCardStyle(currentRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   
-  // Get tier from current rating (legends show "LEG")
-  const playerTier = player.isLegend ? "LEG" : getTierFromRating(currentRating)
+  // Get tier from current rating
+  const playerTier = getTierFromRating(currentRating)
   
   // Get clan logo if available
   const clanLogo = (player as any).clanLogo || null

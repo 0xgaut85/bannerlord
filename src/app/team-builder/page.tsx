@@ -154,7 +154,7 @@ function FifaCard({
 }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
-  const tier = player.isLegend ? "LEG" : getTierFromRating(player.averageRating)
+  const tier = getTierFromRating(player.averageRating)
   
   const sizeClasses = size === "lg" 
     ? "w-40 sm:w-48 md:w-52" 
