@@ -92,7 +92,7 @@ const nationalityMap: Record<string, string> = {
   latvia: "LV",
 }
 
-// Legend players data
+// Legend players data (names with proper capitalization)
 const legends = [
   { name: "CTH", category: "INFANTRY", nationality: "france" },
   { name: "SharZ", category: "INFANTRY", nationality: "france" },
@@ -119,13 +119,13 @@ const legends = [
   { name: "Sarranid", category: "INFANTRY", nationality: "francais" },
   { name: "Nord", category: "CAVALRY", nationality: "russian" },
   { name: "Argentum", category: "INFANTRY", nationality: "russia" },
-  { name: "DARK", category: "CAVALRY", nationality: "french" },
+  { name: "Dark", category: "CAVALRY", nationality: "french" },
   { name: "AncientLunatic", category: "CAVALRY", nationality: "england" },
   { name: "Kazu", category: "INFANTRY", nationality: "swiss" },
   { name: "HypeZ", category: "INFANTRY", nationality: "german" },
-  { name: "jufasto", category: "INFANTRY", nationality: "turk" },
-  { name: "livso", category: "CAVALRY", nationality: "czech" },
-  { name: "rangah", category: "CAVALRY", nationality: "latvia" },
+  { name: "Jufasto", category: "INFANTRY", nationality: "turk" },
+  { name: "Livso", category: "CAVALRY", nationality: "czech" },
+  { name: "Rangah", category: "CAVALRY", nationality: "latvia" },
 ]
 
 export async function POST() {

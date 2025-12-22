@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { DIVISION_WEIGHTS } from "@/lib/utils"
 
 export const dynamic = 'force-dynamic'
 
-// Get all-time rankings (average of all monthly rankings)
+function isSystemRater(discordId: string | null): boolean {
+  return discordId?.startsWith("system_") ?? false
+}
+
+// Get all-time rankings (average of all monthly rankings + legends)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -45,6 +50,8 @@ export async function GET(request: NextRequest) {
       ratings: number[]
       periodNames: string[]
       history: { period: string; rating: number }[]
+      isLegend: boolean
+      avatar: string | null
     }>()
     
     for (const ranking of allRankings) {
@@ -72,8 +79,67 @@ export async function GET(request: NextRequest) {
           history: [{
             period: ranking.period.name,
             rating: ranking.averageRating
-          }]
+          }],
+          isLegend: false,
+          avatar: null,
         })
+      }
+    }
+    
+    // Also fetch legends and add them to all-time rankings
+    const legends = await prisma.player.findMany({
+      where: {
+        isLegend: true,
+        ...(category ? { category: category as any } : {}),
+      },
+      include: {
+        ratings: {
+          include: {
+            rater: {
+              select: { division: true, discordId: true }
+            }
+          }
+        }
+      }
+    })
+    
+    for (const legend of legends) {
+      // Calculate legend's rating from actual votes
+      const realRatings = legend.ratings.filter(r => !isSystemRater(r.rater.discordId))
+      let avgRating = 70 // Default
+      
+      if (realRatings.length > 0) {
+        let weightedSum = 0
+        let totalWeight = 0
+        for (const rating of realRatings) {
+          const weight = rating.rater.division 
+            ? DIVISION_WEIGHTS[rating.rater.division] 
+            : 0.5
+          weightedSum += rating.score * weight
+          totalWeight += weight
+        }
+        avgRating = totalWeight > 0 ? weightedSum / totalWeight : 70
+      }
+      
+      // Add or update legend in the map
+      if (!playerMap.has(legend.id)) {
+        playerMap.set(legend.id, {
+          playerId: legend.id,
+          playerName: legend.name,
+          category: legend.category,
+          clan: legend.clan,
+          nationality: legend.nationality,
+          ratings: [avgRating],
+          periodNames: ["Legend"],
+          history: [{ period: "Legend", rating: avgRating }],
+          isLegend: true,
+          avatar: legend.avatar,
+        })
+      } else {
+        // Update existing entry to mark as legend
+        const existing = playerMap.get(legend.id)!
+        existing.isLegend = true
+        existing.avatar = legend.avatar
       }
     }
     
@@ -84,10 +150,12 @@ export async function GET(request: NextRequest) {
       category: player.category,
       clan: player.clan,
       nationality: player.nationality,
+      avatar: player.avatar,
       averageRating: Math.round((player.ratings.reduce((a, b) => a + b, 0) / player.ratings.length) * 10) / 10,
       periodCount: player.ratings.length,
       periods: player.periodNames,
       history: player.history,
+      isLegend: player.isLegend,
     }))
     
     // Sort by average rating

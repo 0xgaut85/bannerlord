@@ -5,7 +5,7 @@ import { Button, Slider, Flag } from "@/components/ui"
 import Image from "next/image"
 
 interface FifaCardProps {
-  player: Player & { avatar?: string | null; division?: string | null; clanLogo?: string | null; bio?: string | null }
+  player: Player & { avatar?: string | null; division?: string | null; clanLogo?: string | null; bio?: string | null; isLegend?: boolean }
   currentRating: number
   onRatingChange: (rating: number) => void
   onSkip: () => void
@@ -19,8 +19,23 @@ interface FifaCardProps {
   maxRating?: number
 }
 
+// Legend card style - fixed white/marble texture
+const LEGEND_STYLE = {
+  bg: "linear-gradient(145deg, #f0f0f0 0%, #e8e8e8 15%, #ffffff 30%, #f5f5f5 50%, #e0e0e0 70%, #f8f8f8 85%, #ffffff 100%)",
+  border: "border-white",
+  accent: "from-slate-400 via-white to-slate-400",
+  text: "text-slate-800",
+  subtext: "text-slate-600",
+  noiseOpacity: 0.15,
+  overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 40%, rgba(200,200,200,0.2) 100%)",
+  shimmer: "linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.5) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.5) 60%, transparent 80%)",
+}
+
 // AAA+ Premium card styles with heavy textures
-function getCardStyle(rating: number) {
+function getCardStyle(rating: number, isLegend?: boolean) {
+  // Legends always get the fixed white/marble style
+  if (isLegend) return LEGEND_STYLE
+  
   if (rating >= 95) return {
     // ICON - Obsidian Diamond with aurora undertones
     bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
@@ -155,11 +170,11 @@ export function FifaCard({
   minRating = 50,
   maxRating = 99,
 }: FifaCardProps) {
-  const style = getCardStyle(currentRating)
+  const style = getCardStyle(currentRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   
-  // Get tier from current rating
-  const playerTier = getTierFromRating(currentRating)
+  // Get tier from current rating (legends show "LEG")
+  const playerTier = player.isLegend ? "LEG" : getTierFromRating(currentRating)
   
   // Get clan logo if available
   const clanLogo = (player as any).clanLogo || null
