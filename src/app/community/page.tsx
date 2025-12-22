@@ -89,39 +89,39 @@ function getCardStyle(rating: number) {
     tierColor: "text-slate-300",
   }
   if (rating >= 75) return {
-    // METAL GRAY - Darker metallic silver
-    bg: "linear-gradient(145deg, #3a3a3a 0%, #555555 25%, #707070 50%, #555555 75%, #3a3a3a 100%)",
-    border: "border-slate-400/50",
-    accent: "from-slate-300 via-slate-200 to-slate-300",
+    // MID-DARK GRAY - Darker muted silver
+    bg: "linear-gradient(145deg, #252525 0%, #3a3a3a 25%, #4a4a4a 50%, #3a3a3a 75%, #252525 100%)",
+    border: "border-slate-500/40",
+    accent: "from-slate-400 via-slate-300 to-slate-400",
     text: "text-white",
-    subtext: "text-slate-300",
-    noiseOpacity: 0.25,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%)",
-    boxBg: "bg-slate-500/20",
+    subtext: "text-slate-400",
+    noiseOpacity: 0.28,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%)",
+    boxBg: "bg-slate-600/20",
     tierColor: "text-slate-400",
   }
   if (rating >= 70) return {
-    // BRONZE - Rich copper patina
-    bg: "linear-gradient(145deg, #1a0800 0%, #4a1c00 25%, #6d3500 50%, #4a1c00 75%, #1a0800 100%)",
-    border: "border-orange-500/50",
-    accent: "from-orange-300 via-orange-200 to-orange-300",
+    // BRIGHT BRONZE - Vivid copper shine
+    bg: "linear-gradient(145deg, #4a2000 0%, #7a3800 25%, #a55000 50%, #7a3800 75%, #4a2000 100%)",
+    border: "border-orange-400/60",
+    accent: "from-orange-200 via-orange-100 to-orange-200",
     text: "text-orange-50",
-    subtext: "text-orange-200",
-    noiseOpacity: 0.30,
-    overlayGradient: "linear-gradient(180deg, rgba(234,88,12,0.1) 0%, transparent 50%, rgba(194,65,12,0.08) 100%)",
-    boxBg: "bg-orange-500/20",
-    tierColor: "text-orange-400",
+    subtext: "text-orange-100",
+    noiseOpacity: 0.25,
+    overlayGradient: "linear-gradient(180deg, rgba(255,180,100,0.15) 0%, transparent 50%, rgba(234,88,12,0.1) 100%)",
+    boxBg: "bg-orange-400/25",
+    tierColor: "text-orange-300",
   }
   if (rating >= 65) return {
-    // BRONZE (Lower) - Aged copper
-    bg: "linear-gradient(145deg, #120500 0%, #2d1000 25%, #451a00 50%, #2d1000 75%, #120500 100%)",
-    border: "border-orange-600/40",
-    accent: "from-orange-400 via-orange-300 to-orange-400",
+    // DARK BRONZE - Deep aged copper
+    bg: "linear-gradient(145deg, #0a0300 0%, #1a0800 25%, #2a1200 50%, #1a0800 75%, #0a0300 100%)",
+    border: "border-orange-700/40",
+    accent: "from-orange-500 via-orange-400 to-orange-500",
     text: "text-orange-100",
-    subtext: "text-orange-300",
-    noiseOpacity: 0.32,
-    overlayGradient: "linear-gradient(180deg, rgba(194,65,12,0.08) 0%, transparent 50%)",
-    boxBg: "bg-orange-600/20",
+    subtext: "text-orange-400",
+    noiseOpacity: 0.35,
+    overlayGradient: "linear-gradient(180deg, rgba(194,65,12,0.05) 0%, transparent 50%)",
+    boxBg: "bg-orange-700/20",
     tierColor: "text-orange-500",
   }
   // WOOD/COMMON - Dark oak with grain
