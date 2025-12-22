@@ -81,13 +81,12 @@ export default function RatePage() {
       setIsLoading(true)
       try {
         const playersRes = await fetch("/api/players")
+        let playersData: ExtendedPlayer[] = []
         if (playersRes.ok) {
-          const playersData = await playersRes.json()
-          const shuffled = [...playersData].sort(() => Math.random() - 0.5)
-          setPlayers(shuffled)
-          setFilteredPlayers(shuffled)
+          playersData = await playersRes.json()
         }
         
+        let ratingsMap: RatingMap = {}
         if (session?.user?.id) {
           // Fetch user profile for self-rating check
           const profileRes = await fetch("/api/profile")
@@ -99,7 +98,6 @@ export default function RatePage() {
           const ratingsRes = await fetch("/api/ratings")
           if (ratingsRes.ok) {
             const ratingsData = await ratingsRes.json()
-            const ratingsMap: RatingMap = {}
             ratingsData.forEach((r: { playerId: string; score: number }) => {
               ratingsMap[r.playerId] = r.score
             })
@@ -107,6 +105,16 @@ export default function RatePage() {
             setOriginalRatings(ratingsMap)
           }
         }
+        
+        // Sort players: unrated first, then rated, both groups shuffled
+        const unrated = playersData.filter(p => ratingsMap[p.id] === undefined)
+        const rated = playersData.filter(p => ratingsMap[p.id] !== undefined)
+        const shuffledUnrated = [...unrated].sort(() => Math.random() - 0.5)
+        const shuffledRated = [...rated].sort(() => Math.random() - 0.5)
+        const sortedPlayers = [...shuffledUnrated, ...shuffledRated]
+        
+        setPlayers(sortedPlayers)
+        setFilteredPlayers(sortedPlayers)
       } catch (err) {
         console.error("Error fetching data:", err)
       } finally {
@@ -290,17 +298,30 @@ export default function RatePage() {
     }
   }, [currentIndex])
   
-  const handleSelectPlayer = (player: Player) => {
+  const handleSelectPlayer = (player: ExtendedPlayer) => {
     const idx = filteredPlayers.findIndex(p => p.id === player.id)
     if (idx !== -1) {
       setCurrentIndex(idx)
     } else {
-      // Player not in filtered list, clear filters and find in all players
+      // Player not in filtered list, adjust filters to show this player
       setSelectedDivisions([])
-      setSelectedCategory("ALL")
-      const allIdx = players.findIndex(p => p.id === player.id)
-      if (allIdx !== -1) {
-        setCurrentIndex(allIdx)
+      
+      // If it's a legend, switch to LEGENDS filter; otherwise use ALL
+      if (player.isLegend) {
+        setSelectedCategory("LEGENDS")
+      } else {
+        setSelectedCategory("ALL")
+      }
+      
+      // Need to find the player in the full players array
+      // Since filters will be applied in useEffect, we need to calculate the new index
+      // Add the player to the beginning of filtered list temporarily
+      const playerFromList = players.find(p => p.id === player.id)
+      if (playerFromList) {
+        // Update players to put this player first
+        const reorderedPlayers = [playerFromList, ...players.filter(p => p.id !== player.id)]
+        setPlayers(reorderedPlayers)
+        setCurrentIndex(0)
       }
     }
     setSearchQuery("")
