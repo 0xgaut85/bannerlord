@@ -79,7 +79,6 @@ async function seedLegends() {
           where: { name: legend.name },
           data: {
             isLegend: true,
-            legendRating: 95, // Prime rating for legends
           }
         })
         console.log(`✅ Updated ${legend.name} to legend status`)
@@ -91,7 +90,6 @@ async function seedLegends() {
             category: legend.category as PlayerCategory,
             nationality: nationalityCode,
             isLegend: true,
-            legendRating: 95, // Prime rating for legends
           }
         })
         console.log(`✅ Created legend: ${legend.name}`)

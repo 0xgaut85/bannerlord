@@ -46,30 +46,26 @@ export async function GET(request: NextRequest) {
     })
     const clanLogos = Object.fromEntries(clans.map(c => [c.shortName, c.logo]))
 
-    // Calculate ratings and format response
+    // Calculate ratings and format response (legends are rated normally)
     const results = players.map(player => {
       let averageRating: number
+      const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
       
-      if (player.isLegend && player.legendRating) {
-        averageRating = player.legendRating
-      } else {
-        const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
-        if (realRatings.length > 0) {
-          let weightedSum = 0
-          let totalWeight = 0
-          for (const rating of realRatings) {
-            const weight = rating.rater.division 
-              ? DIVISION_WEIGHTS[rating.rater.division] 
-              : 0.5
-            weightedSum += rating.score * weight
-            totalWeight += weight
-          }
-          averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
-        } else {
-          averageRating = player.division 
-            ? DIVISION_DEFAULT_RATINGS[player.division] 
-            : 70
+      if (realRatings.length > 0) {
+        let weightedSum = 0
+        let totalWeight = 0
+        for (const rating of realRatings) {
+          const weight = rating.rater.division 
+            ? DIVISION_WEIGHTS[rating.rater.division] 
+            : 0.5
+          weightedSum += rating.score * weight
+          totalWeight += weight
         }
+        averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
+      } else {
+        averageRating = player.division 
+          ? DIVISION_DEFAULT_RATINGS[player.division] 
+          : 70
       }
 
       return {

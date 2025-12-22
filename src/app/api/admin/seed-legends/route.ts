@@ -82,7 +82,6 @@ export async function POST() {
             where: { name: legend.name },
             data: {
               isLegend: true,
-              legendRating: 95, // Prime rating for legends
             }
           })
           results.push({ name: legend.name, status: "updated" })
@@ -94,7 +93,6 @@ export async function POST() {
               category: legend.category as PlayerCategory,
               nationality: nationalityCode,
               isLegend: true,
-              legendRating: 95, // Prime rating for legends
             }
           })
           results.push({ name: legend.name, status: "created" })

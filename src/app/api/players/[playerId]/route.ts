@@ -42,28 +42,25 @@ export async function GET(
       clanLogo = clan?.logo || null
     }
 
-    // Calculate rating
+    // Calculate rating (legends are rated normally like everyone else)
     let averageRating: number
-    if (player.isLegend && player.legendRating) {
-      averageRating = player.legendRating
-    } else {
-      const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
-      if (realRatings.length > 0) {
-        let weightedSum = 0
-        let totalWeight = 0
-        for (const rating of realRatings) {
-          const weight = rating.rater.division 
-            ? DIVISION_WEIGHTS[rating.rater.division] 
-            : 0.5
-          weightedSum += rating.score * weight
-          totalWeight += weight
-        }
-        averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
-      } else {
-        averageRating = player.division 
-          ? DIVISION_DEFAULT_RATINGS[player.division] 
-          : 70
+    const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
+    if (realRatings.length > 0) {
+      let weightedSum = 0
+      let totalWeight = 0
+      for (const rating of realRatings) {
+        const weight = rating.rater.division 
+          ? DIVISION_WEIGHTS[rating.rater.division] 
+          : 0.5
+        weightedSum += rating.score * weight
+        totalWeight += weight
       }
+      averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
+    } else {
+      // Default rating for unrated players
+      averageRating = player.division 
+        ? DIVISION_DEFAULT_RATINGS[player.division] 
+        : 70
     }
 
     return NextResponse.json({
