@@ -149,16 +149,16 @@ function FifaCard({
       onDragStart={(e) => onDragStart(e, player)}
       onDragEnd={onDragEnd}
       className={cn(
-        `${sizeClasses} aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 cursor-grab active:cursor-grabbing`,
+        `relative ${sizeClasses} aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 cursor-grab active:cursor-grabbing`,
         style.border,
         isDragging ? "opacity-30 scale-95" : ""
       )}
     >
       {/* Background */}
-      <div className="absolute inset-0 rounded-2xl" style={{ background: style.bg }} />
+      <div className="absolute inset-0" style={{ background: style.bg }} />
       
       {/* Subtle gradient overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/20 pointer-events-none rounded-2xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/20 pointer-events-none" />
       
       {/* Inner border */}
       <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none" />
