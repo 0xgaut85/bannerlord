@@ -474,7 +474,7 @@ export default function AllTimePage() {
                         key={player.playerId}
                         onClick={() => fetchPlayerRatings(player.playerId)}
                         className={cn(
-                          "relative w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer overflow-hidden",
+                          "relative w-full flex flex-col gap-1 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer overflow-hidden",
                           player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
                         )}
                       >
@@ -488,17 +488,26 @@ export default function AllTimePage() {
                             }}
                           />
                         )}
-                        <span className={cn("text-xs w-7 z-10", player.isLegend ? "text-[#6b5344] font-bold" : "text-white/40")}>#{player.rank}</span>
-                        <div className="z-10"><Flag code={player.nationality} size="sm" /></div>
-                        <span className={cn(
-                          "truncate flex-1 z-10",
-                          player.isLegend ? "text-[#3d3020] font-semibold" : "text-white/80"
-                        )}>
-                          {cleanPlayerName(player.playerName)}
-                          {player.isLegend && <span className="text-[#8b7355] text-xs ml-1">(L)</span>}
-                        </span>
-                        <span className={cn("font-bold text-xs z-10", style.tierColor)}>{tier}</span>
-                        <span className={cn("font-mono text-xs z-10", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
+                        {/* Top row: rank, flag, tier, rating */}
+                        <div className="flex items-center gap-2 z-10">
+                          <span className={cn("text-xs w-7", player.isLegend ? "text-[#6b5344] font-bold" : "text-white/40")}>#{player.rank}</span>
+                          <Flag code={player.nationality} size="sm" />
+                          <span className="flex-1" />
+                          <span className={cn("font-bold text-xs", style.tierColor)}>{tier}</span>
+                          <span className={cn("font-mono text-xs", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
+                        </div>
+                        {/* Bottom row: name and clan */}
+                        <div className="z-10">
+                          <span className={cn(
+                            player.isLegend ? "text-[#3d3020] font-semibold" : "text-white/80"
+                          )}>
+                            {cleanPlayerName(player.playerName)}
+                            {player.isLegend && <span className="text-[#8b7355] text-xs ml-1">(L)</span>}
+                          </span>
+                          {player.clan && (
+                            <span className={cn("text-xs ml-2", player.isLegend ? "text-[#5d4d30]" : "text-white/40")}>{player.clan}</span>
+                          )}
+                        </div>
                       </button>
                     )
                   })}
@@ -694,7 +703,7 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
   
   return (
     <button onClick={() => onPlayerClick?.(player.playerId)} className={cn(
-      "relative flex items-center gap-3 p-3 rounded-xl hover:brightness-125 transition-all w-full text-left cursor-pointer overflow-hidden",
+      "relative flex flex-col gap-2 p-3 rounded-xl hover:brightness-125 transition-all w-full text-left cursor-pointer overflow-hidden",
       player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
     )}>
       {/* Grain overlay for legends */}
@@ -707,44 +716,47 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
           }}
         />
       )}
-      <span className={cn("w-8 text-sm font-bold z-10", player.isLegend ? "text-[#6b5344]" : "text-white/40")}>#{player.rank}</span>
-      <div className="w-10 h-10 rounded-full overflow-hidden bg-black/30 z-10">
-        <Image 
-          src={player.avatar || getDefaultAvatar(player.category)} 
-          alt={player.playerName}
-          width={40}
-          height={40}
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <div className="w-6 h-6 rounded bg-black overflow-hidden flex-shrink-0 z-10">
-        {clanLogo && (
+      {/* Top row: rank, avatar, clan logo, flag */}
+      <div className="flex items-center gap-2 z-10">
+        <span className={cn("w-8 text-sm font-bold", player.isLegend ? "text-[#6b5344]" : "text-white/40")}>#{player.rank}</span>
+        <div className="w-10 h-10 rounded-full overflow-hidden bg-black/30">
           <Image 
-            src={clanLogo} 
-            alt={player.clan || ""} 
-            width={24} 
-            height={24} 
-            className="w-full h-full object-cover" 
+            src={player.avatar || getDefaultAvatar(player.category)} 
+            alt={player.playerName}
+            width={40}
+            height={40}
+            className="w-full h-full object-cover"
           />
+        </div>
+        <div className="w-6 h-6 rounded bg-black overflow-hidden flex-shrink-0">
+          {clanLogo && (
+            <Image 
+              src={clanLogo} 
+              alt={player.clan || ""} 
+              width={24} 
+              height={24} 
+              className="w-full h-full object-cover" 
+            />
+          )}
+        </div>
+        <Flag code={player.nationality} size="sm" />
+        <div className="ml-auto flex items-center gap-2">
+          <span className={cn("font-bold text-sm", style.tierColor)}>{playerTier}</span>
+          <span className={cn("text-sm font-mono", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
+        </div>
+      </div>
+      {/* Bottom row: name */}
+      <div className="z-10">
+        <h3 className={cn(
+          "font-semibold",
+          player.isLegend ? "text-[#3d3020]" : "text-white/80"
+        )}>
+          {cleanPlayerName(player.playerName)}
+          {player.isLegend && <span className="text-[#8b7355] text-xs ml-1">(L)</span>}
+        </h3>
+        {player.clan && (
+          <span className={cn("text-xs", player.isLegend ? "text-[#5d4d30]" : "text-white/40")}>{player.clan}</span>
         )}
-      </div>
-      <div className="flex-1 min-w-0 z-10">
-        <div className="flex items-center gap-2">
-          <h3 className={cn(
-            "font-semibold truncate",
-            player.isLegend ? "text-[#3d3020]" : "text-white/80"
-          )}>
-            {cleanPlayerName(player.playerName)}
-          </h3>
-          {player.isLegend && <span className="text-[#8b7355] text-xs">(L)</span>}
-        </div>
-        <div className={cn("flex items-center gap-2 text-xs", player.isLegend ? "text-[#5d4d30]" : "text-white/40")}>
-          <Flag code={player.nationality} size="sm" />
-        </div>
-      </div>
-      <div className="flex flex-col items-end z-10">
-        <span className={cn("font-bold text-sm", style.tierColor)}>{playerTier}</span>
-        <span className={cn("text-sm font-mono", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
       </div>
     </button>
   )
