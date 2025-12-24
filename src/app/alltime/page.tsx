@@ -203,11 +203,13 @@ export default function AllTimePage() {
   const [category, setCategory] = useState<Category>("INFANTRY")
   const [isLoading, setIsLoading] = useState(true)
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerRatingsDetails | null>(null)
+  const [selectedPlayerIsLegend, setSelectedPlayerIsLegend] = useState(false)
   const [loadingPlayerRatings, setLoadingPlayerRatings] = useState(false)
   const [clanLogos, setClanLogos] = useState<Record<string, string | null>>({})
 
-  const fetchPlayerRatings = async (playerId: string) => {
+  const fetchPlayerRatings = async (playerId: string, isLegend: boolean = false) => {
     setLoadingPlayerRatings(true)
+    setSelectedPlayerIsLegend(isLegend)
     try {
       const res = await fetch(`/api/players/${playerId}/ratings`)
       if (res.ok) {
@@ -310,7 +312,7 @@ export default function AllTimePage() {
                         {selectedPlayer.player.name}
                       </h2>
                       <p className="text-white/50 text-sm mt-1">
-                        {selectedPlayer.player.category} · {selectedPlayer.player.clan || "FA"}
+                        {selectedPlayer.player.category} · {selectedPlayer.player.clan || (selectedPlayerIsLegend ? "?" : "FA")}
                       </p>
                     </div>
                   </div>
@@ -472,7 +474,7 @@ export default function AllTimePage() {
                     return (
                       <button
                         key={player.playerId}
-                        onClick={() => fetchPlayerRatings(player.playerId)}
+                        onClick={() => fetchPlayerRatings(player.playerId, player.isLegend || false)}
                         className={cn(
                           "relative w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer overflow-hidden",
                           player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
@@ -523,7 +525,7 @@ function FifaDisplayCard({
   player: AllTimeRanking
   rank: number
   isCenter: boolean
-  onPlayerClick?: (id: string) => void
+  onPlayerClick?: (id: string, isLegend: boolean) => void
   clanLogo?: string | null
 }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
@@ -534,7 +536,7 @@ function FifaDisplayCard({
   
   return (
     <button 
-      onClick={() => onPlayerClick?.(player.playerId)}
+      onClick={() => onPlayerClick?.(player.playerId, player.isLegend || false)}
       className={cn(
         "flex justify-center",
         isCenter ? "md:scale-110 z-10" : ""
@@ -628,13 +630,13 @@ function FifaDisplayCard({
 }
 
 // Elite player card (ranks 4-15) - Small FIFA Card matching community page
-function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void; clanLogo?: string | null }) {
+function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeRanking; onPlayerClick?: (id: string, isLegend: boolean) => void; clanLogo?: string | null }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const playerTier = getTierFromRating(player.averageRating)
 
   return (
-    <button onClick={() => onPlayerClick?.(player.playerId)} className="flex justify-center w-full">
+    <button onClick={() => onPlayerClick?.(player.playerId, player.isLegend || false)} className="flex justify-center w-full">
       {/* Small FIFA Card */}
       <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${style.border} hover:scale-105 transition-transform`}>
         {/* Background Base */}
@@ -727,14 +729,14 @@ function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeR
 }
 
 // Compact player card (ranks 16-30) - Rising Stars with Avatar matching community page
-function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void; clanLogo?: string | null }) {
+function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeRanking; onPlayerClick?: (id: string, isLegend: boolean) => void; clanLogo?: string | null }) {
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const style = getCardStyle(player.averageRating, player.isLegend)
   const playerTier = getTierFromRating(player.averageRating)
   
   return (
     <button 
-      onClick={() => onPlayerClick?.(player.playerId)}
+      onClick={() => onPlayerClick?.(player.playerId, player.isLegend || false)}
       className={cn(
         "relative w-full rounded-lg p-3 hover:brightness-125 text-left transition-all overflow-hidden",
         player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
