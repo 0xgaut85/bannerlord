@@ -52,7 +52,7 @@ interface SelectedPlayer {
   totalRatings: number
 }
 
-type Category = "INFANTRY" | "CAVALRY" | "ARCHER" | "ALL"
+type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
 // Card style based on rating tier
 function getCardStyle(rating: number) {
@@ -103,7 +103,7 @@ function getCardStyle(rating: number) {
 export default function HistoryPage() {
   const [periods, setPeriods] = useState<Period[]>([])
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodDetails | null>(null)
-  const [category, setCategory] = useState<Category>("ALL")
+  const [category, setCategory] = useState<Category>("INFANTRY")
   const [isLoading, setIsLoading] = useState(true)
   const [loadingPeriod, setLoadingPeriod] = useState(false)
   
@@ -187,7 +187,7 @@ export default function HistoryPage() {
   }
 
   const filteredRankings = selectedPeriod?.rankings.filter(r => 
-    category === "ALL" || r.category === category
+    r.category === category
   ) || []
 
   return (
@@ -248,7 +248,7 @@ export default function HistoryPage() {
                       {selectedPeriod.name}
                     </h2>
                     <div className="flex gap-2">
-                      {(["ALL", "INFANTRY", "CAVALRY", "ARCHER"] as Category[]).map((cat) => (
+                      {(["INFANTRY", "CAVALRY", "ARCHER"] as Category[]).map((cat) => (
                         <button
                           key={cat}
                           onClick={() => setCategory(cat)}
@@ -259,7 +259,7 @@ export default function HistoryPage() {
                               : "bg-white/10 text-white/70 hover:bg-white/20"
                           )}
                         >
-                          {cat === "ALL" ? "All" : cat.charAt(0) + cat.slice(1).toLowerCase()}
+                          {cat.charAt(0) + cat.slice(1).toLowerCase()}
                         </button>
                       ))}
                     </div>
@@ -271,7 +271,8 @@ export default function HistoryPage() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {filteredRankings.map((ranking) => {
+                      {filteredRankings.map((ranking, index) => {
+                        const displayRank = index + 1  // Use sequential rank starting from 1
                         const style = getCardStyle(ranking.averageRating)
                         const tier = getTierFromRating(ranking.averageRating)
                         const clanLogo = ranking.clan ? clanLogos[ranking.clan] : null
@@ -288,12 +289,12 @@ export default function HistoryPage() {
                           >
                             <span className={cn(
                               "w-10 text-center font-bold",
-                              ranking.rank === 1 ? "text-amber-400" :
-                              ranking.rank === 2 ? "text-slate-300" :
-                              ranking.rank === 3 ? "text-amber-600" :
+                              displayRank === 1 ? "text-amber-400" :
+                              displayRank === 2 ? "text-slate-300" :
+                              displayRank === 3 ? "text-amber-600" :
                               "text-white/40"
                             )}>
-                              #{ranking.rank}
+                              #{displayRank}
                             </span>
                             <Flag code={ranking.nationality} size="md" />
                             {/* Clan Logo */}
