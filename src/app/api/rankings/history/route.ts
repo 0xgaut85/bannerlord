@@ -12,11 +12,21 @@ export async function GET(request: NextRequest) {
     
     // If periodId provided, get rankings for that period
     if (periodId) {
+      // First get legend player IDs to exclude them
+      const legendPlayerIds = await prisma.player.findMany({
+        where: { isLegend: true },
+        select: { id: true }
+      })
+      const legendIds = legendPlayerIds.map(p => p.id)
+      
       const period = await prisma.rankingPeriod.findUnique({
         where: { id: periodId },
         include: {
           rankings: {
-            where: category ? { category: category as any } : undefined,
+            where: {
+              ...(category ? { category: category as any } : {}),
+              playerId: { notIn: legendIds }  // Exclude legends
+            },
             orderBy: { rank: "asc" }
           }
         }
@@ -29,6 +39,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(period)
     }
     
+    // Get legend player IDs to exclude from count
+    const legendPlayerIds = await prisma.player.findMany({
+      where: { isLegend: true },
+      select: { id: true }
+    })
+    const legendIds = legendPlayerIds.map(p => p.id)
+    
     // Otherwise, get all periods (without full rankings)
     const periods = await prisma.rankingPeriod.findMany({
       orderBy: { endDate: "desc" },
@@ -37,11 +54,23 @@ export async function GET(request: NextRequest) {
         name: true,
         startDate: true,
         endDate: true,
-        _count: { select: { rankings: true } }
+        rankings: {
+          where: { playerId: { notIn: legendIds } },
+          select: { id: true }
+        }
       }
     })
     
-    return NextResponse.json(periods)
+    // Transform to include count
+    const result = periods.map(p => ({
+      id: p.id,
+      name: p.name,
+      startDate: p.startDate,
+      endDate: p.endDate,
+      _count: { rankings: p.rankings.length }
+    }))
+    
+    return NextResponse.json(result)
   } catch (error) {
     console.error("History GET error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
