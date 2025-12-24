@@ -95,7 +95,12 @@ const LEGEND_STYLE = {
 
 // AAA+ Premium card styles with heavy textures
 function getCardStyle(rating: number, isLegend?: boolean) {
-  if (isLegend) return { ...LEGEND_STYLE, boxBg: "bg-[#d4c4a8]/20", tierColor: "text-[#8b7355]" }
+  if (isLegend) return { 
+    ...LEGEND_STYLE, 
+    boxBg: "bg-gradient-to-br from-[#f0e6d2] via-[#e0d4c0] to-[#d4c4a8] border-[#c0a878]", 
+    tierColor: "text-[#6b5344]",
+    legendBox: true, // Flag for special grain styling
+  }
   
   if (rating >= 95) return {
     bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
@@ -463,21 +468,31 @@ export default function AllTimePage() {
                         key={player.playerId}
                         onClick={() => fetchPlayerRatings(player.playerId)}
                         className={cn(
-                          "w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer border border-white/10",
-                          style.boxBg
+                          "relative w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer overflow-hidden",
+                          player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
                         )}
                       >
-                        <span className="text-white/40 w-7 text-xs">#{player.rank}</span>
-                        <Flag code={player.nationality} size="sm" />
+                        {/* Grain overlay for legends */}
+                        {player.isLegend && (
+                          <div 
+                            className="absolute inset-0 pointer-events-none opacity-50"
+                            style={{
+                              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                              mixBlendMode: 'overlay',
+                            }}
+                          />
+                        )}
+                        <span className={cn("text-xs w-7 z-10", player.isLegend ? "text-[#6b5344] font-bold" : "text-white/40")}>#{player.rank}</span>
+                        <div className="z-10"><Flag code={player.nationality} size="sm" /></div>
                         <span className={cn(
-                          "truncate flex-1",
-                          player.isLegend ? "text-white font-medium" : "text-white/80"
+                          "truncate flex-1 z-10",
+                          player.isLegend ? "text-[#3d3020] font-semibold" : "text-white/80"
                         )}>
                           {cleanPlayerName(player.playerName)}
-                          {player.isLegend && <span className="text-amber-400/70 text-xs ml-1">(L)</span>}
+                          {player.isLegend && <span className="text-[#8b7355] text-xs ml-1">(L)</span>}
                         </span>
-                        <span className={cn("font-bold text-xs", style.tierColor)}>{tier}</span>
-                        <span className="text-white/60 font-mono text-xs">{player.averageRating.toFixed(1)}</span>
+                        <span className={cn("font-bold text-xs z-10", style.tierColor)}>{tier}</span>
+                        <span className={cn("font-mono text-xs z-10", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
                       </button>
                     )
                   })}
@@ -655,11 +670,21 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
   
   return (
     <button onClick={() => onPlayerClick?.(player.playerId)} className={cn(
-      "flex items-center gap-3 p-3 rounded-xl hover:brightness-125 transition-all border border-white/10 w-full text-left cursor-pointer",
-      style.boxBg
+      "relative flex items-center gap-3 p-3 rounded-xl hover:brightness-125 transition-all w-full text-left cursor-pointer overflow-hidden",
+      player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
     )}>
-      <span className="text-white/40 w-8 text-sm font-bold">#{player.rank}</span>
-      <div className="w-10 h-10 rounded-full overflow-hidden bg-black/30">
+      {/* Grain overlay for legends */}
+      {player.isLegend && (
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-50"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            mixBlendMode: 'overlay',
+          }}
+        />
+      )}
+      <span className={cn("w-8 text-sm font-bold z-10", player.isLegend ? "text-[#6b5344]" : "text-white/40")}>#{player.rank}</span>
+      <div className="w-10 h-10 rounded-full overflow-hidden bg-black/30 z-10">
         <Image 
           src={player.avatar || getDefaultAvatar(player.category)} 
           alt={player.playerName}
@@ -674,27 +699,27 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
           alt={player.clan || ""} 
           width={24} 
           height={24} 
-          className="w-6 h-6 rounded object-cover flex-shrink-0" 
+          className="w-6 h-6 rounded object-cover flex-shrink-0 z-10" 
         />
       )}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 z-10">
         <div className="flex items-center gap-2">
           <h3 className={cn(
             "font-semibold truncate",
-            player.isLegend ? "text-white" : "text-white/80"
+            player.isLegend ? "text-[#3d3020]" : "text-white/80"
           )}>
             {cleanPlayerName(player.playerName)}
           </h3>
-          {player.isLegend && <span className="text-amber-400/70 text-xs">(L)</span>}
+          {player.isLegend && <span className="text-[#8b7355] text-xs">(L)</span>}
         </div>
-        <div className="flex items-center gap-2 text-xs text-white/40">
+        <div className={cn("flex items-center gap-2 text-xs", player.isLegend ? "text-[#5d4d30]" : "text-white/40")}>
           <Flag code={player.nationality} size="sm" />
           {!clanLogo && <span>{player.clan || "FA"}</span>}
         </div>
       </div>
-      <div className="flex flex-col items-end">
+      <div className="flex flex-col items-end z-10">
         <span className={cn("font-bold text-sm", style.tierColor)}>{playerTier}</span>
-        <span className="text-white/60 text-sm font-mono">{player.averageRating.toFixed(1)}</span>
+        <span className={cn("text-sm font-mono", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
       </div>
     </button>
   )
