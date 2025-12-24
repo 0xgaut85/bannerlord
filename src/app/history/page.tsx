@@ -83,10 +83,10 @@ function getCardStyle(rating: number) {
     tierColor: "text-slate-200",
   }
   if (rating >= 75) return {
-    bg: "bg-slate-400/20",
-    border: "border-slate-400/50",
+    bg: "bg-neutral-500/20",
+    border: "border-neutral-400/50",
     text: "text-white",
-    tierColor: "text-slate-300",
+    tierColor: "text-neutral-300",
   }
   if (rating >= 70) return {
     bg: "bg-orange-400/25",
