@@ -616,9 +616,9 @@ function FifaDisplayCard({
                 <span className={`text-[8px] font-bold ${style.subtext} opacity-60 uppercase tracking-widest`}>Tier</span>
                 <span className={`text-sm font-black ${style.text}`}>{playerTier}</span>
               </div>
-              {player.clan && !clanLogo && (
+              {(player.clan || player.isLegend) && !clanLogo && (
                 <div className="bg-black/40 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/10">
-                  <span className={`text-xs font-bold ${style.text}`}>{player.clan}</span>
+                  <span className={`text-xs font-bold ${style.text}`}>{player.clan || (player.isLegend ? "?" : "")}</span>
                 </div>
               )}
             </div>
@@ -718,9 +718,9 @@ function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeR
               {cleanPlayerName(player.playerName)}
             </h3>
             {player.isLegend && <p className={`text-[9px] ${style.subtext} text-center opacity-70`}>Prime</p>}
-            {player.clan && (
-              <p className={`text-[9px] ${style.subtext} text-center opacity-70 truncate`}>{player.clan}</p>
-            )}
+            <p className={`text-[9px] ${style.subtext} text-center opacity-70 truncate`}>
+              {player.clan || (player.isLegend ? "?" : "")}
+            </p>
           </div>
         </div>
       </div>
@@ -777,7 +777,7 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
         </span>
       </div>
       <div className="flex items-center justify-between mt-1 z-10 relative">
-        {player.clan && !clanLogo && <span className={cn("text-xs truncate", player.isLegend ? "text-[#5d4d30]" : "text-white/30")}>{player.clan}</span>}
+        {(player.clan || player.isLegend) && !clanLogo && <span className={cn("text-xs truncate", player.isLegend ? "text-[#5d4d30]" : "text-white/30")}>{player.clan || (player.isLegend ? "?" : "")}</span>}
         <div className="flex items-center gap-2 ml-auto">
           <span className={cn("font-bold text-sm", style.tierColor)}>{playerTier}</span>
           <span className={cn("text-sm font-mono", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
