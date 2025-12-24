@@ -403,6 +403,7 @@ export default function AllTimePage() {
                       rank={actualRank}
                       isCenter={idx === 1}
                       onPlayerClick={fetchPlayerRatings}
+                      clanLogo={player.clan ? clanLogos[player.clan] : null}
                     />
                   )
                 })}
@@ -422,7 +423,12 @@ export default function AllTimePage() {
               
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {elite.map((player) => (
-                  <ElitePlayerCard key={player.playerId} player={player} onPlayerClick={fetchPlayerRatings} />
+                  <ElitePlayerCard 
+                    key={player.playerId} 
+                    player={player} 
+                    onPlayerClick={fetchPlayerRatings}
+                    clanLogo={player.clan ? clanLogos[player.clan] : null}
+                  />
                 ))}
               </div>
             </section>
@@ -511,12 +517,14 @@ function FifaDisplayCard({
   player, 
   rank, 
   isCenter,
-  onPlayerClick
+  onPlayerClick,
+  clanLogo
 }: { 
   player: AllTimeRanking
   rank: number
   isCenter: boolean
   onPlayerClick?: (id: string) => void
+  clanLogo?: string | null
 }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
@@ -585,6 +593,14 @@ function FifaDisplayCard({
               <Image src={avatarSrc} alt={player.playerName} width={96} height={96} className="w-full h-full object-cover" />
             </div>
             
+            {/* Clan Logo (left) */}
+            <div className="absolute left-3 bottom-0 z-20">
+              <div className="w-6 h-6 bg-black rounded overflow-hidden">
+                {clanLogo && (
+                  <Image src={clanLogo} alt={player.clan || ""} width={24} height={24} className="w-full h-full object-cover" />
+                )}
+              </div>
+            </div>
             <div className="absolute right-3 bottom-0 z-20">
               <Flag code={player.nationality} size="md" />
             </div>
@@ -598,7 +614,7 @@ function FifaDisplayCard({
                 <span className={`text-[8px] font-bold ${style.subtext} opacity-60 uppercase tracking-widest`}>Tier</span>
                 <span className={`text-sm font-black ${style.text}`}>{playerTier}</span>
               </div>
-              {player.clan && (
+              {player.clan && !clanLogo && (
                 <div className="bg-black/40 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/10">
                   <span className={`text-xs font-bold ${style.text}`}>{player.clan}</span>
                 </div>
@@ -612,7 +628,7 @@ function FifaDisplayCard({
 }
 
 // Elite player card (ranks 4-15)
-function ElitePlayerCard({ player, onPlayerClick }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void }) {
+function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void; clanLogo?: string | null }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const playerTier = getTierFromRating(player.averageRating)
@@ -644,9 +660,17 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: AllTimeRanking; on
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center py-2">
+        <div className="flex-1 flex items-center justify-center py-2 relative">
           <div className="relative w-14 h-14 rounded-full overflow-hidden border border-white/10 shadow-lg">
             <Image src={avatarSrc} alt={player.playerName} width={56} height={56} className="w-full h-full object-cover" />
+          </div>
+          {/* Clan Logo on left */}
+          <div className="absolute left-0 bottom-0 z-20">
+            <div className="w-5 h-5 bg-black rounded overflow-hidden">
+              {clanLogo && (
+                <Image src={clanLogo} alt={player.clan || ""} width={20} height={20} className="w-full h-full object-cover" />
+              )}
+            </div>
           </div>
         </div>
 
@@ -655,7 +679,7 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: AllTimeRanking; on
           {player.isLegend && <p className={`text-[10px] ${style.subtext} uppercase`}>Prime</p>}
           <div className="flex items-center justify-center gap-1 mt-1">
             <Flag code={player.nationality} size="sm" />
-            {player.clan && <span className={`text-[10px] ${style.subtext} truncate max-w-[60px]`}>{player.clan}</span>}
+            {player.clan && !clanLogo && <span className={`text-[10px] ${style.subtext} truncate max-w-[60px]`}>{player.clan}</span>}
           </div>
         </div>
       </div>
@@ -693,15 +717,17 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
           className="w-full h-full object-cover"
         />
       </div>
-      {clanLogo && (
-        <Image 
-          src={clanLogo} 
-          alt={player.clan || ""} 
-          width={24} 
-          height={24} 
-          className="w-6 h-6 rounded object-cover flex-shrink-0 z-10" 
-        />
-      )}
+      <div className="w-6 h-6 rounded bg-black overflow-hidden flex-shrink-0 z-10">
+        {clanLogo && (
+          <Image 
+            src={clanLogo} 
+            alt={player.clan || ""} 
+            width={24} 
+            height={24} 
+            className="w-full h-full object-cover" 
+          />
+        )}
+      </div>
       <div className="flex-1 min-w-0 z-10">
         <div className="flex items-center gap-2">
           <h3 className={cn(
@@ -714,7 +740,6 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
         </div>
         <div className={cn("flex items-center gap-2 text-xs", player.isLegend ? "text-[#5d4d30]" : "text-white/40")}>
           <Flag code={player.nationality} size="sm" />
-          {!clanLogo && <span>{player.clan || "FA"}</span>}
         </div>
       </div>
       <div className="flex flex-col items-end z-10">
