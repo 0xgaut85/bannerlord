@@ -77,28 +77,28 @@ function getCardStyle(rating: number) {
     tierColor: "text-yellow-500",
   }
   if (rating >= 80) return {
-    // BRIGHT SILVER - Shiny polished silver
-    bg: "linear-gradient(145deg, #6a6a6a 0%, #9a9a9a 25%, #c0c0c0 50%, #9a9a9a 75%, #6a6a6a 100%)",
-    border: "border-slate-200/60",
-    accent: "from-white via-slate-100 to-white",
-    text: "text-slate-900",
-    subtext: "text-slate-700",
-    noiseOpacity: 0.20,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 50%, rgba(255,255,255,0.1) 100%)",
-    boxBg: "bg-slate-300/25",
-    tierColor: "text-slate-300",
+    // BRIGHT SILVER - Very shiny polished silver with bright highlights
+    bg: "linear-gradient(145deg, #c0c0c0 0%, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%, #c0c0c0 100%)",
+    border: "border-white/80",
+    accent: "from-white via-slate-50 to-white",
+    text: "text-slate-800",
+    subtext: "text-slate-600",
+    noiseOpacity: 0.15,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
+    boxBg: "bg-white/30",
+    tierColor: "text-slate-200",
   }
   if (rating >= 75) return {
-    // MID-DARK GRAY - Darker muted silver
-    bg: "linear-gradient(145deg, #252525 0%, #3a3a3a 25%, #4a4a4a 50%, #3a3a3a 75%, #252525 100%)",
-    border: "border-slate-500/40",
-    accent: "from-slate-400 via-slate-300 to-slate-400",
+    // LIGHT GRAY - Softer light gray
+    bg: "linear-gradient(145deg, #6a6a6a 0%, #8a8a8a 25%, #a8a8a8 50%, #8a8a8a 75%, #6a6a6a 100%)",
+    border: "border-slate-400/50",
+    accent: "from-slate-300 via-slate-200 to-slate-300",
     text: "text-white",
-    subtext: "text-slate-400",
-    noiseOpacity: 0.28,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%)",
-    boxBg: "bg-slate-600/20",
-    tierColor: "text-slate-400",
+    subtext: "text-slate-300",
+    noiseOpacity: 0.22,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
+    boxBg: "bg-slate-400/20",
+    tierColor: "text-slate-300",
   }
   if (rating >= 70) return {
     // BRIGHT BRONZE - Vivid copper shine
@@ -1002,6 +1002,7 @@ function CompactPlayerCard({ player, onPlayerClick }: { player: PlayerWithRating
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const style = getCardStyle(player.averageRating)
   const playerTier = getTierFromRating(player.averageRating)
+  const clanLogo = (player as any).clanLogo || null
   
   return (
     <button 
@@ -1020,11 +1021,20 @@ function CompactPlayerCard({ player, onPlayerClick }: { player: PlayerWithRating
           height={28} 
           className="w-7 h-7 rounded-full object-cover border border-white/10" 
         />
+        {clanLogo && (
+          <Image 
+            src={clanLogo} 
+            alt={player.clan || ""} 
+            width={20} 
+            height={20} 
+            className="w-5 h-5 rounded object-cover" 
+          />
+        )}
         <Flag code={player.nationality} size="sm" />
         <span className="text-white/80 text-sm truncate flex-1">{player.name}</span>
       </div>
       <div className="flex items-center justify-between mt-1">
-        {player.clan && <span className="text-white/30 text-xs truncate">{player.clan}</span>}
+        {player.clan && !clanLogo && <span className="text-white/30 text-xs truncate">{player.clan}</span>}
         <div className="flex items-center gap-2 ml-auto">
           <span className={cn("font-bold text-sm", style.tierColor)}>{playerTier}</span>
           <span className="text-white/60 text-sm font-mono">{player.averageRating.toFixed(1)}</span>

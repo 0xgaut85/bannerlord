@@ -133,28 +133,28 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     tierColor: "text-yellow-500",
   }
   if (rating >= 80) return {
-    // BRIGHT SILVER - Shiny polished silver
-    bg: "linear-gradient(145deg, #6a6a6a 0%, #9a9a9a 25%, #c0c0c0 50%, #9a9a9a 75%, #6a6a6a 100%)",
-    border: "border-slate-200/60",
-    accent: "from-white via-slate-100 to-white",
-    text: "text-slate-900",
-    subtext: "text-slate-700",
-    noiseOpacity: 0.20,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 50%, rgba(255,255,255,0.1) 100%)",
-    boxBg: "bg-slate-300/25",
-    tierColor: "text-slate-300",
+    // BRIGHT SILVER - Very shiny polished silver with bright highlights
+    bg: "linear-gradient(145deg, #c0c0c0 0%, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%, #c0c0c0 100%)",
+    border: "border-white/80",
+    accent: "from-white via-slate-50 to-white",
+    text: "text-slate-800",
+    subtext: "text-slate-600",
+    noiseOpacity: 0.15,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
+    boxBg: "bg-white/30",
+    tierColor: "text-slate-200",
   }
   if (rating >= 75) return {
-    // MID-DARK GRAY - Darker muted silver
-    bg: "linear-gradient(145deg, #252525 0%, #3a3a3a 25%, #4a4a4a 50%, #3a3a3a 75%, #252525 100%)",
-    border: "border-slate-500/40",
-    accent: "from-slate-400 via-slate-300 to-slate-400",
+    // LIGHT GRAY - Softer light gray
+    bg: "linear-gradient(145deg, #6a6a6a 0%, #8a8a8a 25%, #a8a8a8 50%, #8a8a8a 75%, #6a6a6a 100%)",
+    border: "border-slate-400/50",
+    accent: "from-slate-300 via-slate-200 to-slate-300",
     text: "text-white",
-    subtext: "text-slate-400",
-    noiseOpacity: 0.28,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%)",
-    boxBg: "bg-slate-600/20",
-    tierColor: "text-slate-400",
+    subtext: "text-slate-300",
+    noiseOpacity: 0.22,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
+    boxBg: "bg-slate-400/20",
+    tierColor: "text-slate-300",
   }
   if (rating >= 70) return {
     // BRIGHT BRONZE - Vivid copper shine
@@ -199,6 +199,7 @@ export default function AllTimePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerRatingsDetails | null>(null)
   const [loadingPlayerRatings, setLoadingPlayerRatings] = useState(false)
+  const [clanLogos, setClanLogos] = useState<Record<string, string | null>>({})
 
   const fetchPlayerRatings = async (playerId: string) => {
     setLoadingPlayerRatings(true)
@@ -222,10 +223,21 @@ export default function AllTimePage() {
         const res = await fetch(url)
         if (res.ok) {
           const data = await res.json()
-          if (Array.isArray(data)) {
-            setRankings(data)
-          } else {
-            setRankings(data.rankings || [])
+          const rankingsData = Array.isArray(data) ? data : (data.rankings || [])
+          setRankings(rankingsData)
+          
+          // Fetch clan logos for all unique clans
+          const clans = [...new Set(rankingsData.map((r: AllTimeRanking) => r.clan).filter(Boolean))] as string[]
+          if (clans.length > 0) {
+            const clanRes = await fetch(`/api/clans?shortNames=${clans.join(",")}`)
+            if (clanRes.ok) {
+              const clanData = await clanRes.json()
+              const logos: Record<string, string | null> = {}
+              clanData.forEach((c: { shortName: string; logo: string | null }) => {
+                logos[c.shortName] = c.logo
+              })
+              setClanLogos(logos)
+            }
           }
         }
       } catch (error) {
@@ -423,7 +435,12 @@ export default function AllTimePage() {
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {promising.map((player) => (
-                  <CompactPlayerCard key={player.playerId} player={player} onPlayerClick={fetchPlayerRatings} />
+                  <CompactPlayerCard 
+                    key={player.playerId} 
+                    player={player} 
+                    onPlayerClick={fetchPlayerRatings} 
+                    clanLogo={player.clan ? clanLogos[player.clan] : null}
+                  />
                 ))}
               </div>
             </section>
@@ -457,7 +474,7 @@ export default function AllTimePage() {
                           player.isLegend ? "text-white font-medium" : "text-white/80"
                         )}>
                           {cleanPlayerName(player.playerName)}
-                          {player.isLegend && <span className="text-white/40 text-xs ml-1">LEG</span>}
+                          {player.isLegend && <span className="text-amber-400/70 text-xs ml-1">(L)</span>}
                         </span>
                         <span className={cn("font-bold text-xs", style.tierColor)}>{tier}</span>
                         <span className="text-white/60 font-mono text-xs">{player.averageRating.toFixed(1)}</span>
@@ -632,7 +649,7 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: AllTimeRanking; on
 }
 
 // Compact player card (ranks 16-30)
-function CompactPlayerCard({ player, onPlayerClick }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void }) {
+function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void; clanLogo?: string | null }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const playerTier = getTierFromRating(player.averageRating)
   
@@ -651,6 +668,15 @@ function CompactPlayerCard({ player, onPlayerClick }: { player: AllTimeRanking; 
           className="w-full h-full object-cover"
         />
       </div>
+      {clanLogo && (
+        <Image 
+          src={clanLogo} 
+          alt={player.clan || ""} 
+          width={24} 
+          height={24} 
+          className="w-6 h-6 rounded object-cover flex-shrink-0" 
+        />
+      )}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h3 className={cn(
@@ -659,11 +685,11 @@ function CompactPlayerCard({ player, onPlayerClick }: { player: AllTimeRanking; 
           )}>
             {cleanPlayerName(player.playerName)}
           </h3>
-          {player.isLegend && <span className="text-white/40 text-xs">LEG</span>}
+          {player.isLegend && <span className="text-amber-400/70 text-xs">(L)</span>}
         </div>
         <div className="flex items-center gap-2 text-xs text-white/40">
           <Flag code={player.nationality} size="sm" />
-          <span>{player.clan || "FA"}</span>
+          {!clanLogo && <span>{player.clan || "FA"}</span>}
         </div>
       </div>
       <div className="flex flex-col items-end">

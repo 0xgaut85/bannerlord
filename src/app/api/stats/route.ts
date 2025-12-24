@@ -186,12 +186,13 @@ export async function GET() {
           .sort((a, b) => b.avgRating - a.avgRating)
       ),
       topNationalities: Object.entries(nationalityStats)
+        .filter(([code]) => code !== "Unknown" && code !== "null" && code !== "")  // Exclude unknown/null nationalities
         .map(([code, data]) => ({
           code,
           count: data.count,
           avgRating: data.count > 0 ? data.totalRating / data.count : 0
         }))
-        .filter(n => n.count >= 3) // At least 3 players
+        .filter(n => n.count >= 2) // At least 2 players (lowered threshold)
         .sort((a, b) => b.avgRating - a.avgRating),
       ratingDistribution: Object.entries(ratingBuckets).map(([range, count]) => ({
         range,

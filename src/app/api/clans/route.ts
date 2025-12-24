@@ -7,6 +7,23 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get("search")
+    const shortNames = searchParams.get("shortNames")
+    
+    // If fetching by specific shortNames (for clan logos)
+    if (shortNames) {
+      const names = shortNames.split(",").filter(Boolean)
+      const clans = await prisma.clan.findMany({
+        where: {
+          shortName: { in: names }
+        },
+        select: {
+          shortName: true,
+          logo: true,
+          name: true,
+        }
+      })
+      return NextResponse.json(clans)
+    }
     
     // First try the Clan table
     const where = search ? {

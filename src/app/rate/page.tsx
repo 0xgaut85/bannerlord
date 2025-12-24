@@ -404,6 +404,10 @@ export default function RatePage() {
     )
   }
   
+  // Rating period ended - only allow rating legends
+  const RATING_PERIOD_ENDED = true  // Set to false to re-enable current player ratings
+  const isRatingLegends = selectedCategory === "LEGENDS"
+  
   // Loading
   if (status === "loading" || isLoading) {
     return (
@@ -532,9 +536,25 @@ export default function RatePage() {
         </div>
       )}
       
+      {/* Rating Period Ended Notice - Only for non-legends */}
+      {RATING_PERIOD_ENDED && !isRatingLegends && (
+        <div className="mx-4 mt-4 p-6 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center">
+          <div className="text-4xl mb-4">📅</div>
+          <h2 className="text-xl font-display font-bold text-amber-400 mb-2">
+            December 2025 Rating Period Ended
+          </h2>
+          <p className="text-white/60 mb-4">
+            New ratings open on <span className="text-amber-400 font-semibold">12/01/2026</span>
+          </p>
+          <p className="text-white/40 text-sm">
+            You can still rate <button onClick={() => setSelectedCategory("LEGENDS")} className="text-amber-500 hover:text-amber-400 underline">Legends</button> in the meantime!
+          </p>
+        </div>
+      )}
+      
       {/* Main Card Area - Takes remaining space */}
       <div className="flex-1 flex items-center justify-center px-4 py-4 overflow-hidden">
-        {filteredPlayers.length > 0 && currentPlayer ? (
+        {RATING_PERIOD_ENDED && !isRatingLegends ? null : filteredPlayers.length > 0 && currentPlayer ? (
           isSelfRatingPlayer ? (
             // Self-rating prevention - show message and skip button
             <div className="w-full max-w-md text-center">

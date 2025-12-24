@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { Flag } from "@/components/ui"
-import { cn } from "@/lib/utils"
+import { cn, getTierFromRating } from "@/lib/utils"
 
 interface Period {
   id: string
@@ -32,7 +33,72 @@ interface PeriodDetails {
   rankings: HistoricalRanking[]
 }
 
+interface PlayerRating {
+  id: string
+  score: number
+  raterName: string
+  raterDiscordName: string | null
+  raterDivision: string | null
+}
+
+interface SelectedPlayer {
+  id: string
+  name: string
+  category: string
+  clan: string | null
+  nationality: string | null
+  ratings: PlayerRating[]
+  averageRating: number | null
+  totalRatings: number
+}
+
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER" | "ALL"
+
+// Card style based on rating tier
+function getCardStyle(rating: number) {
+  if (rating >= 95) return {
+    bg: "bg-gradient-to-r from-slate-900 via-purple-900/50 to-slate-900",
+    border: "border-purple-500/50",
+    text: "text-purple-300",
+    tierColor: "text-purple-400",
+  }
+  if (rating >= 90) return {
+    bg: "bg-gradient-to-r from-yellow-900/40 via-yellow-700/30 to-yellow-900/40",
+    border: "border-yellow-400/60",
+    text: "text-yellow-300",
+    tierColor: "text-yellow-400",
+  }
+  if (rating >= 85) return {
+    bg: "bg-gradient-to-r from-yellow-900/30 via-amber-800/20 to-yellow-900/30",
+    border: "border-yellow-500/40",
+    text: "text-yellow-400",
+    tierColor: "text-yellow-500",
+  }
+  if (rating >= 80) return {
+    bg: "bg-gradient-to-r from-slate-700/40 via-slate-500/30 to-slate-700/40",
+    border: "border-slate-300/50",
+    text: "text-slate-200",
+    tierColor: "text-slate-200",
+  }
+  if (rating >= 75) return {
+    bg: "bg-gradient-to-r from-slate-800/40 via-slate-700/30 to-slate-800/40",
+    border: "border-slate-500/40",
+    text: "text-slate-400",
+    tierColor: "text-slate-400",
+  }
+  if (rating >= 70) return {
+    bg: "bg-gradient-to-r from-orange-900/30 via-amber-800/20 to-orange-900/30",
+    border: "border-orange-500/40",
+    text: "text-orange-400",
+    tierColor: "text-orange-400",
+  }
+  return {
+    bg: "bg-gradient-to-r from-orange-950/30 via-amber-900/20 to-orange-950/30",
+    border: "border-orange-700/40",
+    text: "text-orange-500",
+    tierColor: "text-orange-600",
+  }
+}
 
 export default function HistoryPage() {
   const [periods, setPeriods] = useState<Period[]>([])
@@ -40,6 +106,13 @@ export default function HistoryPage() {
   const [category, setCategory] = useState<Category>("ALL")
   const [isLoading, setIsLoading] = useState(true)
   const [loadingPeriod, setLoadingPeriod] = useState(false)
+  
+  // Player modal state
+  const [selectedPlayer, setSelectedPlayer] = useState<SelectedPlayer | null>(null)
+  const [loadingPlayerRatings, setLoadingPlayerRatings] = useState(false)
+  
+  // Clan logos
+  const [clanLogos, setClanLogos] = useState<Record<string, string | null>>({})
 
   useEffect(() => {
     async function fetchPeriods() {
@@ -57,6 +130,31 @@ export default function HistoryPage() {
     }
     fetchPeriods()
   }, [])
+  
+  // Fetch clan logos when period is loaded
+  useEffect(() => {
+    async function fetchClanLogos() {
+      if (!selectedPeriod) return
+      
+      const clans = [...new Set(selectedPeriod.rankings.map(r => r.clan).filter(Boolean))] as string[]
+      if (clans.length === 0) return
+      
+      try {
+        const res = await fetch(`/api/clans?shortNames=${clans.join(",")}`)
+        if (res.ok) {
+          const data = await res.json()
+          const logos: Record<string, string | null> = {}
+          data.forEach((c: { shortName: string; logo: string | null }) => {
+            logos[c.shortName] = c.logo
+          })
+          setClanLogos(logos)
+        }
+      } catch (error) {
+        console.error("Error fetching clan logos:", error)
+      }
+    }
+    fetchClanLogos()
+  }, [selectedPeriod])
 
   const fetchPeriodDetails = async (periodId: string) => {
     setLoadingPeriod(true)
@@ -70,6 +168,21 @@ export default function HistoryPage() {
       console.error("Error fetching period details:", error)
     } finally {
       setLoadingPeriod(false)
+    }
+  }
+  
+  const fetchPlayerRatings = async (playerId: string) => {
+    setLoadingPlayerRatings(true)
+    try {
+      const res = await fetch(`/api/players/${playerId}/ratings`)
+      if (res.ok) {
+        const data = await res.json()
+        setSelectedPlayer(data)
+      }
+    } catch (error) {
+      console.error("Error fetching player ratings:", error)
+    } finally {
+      setLoadingPlayerRatings(false)
     }
   }
 
@@ -158,37 +271,64 @@ export default function HistoryPage() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {filteredRankings.map((ranking) => (
-                        <div
-                          key={ranking.id}
-                          className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10"
-                        >
-                          <span className={cn(
-                            "w-10 text-center font-bold",
-                            ranking.rank === 1 ? "text-amber-400" :
-                            ranking.rank === 2 ? "text-slate-300" :
-                            ranking.rank === 3 ? "text-amber-600" :
-                            "text-white/40"
-                          )}>
-                            #{ranking.rank}
-                          </span>
-                          <Flag code={ranking.nationality} size="md" />
-                          <div className="flex-1">
-                            <div className="text-white font-medium">{ranking.playerName}</div>
-                            <div className="text-white/40 text-sm">
-                              {ranking.category} · {ranking.clan || "FA"}
+                      {filteredRankings.map((ranking) => {
+                        const style = getCardStyle(ranking.averageRating)
+                        const tier = getTierFromRating(ranking.averageRating)
+                        const clanLogo = ranking.clan ? clanLogos[ranking.clan] : null
+                        
+                        return (
+                          <button
+                            key={ranking.id}
+                            onClick={() => fetchPlayerRatings(ranking.playerId)}
+                            className={cn(
+                              "w-full flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.01]",
+                              style.bg,
+                              style.border
+                            )}
+                          >
+                            <span className={cn(
+                              "w-10 text-center font-bold",
+                              ranking.rank === 1 ? "text-amber-400" :
+                              ranking.rank === 2 ? "text-slate-300" :
+                              ranking.rank === 3 ? "text-amber-600" :
+                              "text-white/40"
+                            )}>
+                              #{ranking.rank}
+                            </span>
+                            <Flag code={ranking.nationality} size="md" />
+                            {/* Clan Logo */}
+                            {clanLogo && (
+                              <div className="w-6 h-6 rounded overflow-hidden flex-shrink-0">
+                                <Image 
+                                  src={clanLogo} 
+                                  alt={ranking.clan || ""} 
+                                  width={24} 
+                                  height={24}
+                                  className="object-cover w-full h-full"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1 text-left">
+                              <div className="text-white font-medium">{ranking.playerName}</div>
+                              <div className="text-white/40 text-sm">
+                                {ranking.category} · {ranking.clan || "FA"}
+                              </div>
                             </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-amber-400 font-bold text-lg">
-                              {ranking.averageRating.toFixed(1)}
+                            {/* Tier Badge */}
+                            <div className={cn("text-xs font-bold px-2 py-0.5 rounded", style.tierColor)}>
+                              {tier}
                             </div>
-                            <div className="text-white/40 text-xs">
-                              {ranking.totalRatings} ratings
+                            <div className="text-right">
+                              <div className={cn("font-bold text-lg", style.text)}>
+                                {ranking.averageRating.toFixed(1)}
+                              </div>
+                              <div className="text-white/40 text-xs">
+                                {ranking.totalRatings} ratings
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      ))}
+                          </button>
+                        )
+                      })}
                     </div>
                   )}
                 </>
@@ -201,8 +341,88 @@ export default function HistoryPage() {
           </div>
         )}
       </div>
+      
+      {/* Player Ratings Modal */}
+      {(selectedPlayer || loadingPlayerRatings) && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedPlayer(null)}
+        >
+          <div 
+            className="bg-slate-800 rounded-2xl border border-white/20 max-w-lg w-full max-h-[80vh] overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {loadingPlayerRatings ? (
+              <div className="p-8 flex justify-center">
+                <div className="w-8 h-8 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+              </div>
+            ) : selectedPlayer && (
+              <>
+                <div className="p-6 border-b border-white/10">
+                  <div className="flex items-center gap-4">
+                    <Flag code={selectedPlayer.nationality} size="lg" />
+                    <div>
+                      <h3 className="text-xl font-display font-bold text-white">
+                        {selectedPlayer.name}
+                      </h3>
+                      <p className="text-white/50 text-sm">
+                        {selectedPlayer.category} · {selectedPlayer.clan || "Free Agent"}
+                      </p>
+                    </div>
+                    <div className="ml-auto text-right">
+                      <div className="text-2xl font-bold text-amber-400">
+                        {selectedPlayer.averageRating?.toFixed(1) || "N/A"}
+                      </div>
+                      <div className="text-white/40 text-xs">
+                        {selectedPlayer.totalRatings} ratings
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6 max-h-[50vh] overflow-y-auto">
+                  <h4 className="text-sm font-medium text-white/60 mb-4">Individual Ratings</h4>
+                  {selectedPlayer.ratings.length === 0 ? (
+                    <p className="text-white/40 text-center py-4">No ratings yet</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedPlayer.ratings.map((rating) => (
+                        <div 
+                          key={rating.id}
+                          className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                        >
+                          <div>
+                            <span className="text-white font-medium">
+                              {rating.raterDiscordName || rating.raterName}
+                            </span>
+                            {rating.raterDivision && (
+                              <span className="ml-2 text-xs text-amber-400/70">
+                                Div {rating.raterDivision}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-amber-400 font-bold text-lg">
+                            {rating.score}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="p-4 border-t border-white/10">
+                  <button
+                    onClick={() => setSelectedPlayer(null)}
+                    className="w-full py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white font-medium transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-
-
