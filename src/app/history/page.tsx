@@ -42,11 +42,13 @@ interface PlayerRating {
 }
 
 interface SelectedPlayer {
-  id: string
-  name: string
-  category: string
-  clan: string | null
-  nationality: string | null
+  player: {
+    id: string
+    name: string
+    category: string
+    clan: string | null
+    nationality: string | null
+  }
   ratings: PlayerRating[]
   averageRating: number | null
   totalRatings: number
@@ -54,49 +56,55 @@ interface SelectedPlayer {
 
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
-// Card style based on rating tier
+// AAA+ Premium card styles (matching community page)
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
-    bg: "bg-gradient-to-r from-slate-900 via-purple-900/50 to-slate-900",
-    border: "border-purple-500/50",
-    text: "text-purple-300",
-    tierColor: "text-purple-400",
+    bg: "bg-cyan-500/20",
+    border: "border-cyan-300/60",
+    text: "text-white",
+    tierColor: "text-cyan-400",
   }
   if (rating >= 90) return {
-    bg: "bg-gradient-to-r from-yellow-900/40 via-yellow-700/30 to-yellow-900/40",
-    border: "border-yellow-400/60",
-    text: "text-yellow-300",
+    bg: "bg-yellow-500/25",
+    border: "border-yellow-300/60",
+    text: "text-yellow-950",
     tierColor: "text-yellow-400",
   }
   if (rating >= 85) return {
-    bg: "bg-gradient-to-r from-yellow-900/30 via-amber-800/20 to-yellow-900/30",
-    border: "border-yellow-500/40",
-    text: "text-yellow-400",
+    bg: "bg-yellow-600/20",
+    border: "border-yellow-500/50",
+    text: "text-white",
     tierColor: "text-yellow-500",
   }
   if (rating >= 80) return {
-    bg: "bg-gradient-to-r from-slate-700/40 via-slate-500/30 to-slate-700/40",
-    border: "border-slate-300/50",
-    text: "text-slate-200",
+    bg: "bg-white/30",
+    border: "border-white/80",
+    text: "text-slate-800",
     tierColor: "text-slate-200",
   }
   if (rating >= 75) return {
-    bg: "bg-gradient-to-r from-slate-800/40 via-slate-700/30 to-slate-800/40",
-    border: "border-slate-500/40",
-    text: "text-slate-400",
-    tierColor: "text-slate-400",
+    bg: "bg-slate-400/20",
+    border: "border-slate-400/50",
+    text: "text-white",
+    tierColor: "text-slate-300",
   }
   if (rating >= 70) return {
-    bg: "bg-gradient-to-r from-orange-900/30 via-amber-800/20 to-orange-900/30",
-    border: "border-orange-500/40",
-    text: "text-orange-400",
-    tierColor: "text-orange-400",
+    bg: "bg-orange-400/25",
+    border: "border-orange-400/60",
+    text: "text-orange-50",
+    tierColor: "text-orange-300",
+  }
+  if (rating >= 65) return {
+    bg: "bg-orange-700/20",
+    border: "border-orange-700/40",
+    text: "text-orange-100",
+    tierColor: "text-orange-500",
   }
   return {
-    bg: "bg-gradient-to-r from-orange-950/30 via-amber-900/20 to-orange-950/30",
-    border: "border-orange-700/40",
-    text: "text-orange-500",
-    tierColor: "text-orange-600",
+    bg: "bg-[#6b5344]/20",
+    border: "border-[#6b5344]/50",
+    text: "text-[#e8dcc5]",
+    tierColor: "text-[#a08060]",
   }
 }
 
@@ -361,13 +369,13 @@ export default function HistoryPage() {
               <>
                 <div className="p-6 border-b border-white/10">
                   <div className="flex items-center gap-4">
-                    <Flag code={selectedPlayer.nationality} size="lg" />
+                    <Flag code={selectedPlayer.player.nationality} size="lg" />
                     <div>
                       <h3 className="text-xl font-display font-bold text-white">
-                        {selectedPlayer.name}
+                        {selectedPlayer.player.name}
                       </h3>
                       <p className="text-white/50 text-sm">
-                        {selectedPlayer.category} · {selectedPlayer.clan || "Free Agent"}
+                        {selectedPlayer.player.category} · {selectedPlayer.player.clan || "Free Agent"}
                       </p>
                     </div>
                     <div className="ml-auto text-right">
