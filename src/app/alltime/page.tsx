@@ -474,7 +474,7 @@ export default function AllTimePage() {
                         key={player.playerId}
                         onClick={() => fetchPlayerRatings(player.playerId)}
                         className={cn(
-                          "relative w-full flex flex-col gap-1 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer overflow-hidden",
+                          "relative w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer overflow-hidden",
                           player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
                         )}
                       >
@@ -488,26 +488,17 @@ export default function AllTimePage() {
                             }}
                           />
                         )}
-                        {/* Top row: rank, flag, tier, rating */}
-                        <div className="flex items-center gap-2 z-10">
-                          <span className={cn("text-xs w-7", player.isLegend ? "text-[#6b5344] font-bold" : "text-white/40")}>#{player.rank}</span>
-                          <Flag code={player.nationality} size="sm" />
-                          <span className="flex-1" />
-                          <span className={cn("font-bold text-xs", style.tierColor)}>{tier}</span>
-                          <span className={cn("font-mono text-xs", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
-                        </div>
-                        {/* Bottom row: name and clan */}
-                        <div className="z-10">
-                          <span className={cn(
-                            player.isLegend ? "text-[#3d3020] font-semibold" : "text-white/80"
-                          )}>
-                            {cleanPlayerName(player.playerName)}
-                            {player.isLegend && <span className="text-[#8b7355] text-xs ml-1">(L)</span>}
-                          </span>
-                          {player.clan && (
-                            <span className={cn("text-xs ml-2", player.isLegend ? "text-[#5d4d30]" : "text-white/40")}>{player.clan}</span>
-                          )}
-                        </div>
+                        <span className={cn("text-xs w-7 z-10", player.isLegend ? "text-[#6b5344] font-bold" : "text-white/40")}>#{player.rank}</span>
+                        <div className="z-10"><Flag code={player.nationality} size="sm" /></div>
+                        <span className={cn(
+                          "truncate flex-1 z-10",
+                          player.isLegend ? "text-[#3d3020] font-semibold" : "text-white/80"
+                        )}>
+                          {cleanPlayerName(player.playerName)}
+                          {player.isLegend && <span className="text-[#8b7355] text-xs ml-1">(L)</span>}
+                        </span>
+                        <span className={cn("font-bold text-xs z-10", style.tierColor)}>{tier}</span>
+                        <span className={cn("font-mono text-xs z-10", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
                       </button>
                     )
                   })}
@@ -636,59 +627,98 @@ function FifaDisplayCard({
   )
 }
 
-// Elite player card (ranks 4-15)
+// Elite player card (ranks 4-15) - Small FIFA Card matching community page
 function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void; clanLogo?: string | null }) {
   const style = getCardStyle(player.averageRating, player.isLegend)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const playerTier = getTierFromRating(player.averageRating)
 
   return (
-    <button onClick={() => onPlayerClick?.(player.playerId)} className={`relative aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-2 ${style.border} hover:scale-105 transition-transform cursor-pointer w-full`}>
-      <div className="absolute inset-0" style={{ background: style.bg }} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: style.overlayGradient }} />
-      
-      <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>
-        <filter id={`elite-noise-${player.playerId}`}>
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter={`url(#elite-noise-${player.playerId})`} />
-      </svg>
-      
-      <div className="absolute inset-2 border border-dashed border-white/10 rounded-xl pointer-events-none z-10" />
+    <button onClick={() => onPlayerClick?.(player.playerId)} className="flex justify-center w-full">
+      {/* Small FIFA Card */}
+      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${style.border} hover:scale-105 transition-transform`}>
+        {/* Background Base */}
+        <div className="absolute inset-0" style={{ background: style.bg }} />
+        
+        {/* Overlay Gradient */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: style.overlayGradient }} />
+        
+        {/* Noise Texture */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>
+          <filter id={`eliteNoise-${player.playerId}`}>
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter={`url(#eliteNoise-${player.playerId})`} />
+        </svg>
 
-      <div className="relative h-full flex flex-col p-3 z-20">
-        <div className="flex justify-between items-start">
-          <div>
-            <span className={`text-2xl font-black ${style.text} leading-none`}>{player.averageRating.toFixed(0)}</span>
-            <div className={`text-[8px] font-bold ${style.subtext} uppercase tracking-wider mt-0.5`}>{categoryShort[player.category]}</div>
-          </div>
-          <div className="text-right">
-            <span className={`text-xs font-bold ${style.subtext} opacity-70`}>#{player.rank}</span>
-            <div className={`text-sm font-black ${style.text}`}>{playerTier}</div>
-          </div>
-        </div>
+        {/* Inner Border (Dashed) */}
+        <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none z-10" />
+        
+        {/* Vignette */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%)" }}
+        />
 
-        <div className="flex-1 flex items-center justify-center py-2 relative">
-          <div className="relative w-14 h-14 rounded-full overflow-hidden border border-white/10 shadow-lg">
-            <Image src={avatarSrc} alt={player.playerName} width={56} height={56} className="w-full h-full object-cover" />
-          </div>
-          {/* Clan Logo on left */}
-          <div className="absolute left-0 bottom-0 z-20">
-            <div className="w-5 h-5 bg-black rounded overflow-hidden">
-              {clanLogo && (
-                <Image src={clanLogo} alt={player.clan || ""} width={20} height={20} className="w-full h-full object-cover" />
-              )}
+        {/* Content */}
+        <div className="relative h-full flex flex-col p-2.5 z-30">
+          {/* Top: Rating & Rank & Tier */}
+          <div className="flex justify-between items-start">
+            <div className="flex flex-col items-center">
+              <span className={`text-2xl font-black ${style.text} leading-none`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+                {player.averageRating.toFixed(0)}
+              </span>
+              <span className={`text-[8px] font-bold ${style.subtext} tracking-wider uppercase`}>
+                {categoryShort[player.category]}
+              </span>
+            </div>
+            <div className="text-right">
+              <span className={`text-xs font-bold ${style.subtext} opacity-70`}>#{player.rank}</span>
+              <div className={`text-sm font-black ${style.text}`}>{playerTier}</div>
             </div>
           </div>
-        </div>
 
-        <div className="text-center">
-          <h3 className={`text-sm font-bold ${style.text} truncate`}>{cleanPlayerName(player.playerName)}</h3>
-          {player.isLegend && <p className={`text-[10px] ${style.subtext} uppercase`}>Prime</p>}
-          <div className="flex items-center justify-center gap-1 mt-1">
-            <Flag code={player.nationality} size="sm" />
-            {player.clan && !clanLogo && <span className={`text-[10px] ${style.subtext} truncate max-w-[60px]`}>{player.clan}</span>}
+          {/* Middle: Avatar */}
+          <div className="flex-1 relative flex flex-col items-center justify-start py-0.5">
+            <div className="relative w-14 h-14 rounded-full overflow-hidden shadow-lg border border-white/10 z-10">
+              <Image
+                src={avatarSrc}
+                alt={player.playerName}
+                fill
+                className="object-cover"
+              />
+            </div>
+            {/* Clan Logo on left */}
+            <div className="absolute left-0 bottom-0 z-20">
+              <div className="w-5 h-5 bg-black">
+                {clanLogo && (
+                  <Image
+                    src={clanLogo}
+                    alt="Clan"
+                    width={20}
+                    height={20}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            </div>
+            {/* Flag on right */}
+            <div className="absolute right-0 bottom-0 shadow-lg z-20">
+              <Flag code={player.nationality} size="sm" />
+            </div>
+          </div>
+
+          {/* Bottom: Name & Clan */}
+          <div className="mt-auto">
+            <div className={`h-px w-full bg-gradient-to-r ${style.accent} mb-1.5 opacity-40`} />
+            <h3 className={`text-xs font-black ${style.text} uppercase truncate text-center`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+              {cleanPlayerName(player.playerName)}
+            </h3>
+            {player.isLegend && <p className={`text-[9px] ${style.subtext} text-center opacity-70`}>Prime</p>}
+            {player.clan && (
+              <p className={`text-[9px] ${style.subtext} text-center opacity-70 truncate`}>{player.clan}</p>
+            )}
           </div>
         </div>
       </div>
@@ -696,16 +726,20 @@ function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeR
   )
 }
 
-// Compact player card (ranks 16-30)
+// Compact player card (ranks 16-30) - Rising Stars with Avatar matching community page
 function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeRanking; onPlayerClick?: (id: string) => void; clanLogo?: string | null }) {
+  const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const style = getCardStyle(player.averageRating, player.isLegend)
   const playerTier = getTierFromRating(player.averageRating)
   
   return (
-    <button onClick={() => onPlayerClick?.(player.playerId)} className={cn(
-      "relative flex flex-col gap-2 p-3 rounded-xl hover:brightness-125 transition-all w-full text-left cursor-pointer overflow-hidden",
-      player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
-    )}>
+    <button 
+      onClick={() => onPlayerClick?.(player.playerId)}
+      className={cn(
+        "relative w-full rounded-lg p-3 hover:brightness-125 text-left transition-all overflow-hidden",
+        player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
+      )}
+    >
       {/* Grain overlay for legends */}
       {player.isLegend && (
         <div 
@@ -716,47 +750,36 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
           }}
         />
       )}
-      {/* Top row: rank, avatar, clan logo, flag */}
-      <div className="flex items-center gap-2 z-10">
-        <span className={cn("w-8 text-sm font-bold", player.isLegend ? "text-[#6b5344]" : "text-white/40")}>#{player.rank}</span>
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-black/30">
+      <div className="flex items-center gap-2 z-10 relative">
+        <span className={cn("text-sm w-6", player.isLegend ? "text-[#6b5344] font-bold" : "text-white/40")}>#{player.rank}</span>
+        <Image 
+          src={avatarSrc} 
+          alt={player.playerName} 
+          width={28} 
+          height={28} 
+          className="w-7 h-7 rounded-full object-cover border border-white/10" 
+        />
+        {clanLogo && (
           <Image 
-            src={player.avatar || getDefaultAvatar(player.category)} 
-            alt={player.playerName}
-            width={40}
-            height={40}
-            className="w-full h-full object-cover"
+            src={clanLogo} 
+            alt={player.clan || ""} 
+            width={20} 
+            height={20} 
+            className="w-5 h-5 rounded object-cover" 
           />
-        </div>
-        <div className="w-6 h-6 rounded bg-black overflow-hidden flex-shrink-0">
-          {clanLogo && (
-            <Image 
-              src={clanLogo} 
-              alt={player.clan || ""} 
-              width={24} 
-              height={24} 
-              className="w-full h-full object-cover" 
-            />
-          )}
-        </div>
+        )}
         <Flag code={player.nationality} size="sm" />
-        <div className="ml-auto flex items-center gap-2">
+        <span className={cn("text-sm truncate flex-1", player.isLegend ? "text-[#3d3020] font-semibold" : "text-white/80")}>
+          {player.playerName}
+          {player.isLegend && <span className="text-[#8b7355] text-xs ml-1">(L)</span>}
+        </span>
+      </div>
+      <div className="flex items-center justify-between mt-1 z-10 relative">
+        {player.clan && !clanLogo && <span className={cn("text-xs truncate", player.isLegend ? "text-[#5d4d30]" : "text-white/30")}>{player.clan}</span>}
+        <div className="flex items-center gap-2 ml-auto">
           <span className={cn("font-bold text-sm", style.tierColor)}>{playerTier}</span>
           <span className={cn("text-sm font-mono", player.isLegend ? "text-[#5d4d30]" : "text-white/60")}>{player.averageRating.toFixed(1)}</span>
         </div>
-      </div>
-      {/* Bottom row: name */}
-      <div className="z-10">
-        <h3 className={cn(
-          "font-semibold",
-          player.isLegend ? "text-[#3d3020]" : "text-white/80"
-        )}>
-          {cleanPlayerName(player.playerName)}
-          {player.isLegend && <span className="text-[#8b7355] text-xs ml-1">(L)</span>}
-        </h3>
-        {player.clan && (
-          <span className={cn("text-xs", player.isLegend ? "text-[#5d4d30]" : "text-white/40")}>{player.clan}</span>
-        )}
       </div>
     </button>
   )
