@@ -176,6 +176,7 @@ export async function GET(request: NextRequest) {
       }
       
       // Add or update legend in the map
+      // For legends, we ALWAYS use the fresh calculated rating, not historical
       if (!playerMap.has(legend.id)) {
         playerMap.set(legend.id, {
           playerId: legend.id,
@@ -190,10 +191,18 @@ export async function GET(request: NextRequest) {
           avatar: legend.avatar,
         })
       } else {
-        // Update existing entry to mark as legend
+        // Update existing entry to mark as legend and REPLACE ratings with fresh calculation
         const existing = playerMap.get(legend.id)!
         existing.isLegend = true
         existing.avatar = legend.avatar
+        // Replace all historical ratings with the fresh calculated legend rating
+        existing.ratings = [avgRating]
+        existing.periodNames = ["Legend"]
+        existing.history = [{ period: "Legend", rating: avgRating }]
+        // Update player info from legend data
+        existing.playerName = legend.name
+        existing.clan = legend.clan
+        existing.nationality = legend.nationality
       }
     }
     
