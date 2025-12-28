@@ -51,18 +51,27 @@ export default function AdminPage() {
 
   const debouncedSearch = useDebounce(search, 500)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (username === "admin" && password === "OBELIX2025") {
-      setIsAuthenticated(true)
-      fetchPlayers()
-      fetchRequests()
-      fetchClanRequests()
-      fetchPlayerRequests()
-      fetchUsers(1, "", false)
-      fetchAnomalies()
-    } else {
-      alert("Invalid credentials")
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      })
+      if (res.ok) {
+        setIsAuthenticated(true)
+        fetchPlayers()
+        fetchRequests()
+        fetchClanRequests()
+        fetchPlayerRequests()
+        fetchUsers(1, "", false)
+        fetchAnomalies()
+      } else {
+        alert("Invalid credentials")
+      }
+    } catch (error) {
+      alert("Authentication failed")
     }
   }
 
