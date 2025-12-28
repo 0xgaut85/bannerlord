@@ -15,6 +15,7 @@ const navigation = [
   { name: "Stats", href: "/stats" },
   { name: "Team Builder", href: "/team-builder" },
   { name: "Rate", href: "/rate" },
+  { name: "Curated", href: "/curated" },
   { name: "Q&A", href: "/qa" },
   { name: "Edit", href: "/edit-player" },
   { name: "Admin", href: "/admin" },

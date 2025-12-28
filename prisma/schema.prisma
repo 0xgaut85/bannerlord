@@ -225,3 +225,42 @@ model SavedTeam {
 
   @@unique([userId, name])
 }
+
+// Curated Ranking System
+model CuratedSession {
+  id          String   @id @default(cuid())
+  playerId    String   // The player being rated
+  playerName  String   // Denormalized
+  category    PlayerCategory
+  nationality String?
+  clan        String?
+  isActive    Boolean  @default(true) // Only one active session at a time
+  isConfirmed Boolean  @default(false) // Streamer confirmed
+  finalRating Float?   // Final confirmed rating
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ratings     CuratedRating[]
+}
+
+model CuratedRating {
+  id          String         @id @default(cuid())
+  sessionId   String
+  raterName   String         // The name entered by the rater
+  score       Int?           // Can be null while typing
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  session     CuratedSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, raterName])
+}
+
+model CuratedRanking {
+  id          String         @id @default(cuid())
+  playerId    String         @unique
+  playerName  String
+  category    PlayerCategory
+  nationality String?
+  clan        String?
+  rating      Float
+  confirmedAt DateTime       @default(now())
+}
