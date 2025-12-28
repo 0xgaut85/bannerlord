@@ -1105,13 +1105,13 @@ export default function CuratedPage() {
             </div>
           )}
 
-          {/* Active Rating Session - Full Width Compact Layout */}
+          {/* Active Rating Session - Full Width Layout with FIFA Card */}
           {activeSession && (
-            <div className="flex flex-col h-[calc(100vh-200px)] min-h-[500px]">
+            <div className="flex flex-col h-[calc(100vh-180px)] min-h-[600px]">
               {/* Main Content - 3 Column Layout */}
-              <div className="flex-1 grid grid-cols-[1fr_auto_1fr] gap-4 items-start">
+              <div className="flex-1 grid grid-cols-[1fr_auto_1fr] gap-6 items-center">
                 {/* Left Side - Raters 1-5 */}
-                <div className="space-y-2">
+                <div className="space-y-3 flex flex-col justify-center">
                   {RATER_NAMES.slice(0, 5).map(raterName => {
                     const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                     const isMe = raterName === username
@@ -1121,13 +1121,13 @@ export default function CuratedPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <label className={cn(
-                              "text-xs font-medium whitespace-nowrap",
+                              "text-xs font-medium whitespace-nowrap w-20",
                               isMe ? "text-violet-400" : "text-white/50"
                             )}>
                               {raterName} {isMe && "(You)"}
                             </label>
                             <div className={cn(
-                              "flex-1 rounded-lg border-2 overflow-hidden transition-colors",
+                              "w-20 rounded-lg border-2 overflow-hidden transition-colors",
                               isRaterConfirmed 
                                 ? "border-green-500 bg-green-500/10" 
                                 : raterData?.score 
@@ -1147,10 +1147,10 @@ export default function CuratedPage() {
                                     submitRating(val)
                                   }}
                                   disabled={submittingRating}
-                                  className="w-full px-2 py-1.5 bg-transparent text-white text-center text-lg font-bold focus:outline-none placeholder-white/20"
+                                  className="w-full px-2 py-2 bg-transparent text-white text-center text-xl font-bold focus:outline-none placeholder-white/20"
                                 />
                               ) : (
-                                <div className="px-2 py-1.5 text-center text-lg font-bold text-white">
+                                <div className="px-2 py-2 text-center text-xl font-bold text-white">
                                   {isMe ? myRating || "—" : (raterData?.score ?? "—")}
                                 </div>
                               )}
@@ -1162,7 +1162,7 @@ export default function CuratedPage() {
                                   <button
                                     onClick={confirmMyRating}
                                     disabled={!myRating || submittingRating}
-                                    className="px-2 py-1 text-[10px] font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded transition-colors"
+                                    className="px-3 py-2 text-xs font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded transition-colors"
                                   >
                                     ✓
                                   </button>
@@ -1170,7 +1170,7 @@ export default function CuratedPage() {
                                   <button
                                     onClick={editMyRating}
                                     disabled={submittingRating}
-                                    className="px-2 py-1 text-[10px] font-bold bg-amber-500 hover:bg-amber-400 text-white rounded transition-colors"
+                                    className="px-3 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-white rounded transition-colors"
                                   >
                                     ✎
                                   </button>
@@ -1180,7 +1180,7 @@ export default function CuratedPage() {
                           </div>
                           {/* Note display */}
                           {raterData?.note && (isStreamer || !isMe) && (
-                            <div className="text-[10px] text-white/60 italic px-1 py-0.5 bg-black/30 rounded mt-1 line-clamp-2">
+                            <div className="text-[10px] text-white/60 italic px-1 py-0.5 bg-black/30 rounded mt-1 ml-20 line-clamp-2">
                               &ldquo;{raterData.note}&rdquo;
                             </div>
                           )}
@@ -1190,70 +1190,93 @@ export default function CuratedPage() {
                   })}
                 </div>
 
-                {/* Center - Player Card + Average + Buttons */}
-                <div className="flex flex-col items-center gap-3">
-                  {/* Compact Player Card */}
-                  <div
-                    className={cn(
-                      "relative w-48 rounded-xl border-2 p-3",
-                      activeSession.finalRating 
-                        ? getCuratedCardStyle(activeSession.finalRating).border
-                        : "border-violet-500/50"
-                    )}
-                    style={{
-                      background: activeSession.finalRating
-                        ? getCuratedCardStyle(activeSession.finalRating).bg
-                        : "linear-gradient(145deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)"
-                    }}
-                  >
-                    <div className="flex flex-col items-center">
-                      <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-white/20 mb-2">
-                        <Image
-                          src={getDefaultAvatar(activeSession.category)}
-                          alt={activeSession.playerName}
-                          width={80}
-                          height={80}
-                          className="w-full h-full object-cover"
-                        />
+                {/* Center - Big FIFA Player Card */}
+                <div className="flex flex-col items-center gap-4">
+                  {/* FIFA Card */}
+                  <div className="relative w-64 aspect-[2/3] rounded-3xl overflow-hidden shadow-2xl border-4 border-violet-500/50">
+                    {/* Background */}
+                    <div 
+                      className="absolute inset-0"
+                      style={{ background: "linear-gradient(145deg, #1e1b4b 0%, #4c1d95 30%, #7c3aed 60%, #312e81 100%)" }}
+                    />
+                    
+                    {/* Heavy Noise/Grain overlay */}
+                    <div 
+                      className="absolute inset-0 opacity-50 mix-blend-overlay"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                        opacity: 0.6
+                      }}
+                    />
+                    
+                    {/* Gradient overlay */}
+                    <div 
+                      className="absolute inset-0"
+                      style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%)" }}
+                    />
+                    
+                    {/* Content */}
+                    <div className="relative h-full flex flex-col p-5">
+                      {/* Category badge */}
+                      <div className="absolute top-4 left-4">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center shadow-lg border-2 border-white/20">
+                          <span className="text-white font-black text-sm">{categoryShort[activeSession.category]}</span>
+                        </div>
                       </div>
-                      <h2 className="text-lg font-bold text-white text-center leading-tight">
-                        {cleanPlayerName(activeSession.playerName)}
-                      </h2>
-                      <div className="flex items-center gap-1.5 text-white/70 text-xs mt-1">
-                        {activeSession.nationality && (
-                          <Flag code={activeSession.nationality} size="sm" />
-                        )}
-                        <span>{categoryShort[activeSession.category]}</span>
-                        <span>•</span>
-                        <span>{activeSession.clan || "FA"}</span>
+                      
+                      {/* Current Average */}
+                      <div className="absolute top-4 right-4 text-right">
+                        <div className="text-4xl font-black text-white drop-shadow-lg">
+                          {calculateAverage() ?? "?"}
+                        </div>
+                        <div className="text-xs font-bold text-violet-300">
+                          {activeSession.ratings.filter(r => r.score !== null).length}/{RATER_NAMES.length} votes
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Average Rating */}
-                  <div className="text-center bg-black/40 border border-violet-500/30 rounded-xl px-6 py-3">
-                    <div className="text-white/50 text-xs">Average</div>
-                    <div className="text-4xl font-bold text-violet-400">
-                      {calculateAverage() ?? "—"}
-                    </div>
-                    <div className="text-white/50 text-xs">
-                      {activeSession.ratings.filter(r => r.score !== null).length}/{RATER_NAMES.length} votes
+                      
+                      {/* Avatar */}
+                      <div className="flex-1 flex items-center justify-center pt-10">
+                        <div className="relative">
+                          <div className="w-36 h-36 rounded-2xl overflow-hidden border-3 border-white/30 shadow-xl">
+                            <Image
+                              src={getDefaultAvatar(activeSession.category)}
+                              alt={activeSession.playerName}
+                              width={144}
+                              height={144}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Player Info */}
+                      <div className="text-center mt-auto pb-2">
+                        <h2 className="text-2xl font-black text-white tracking-tight drop-shadow-lg">
+                          {cleanPlayerName(activeSession.playerName)}
+                        </h2>
+                        <div className="flex items-center justify-center gap-2 mt-2">
+                          {activeSession.nationality && (
+                            <Flag code={activeSession.nationality} size="md" />
+                          )}
+                          <span className="text-white/80 font-semibold">{activeSession.clan || "Free Agent"}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
                   {/* Streamer Confirm Buttons */}
                   {isStreamer && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                       <button
                         onClick={confirmSession}
                         disabled={confirming || calculateAverage() === null}
-                        className="px-4 py-2 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-sm font-bold rounded-lg transition-all disabled:cursor-not-allowed"
+                        className="px-6 py-3 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-lg font-bold rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
                       >
-                        {confirming ? "..." : "✓ Confirm"}
+                        {confirming ? "..." : "✓ Confirm Rating"}
                       </button>
                       <button
                         onClick={endSession}
-                        className="px-4 py-2 bg-red-500 hover:bg-red-400 text-white text-sm font-bold rounded-lg transition-all"
+                        className="px-6 py-3 bg-red-500 hover:bg-red-400 text-white text-lg font-bold rounded-xl transition-all shadow-lg"
                       >
                         ✕ Cancel
                       </button>
@@ -1262,7 +1285,7 @@ export default function CuratedPage() {
                 </div>
 
                 {/* Right Side - Raters 6-10 */}
-                <div className="space-y-2">
+                <div className="space-y-3 flex flex-col justify-center">
                   {RATER_NAMES.slice(5, 10).map(raterName => {
                     const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                     const isMe = raterName === username
@@ -1278,7 +1301,7 @@ export default function CuratedPage() {
                                   <button
                                     onClick={confirmMyRating}
                                     disabled={!myRating || submittingRating}
-                                    className="px-2 py-1 text-[10px] font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded transition-colors"
+                                    className="px-3 py-2 text-xs font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded transition-colors"
                                   >
                                     ✓
                                   </button>
@@ -1286,7 +1309,7 @@ export default function CuratedPage() {
                                   <button
                                     onClick={editMyRating}
                                     disabled={submittingRating}
-                                    className="px-2 py-1 text-[10px] font-bold bg-amber-500 hover:bg-amber-400 text-white rounded transition-colors"
+                                    className="px-3 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-white rounded transition-colors"
                                   >
                                     ✎
                                   </button>
@@ -1294,7 +1317,7 @@ export default function CuratedPage() {
                               </div>
                             )}
                             <div className={cn(
-                              "flex-1 rounded-lg border-2 overflow-hidden transition-colors",
+                              "w-20 rounded-lg border-2 overflow-hidden transition-colors",
                               isRaterConfirmed 
                                 ? "border-green-500 bg-green-500/10" 
                                 : raterData?.score 
@@ -1314,16 +1337,16 @@ export default function CuratedPage() {
                                     submitRating(val)
                                   }}
                                   disabled={submittingRating}
-                                  className="w-full px-2 py-1.5 bg-transparent text-white text-center text-lg font-bold focus:outline-none placeholder-white/20"
+                                  className="w-full px-2 py-2 bg-transparent text-white text-center text-xl font-bold focus:outline-none placeholder-white/20"
                                 />
                               ) : (
-                                <div className="px-2 py-1.5 text-center text-lg font-bold text-white">
+                                <div className="px-2 py-2 text-center text-xl font-bold text-white">
                                   {isMe ? myRating || "—" : (raterData?.score ?? "—")}
                                 </div>
                               )}
                             </div>
                             <label className={cn(
-                              "text-xs font-medium whitespace-nowrap",
+                              "text-xs font-medium whitespace-nowrap w-20",
                               isMe ? "text-violet-400" : "text-white/50"
                             )}>
                               {raterName} {isMe && "(You)"}
@@ -1331,7 +1354,7 @@ export default function CuratedPage() {
                           </div>
                           {/* Note display */}
                           {raterData?.note && (isStreamer || !isMe) && (
-                            <div className="text-[10px] text-white/60 italic px-1 py-0.5 bg-black/30 rounded mt-1 line-clamp-2">
+                            <div className="text-[10px] text-white/60 italic px-1 py-0.5 bg-black/30 rounded mt-1 mr-20 line-clamp-2">
                               &ldquo;{raterData.note}&rdquo;
                             </div>
                           )}
