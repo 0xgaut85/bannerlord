@@ -6,8 +6,10 @@ export async function POST(request: NextRequest) {
   try {
     const { raterName, score, note, raterCode, confirmed } = await request.json()
 
-    // Verify rater code
-    if (raterCode !== "OBELIXNW" && raterCode !== "MRASH") {
+    // Verify rater code from environment variables (streamer can also rate)
+    const validStreamerCode = process.env.CURATED_STREAMER_CODE
+    const validRaterCode = process.env.CURATED_RATER_CODE
+    if (raterCode !== validRaterCode && raterCode !== validStreamerCode) {
       return NextResponse.json({ error: "Invalid rater code" }, { status: 403 })
     }
 

@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
   try {
     const { playerId, streamerCode } = await request.json()
 
-    // Verify streamer code
-    if (streamerCode !== "MRASH") {
+    // Verify streamer code from environment variable
+    if (streamerCode !== process.env.CURATED_STREAMER_CODE) {
       return NextResponse.json({ error: "Invalid streamer code" }, { status: 403 })
     }
 
@@ -120,7 +120,8 @@ export async function DELETE(request: NextRequest) {
   try {
     const { streamerCode } = await request.json()
 
-    if (streamerCode !== "MRASH") {
+    // Verify streamer code from environment variable
+    if (streamerCode !== process.env.CURATED_STREAMER_CODE) {
       return NextResponse.json({ error: "Invalid streamer code" }, { status: 403 })
     }
 

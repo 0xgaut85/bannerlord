@@ -105,19 +105,29 @@ export default function CuratedPage() {
     }
   }, [isAuthenticated, usernameSet, username, accessCode, isStreamer, selectedSlot])
 
-  // Handle code submission
-  const handleCodeSubmit = () => {
-    if (accessCode === "MRASH") {
-      setIsAuthenticated(true)
-      setIsStreamer(true)
-      setSelectedSlot("Streamer") // Streamer gets the "Streamer" slot
-      setCodeError("")
-    } else if (accessCode === "OBELIXNW") {
-      setIsAuthenticated(true)
-      setIsStreamer(false)
-      setCodeError("")
-    } else {
-      setCodeError("Invalid access code")
+  // Handle code submission - verify via API (passwords not in client code)
+  const handleCodeSubmit = async () => {
+    try {
+      const res = await fetch("/api/curated/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: accessCode })
+      })
+      
+      if (res.ok) {
+        const data = await res.json()
+        setIsAuthenticated(true)
+        setIsStreamer(data.isStreamer)
+        if (data.isStreamer) {
+          setSelectedSlot("Streamer") // Streamer gets the "Streamer" slot
+        }
+        setCodeError("")
+      } else {
+        setCodeError("Invalid access code")
+      }
+    } catch (error) {
+      console.error("Auth error:", error)
+      setCodeError("Authentication failed")
     }
   }
 
