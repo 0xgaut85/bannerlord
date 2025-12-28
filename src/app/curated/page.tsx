@@ -71,95 +71,98 @@ interface SearchPlayer {
   avatar: string | null
 }
 
-// Card styling based on rating - same as community but with purple accent
-function getCardStyle(rating: number) {
+// Curated card styling - Light Blue to Deep Purple spectrum with heavy grain
+function getCuratedCardStyle(rating: number) {
   if (rating >= 95) return {
-    bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
-    border: "border-cyan-300/60",
-    accent: "from-cyan-300 via-white to-cyan-300",
+    // MYTHIC - Deep cosmic purple with aurora
+    bg: "linear-gradient(145deg, #1a0a2e 0%, #2d1b4e 20%, #4a1f7a 40%, #6b21a8 60%, #4a1f7a 80%, #2d1b4e 100%)",
+    border: "border-purple-300/70",
+    accent: "from-purple-200 via-pink-100 to-purple-200",
     text: "text-white",
-    subtext: "text-cyan-200",
-    noiseOpacity: 0.35,
-    overlayGradient: "linear-gradient(180deg, rgba(6,182,212,0.1) 0%, transparent 40%, rgba(6,182,212,0.05) 100%)",
-    boxBg: "bg-cyan-500/20",
-    tierColor: "text-cyan-400",
+    subtext: "text-purple-200",
+    noiseOpacity: 0.45,
+    overlayGradient: "linear-gradient(180deg, rgba(168,85,247,0.2) 0%, transparent 40%, rgba(139,92,246,0.1) 100%)",
+    boxBg: "bg-purple-500/25",
+    tierColor: "text-purple-300",
+    glowColor: "shadow-purple-500/50",
   }
   if (rating >= 90) return {
-    bg: "linear-gradient(145deg, #8b7800 0%, #c9b000 25%, #e6d000 50%, #c9b000 75%, #8b7800 100%)",
-    border: "border-yellow-300/60",
-    accent: "from-yellow-200 via-white to-yellow-200",
-    text: "text-yellow-950",
-    subtext: "text-yellow-900",
-    noiseOpacity: 0.25,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,215,0,0.15) 100%)",
-    boxBg: "bg-yellow-500/25",
-    tierColor: "text-yellow-400",
+    // LEGENDARY - Rich violet with shimmer
+    bg: "linear-gradient(145deg, #1e1045 0%, #312e81 25%, #4338ca 50%, #312e81 75%, #1e1045 100%)",
+    border: "border-violet-400/60",
+    accent: "from-violet-200 via-white to-violet-200",
+    text: "text-white",
+    subtext: "text-violet-200",
+    noiseOpacity: 0.40,
+    overlayGradient: "linear-gradient(180deg, rgba(139,92,246,0.15) 0%, transparent 50%, rgba(99,102,241,0.1) 100%)",
+    boxBg: "bg-violet-500/25",
+    tierColor: "text-violet-300",
+    glowColor: "shadow-violet-500/40",
   }
   if (rating >= 85) return {
-    bg: "linear-gradient(145deg, #5c4a00 0%, #8b7500 25%, #a89000 50%, #8b7500 75%, #5c4a00 100%)",
-    border: "border-yellow-500/50",
-    accent: "from-yellow-300 via-yellow-100 to-yellow-300",
+    // EPIC - Indigo depths
+    bg: "linear-gradient(145deg, #0c1445 0%, #1e3a8a 25%, #3730a3 50%, #1e3a8a 75%, #0c1445 100%)",
+    border: "border-indigo-400/50",
+    accent: "from-indigo-200 via-blue-100 to-indigo-200",
     text: "text-white",
-    subtext: "text-yellow-100",
-    noiseOpacity: 0.28,
-    overlayGradient: "linear-gradient(180deg, rgba(255,215,0,0.1) 0%, transparent 50%, rgba(200,170,0,0.1) 100%)",
-    boxBg: "bg-yellow-600/20",
-    tierColor: "text-yellow-500",
+    subtext: "text-indigo-200",
+    noiseOpacity: 0.38,
+    overlayGradient: "linear-gradient(180deg, rgba(99,102,241,0.1) 0%, transparent 50%, rgba(79,70,229,0.1) 100%)",
+    boxBg: "bg-indigo-500/20",
+    tierColor: "text-indigo-300",
+    glowColor: "shadow-indigo-500/30",
   }
   if (rating >= 80) return {
-    bg: "linear-gradient(145deg, #c0c0c0 0%, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%, #c0c0c0 100%)",
-    border: "border-white/80",
-    accent: "from-white via-slate-50 to-white",
-    text: "text-slate-800",
-    subtext: "text-slate-600",
-    noiseOpacity: 0.15,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.2) 100%)",
-    boxBg: "bg-white/30",
-    tierColor: "text-slate-200",
+    // RARE - Royal blue
+    bg: "linear-gradient(145deg, #0a1628 0%, #1e40af 25%, #2563eb 50%, #1e40af 75%, #0a1628 100%)",
+    border: "border-blue-400/50",
+    accent: "from-blue-200 via-sky-100 to-blue-200",
+    text: "text-white",
+    subtext: "text-blue-200",
+    noiseOpacity: 0.35,
+    overlayGradient: "linear-gradient(180deg, rgba(59,130,246,0.15) 0%, transparent 50%, rgba(37,99,235,0.1) 100%)",
+    boxBg: "bg-blue-500/20",
+    tierColor: "text-blue-300",
+    glowColor: "shadow-blue-500/30",
   }
   if (rating >= 75) return {
-    bg: "linear-gradient(145deg, #6a6a6a 0%, #8a8a8a 25%, #a8a8a8 50%, #8a8a8a 75%, #6a6a6a 100%)",
-    border: "border-slate-400/50",
-    accent: "from-slate-300 via-slate-200 to-slate-300",
+    // UNCOMMON - Sky blue
+    bg: "linear-gradient(145deg, #0c2d48 0%, #0369a1 25%, #0ea5e9 50%, #0369a1 75%, #0c2d48 100%)",
+    border: "border-sky-400/50",
+    accent: "from-sky-200 via-cyan-100 to-sky-200",
     text: "text-white",
-    subtext: "text-slate-300",
-    noiseOpacity: 0.22,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
-    boxBg: "bg-slate-400/20",
-    tierColor: "text-slate-300",
+    subtext: "text-sky-200",
+    noiseOpacity: 0.32,
+    overlayGradient: "linear-gradient(180deg, rgba(14,165,233,0.15) 0%, transparent 50%, rgba(3,105,161,0.1) 100%)",
+    boxBg: "bg-sky-500/20",
+    tierColor: "text-sky-300",
+    glowColor: "shadow-sky-500/25",
   }
   if (rating >= 70) return {
-    bg: "linear-gradient(145deg, #4a2000 0%, #7a3800 25%, #a55000 50%, #7a3800 75%, #4a2000 100%)",
-    border: "border-orange-400/60",
-    accent: "from-orange-200 via-orange-100 to-orange-200",
-    text: "text-orange-50",
-    subtext: "text-orange-100",
-    noiseOpacity: 0.25,
-    overlayGradient: "linear-gradient(180deg, rgba(255,180,100,0.15) 0%, transparent 50%, rgba(234,88,12,0.1) 100%)",
-    boxBg: "bg-orange-400/25",
-    tierColor: "text-orange-300",
+    // COMMON+ - Cyan teal
+    bg: "linear-gradient(145deg, #042f2e 0%, #0d9488 25%, #14b8a6 50%, #0d9488 75%, #042f2e 100%)",
+    border: "border-teal-400/50",
+    accent: "from-teal-200 via-emerald-100 to-teal-200",
+    text: "text-white",
+    subtext: "text-teal-200",
+    noiseOpacity: 0.30,
+    overlayGradient: "linear-gradient(180deg, rgba(20,184,166,0.12) 0%, transparent 50%, rgba(13,148,136,0.08) 100%)",
+    boxBg: "bg-teal-500/20",
+    tierColor: "text-teal-300",
+    glowColor: "shadow-teal-500/20",
   }
-  if (rating >= 65) return {
-    bg: "linear-gradient(145deg, #0a0300 0%, #1a0800 25%, #2a1200 50%, #1a0800 75%, #0a0300 100%)",
-    border: "border-orange-700/40",
-    accent: "from-orange-500 via-orange-400 to-orange-500",
-    text: "text-orange-100",
-    subtext: "text-orange-400",
-    noiseOpacity: 0.35,
-    overlayGradient: "linear-gradient(180deg, rgba(194,65,12,0.05) 0%, transparent 50%)",
-    boxBg: "bg-orange-700/20",
-    tierColor: "text-orange-500",
-  }
+  // COMMON - Light cyan
   return {
-    bg: "linear-gradient(145deg, #0f0a06 0%, #1f150d 25%, #2a1f15 50%, #1f150d 75%, #0f0a06 100%)",
-    border: "border-[#6b5344]/50",
-    accent: "from-[#a08060] via-[#c0a080] to-[#a08060]",
-    text: "text-[#e8dcc5]",
-    subtext: "text-[#c2b299]",
-    noiseOpacity: 0.45,
-    overlayGradient: "linear-gradient(180deg, rgba(160,128,96,0.05) 0%, transparent 50%)",
-    boxBg: "bg-[#6b5344]/20",
-    tierColor: "text-[#a08060]",
+    bg: "linear-gradient(145deg, #083344 0%, #155e75 25%, #22d3ee 50%, #155e75 75%, #083344 100%)",
+    border: "border-cyan-400/40",
+    accent: "from-cyan-200 via-white to-cyan-200",
+    text: "text-white",
+    subtext: "text-cyan-200",
+    noiseOpacity: 0.28,
+    overlayGradient: "linear-gradient(180deg, rgba(34,211,238,0.1) 0%, transparent 50%)",
+    boxBg: "bg-cyan-500/15",
+    tierColor: "text-cyan-300",
+    glowColor: "shadow-cyan-500/15",
   }
 }
 
@@ -189,6 +192,216 @@ const categoryShort: Record<string, string> = {
   INFANTRY: "INF",
   CAVALRY: "CAV",
   ARCHER: "ARC",
+}
+
+// FIFA-style display card for Top 3
+function FifaDisplayCard({ 
+  player, 
+  rank, 
+  isCenter,
+  onPlayerClick
+}: { 
+  player: CuratedRanking
+  rank: number
+  isCenter: boolean
+  onPlayerClick?: (id: string) => void
+}) {
+  const style = getCuratedCardStyle(player.rating)
+  const avatarSrc = player.avatar || getDefaultAvatar(player.category)
+  const playerTier = getTierFromRating(player.rating)
+  
+  const rankLabels: Record<number, string> = { 1: "#1", 2: "#2", 3: "#3" }
+  
+  return (
+    <button 
+      onClick={() => onPlayerClick?.(player.playerId)}
+      className={cn(
+        "flex justify-center",
+        isCenter ? "md:scale-110 z-10" : ""
+      )}
+    >
+      {/* FIFA Card */}
+      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} ${style.glowColor} hover:scale-105 transition-transform`}>
+        {/* Background */}
+        <div 
+          className="absolute inset-0"
+          style={{ background: style.bg }}
+        />
+        
+        {/* Heavy Noise/Grain overlay */}
+        <div 
+          className="absolute inset-0 opacity-50 mix-blend-overlay"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            opacity: style.noiseOpacity
+          }}
+        />
+        
+        {/* Gradient overlay */}
+        <div 
+          className="absolute inset-0"
+          style={{ background: style.overlayGradient }}
+        />
+        
+        {/* Content */}
+        <div className="relative h-full flex flex-col p-4">
+          {/* Rank badge */}
+          <div className="absolute top-3 left-3">
+            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${style.accent} flex items-center justify-center shadow-lg`}>
+              <span className="text-slate-900 font-black text-sm">{rankLabels[rank]}</span>
+            </div>
+          </div>
+          
+          {/* Rating */}
+          <div className="absolute top-3 right-3 text-right">
+            <div className={`text-3xl font-black ${style.text}`}>
+              {Math.round(player.rating)}
+            </div>
+            <div className={`text-xs font-bold ${style.tierColor}`}>
+              {playerTier}
+            </div>
+          </div>
+          
+          {/* Avatar */}
+          <div className="flex-1 flex items-center justify-center pt-8">
+            <div className="relative">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-white/30 shadow-xl">
+                <Image
+                  src={avatarSrc}
+                  alt={player.playerName}
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* Player Info */}
+          <div className="mt-auto text-center pb-2">
+            <div className={`font-bold text-lg leading-tight ${style.text} truncate px-2`}>
+              {cleanPlayerName(player.playerName)}
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <Flag code={player.nationality} size="sm" />
+              <span className={`text-xs font-medium ${style.subtext}`}>
+                {categoryShort[player.category]}
+              </span>
+              <span className={`text-xs ${style.subtext}`}>•</span>
+              <span className={`text-xs ${style.subtext}`}>
+                {player.clan || "FA"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </button>
+  )
+}
+
+// Elite player card (ranks 4-15)
+function ElitePlayerCard({ 
+  player, 
+  onPlayerClick 
+}: { 
+  player: CuratedRanking
+  onPlayerClick?: (id: string) => void 
+}) {
+  const style = getCuratedCardStyle(player.rating)
+  const avatarSrc = player.avatar || getDefaultAvatar(player.category)
+  const playerTier = getTierFromRating(player.rating)
+  
+  return (
+    <button
+      onClick={() => onPlayerClick?.(player.playerId)}
+      className={`relative aspect-[3/4] rounded-2xl overflow-hidden border-2 ${style.border} ${style.glowColor} hover:scale-105 transition-all shadow-lg`}
+    >
+      {/* Background */}
+      <div 
+        className="absolute inset-0"
+        style={{ background: style.bg }}
+      />
+      
+      {/* Heavy Grain */}
+      <div 
+        className="absolute inset-0 mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          opacity: style.noiseOpacity
+        }}
+      />
+      
+      {/* Content */}
+      <div className="relative h-full flex flex-col p-3">
+        {/* Rating */}
+        <div className="flex justify-between items-start">
+          <div className={`text-2xl font-black ${style.text}`}>
+            {Math.round(player.rating)}
+          </div>
+          <div className={`text-xs font-bold ${style.tierColor}`}>
+            {playerTier}
+          </div>
+        </div>
+        
+        {/* Avatar */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-white/20">
+            <Image
+              src={avatarSrc}
+              alt={player.playerName}
+              width={64}
+              height={64}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+        
+        {/* Info */}
+        <div className="text-center mt-auto">
+          <div className={`font-bold text-sm truncate ${style.text}`}>
+            {cleanPlayerName(player.playerName)}
+          </div>
+          <div className="flex items-center justify-center gap-1 mt-1">
+            <Flag code={player.nationality} size="sm" />
+            <span className={`text-xs ${style.subtext}`}>
+              {player.clan || "FA"}
+            </span>
+          </div>
+        </div>
+      </div>
+    </button>
+  )
+}
+
+// Compact player card for rest
+function CompactPlayerCard({ 
+  player,
+  rank,
+  onPlayerClick 
+}: { 
+  player: CuratedRanking
+  rank: number
+  onPlayerClick?: (id: string) => void 
+}) {
+  const style = getCuratedCardStyle(player.rating)
+  const tier = getTierFromRating(player.rating)
+  
+  return (
+    <button
+      onClick={() => onPlayerClick?.(player.playerId)}
+      className={cn(
+        "w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left border",
+        style.border,
+        style.boxBg
+      )}
+    >
+      <span className="text-white/40 w-7 text-xs">#{rank}</span>
+      <Flag code={player.nationality} size="sm" />
+      <span className="text-white/90 truncate flex-1 font-medium">{cleanPlayerName(player.playerName)}</span>
+      <span className={cn("font-bold text-xs", style.tierColor)}>{tier}</span>
+      <span className="text-white/70 font-mono text-xs">{player.rating.toFixed(1)}</span>
+    </button>
+  )
 }
 
 export default function CuratedPage() {
@@ -227,7 +440,7 @@ export default function CuratedPage() {
   const [selectedPlayerNotes, setSelectedPlayerNotes] = useState<PlayerNotes | null>(null)
   const [loadingNotes, setLoadingNotes] = useState(false)
 
-  // Handle code submission
+  // Handle code submission (only for rate tab)
   const handleCodeSubmit = () => {
     if (accessCode === "MRASH") {
       setIsStreamer(true)
@@ -242,7 +455,7 @@ export default function CuratedPage() {
     }
   }
 
-  // Fetch rankings
+  // Fetch rankings (public - no auth needed)
   const fetchRankings = useCallback(async () => {
     setLoadingRankings(true)
     try {
@@ -296,7 +509,6 @@ export default function CuratedPage() {
     }
   }
 
-  // Search players (for streamer)
   // Search players - only Division A for curated rankings
   const searchPlayers = async (query: string) => {
     if (query.length < 2) {
@@ -444,39 +656,68 @@ export default function CuratedPage() {
     return Math.round(avg * 10) / 10
   }
 
-  // Code entry screen
-  if (!isAuthenticated) {
+  // Separate rankings by tier
+  const top3 = rankings.slice(0, 3)
+  const elite = rankings.slice(3, 15)
+  const rest = rankings.slice(15)
+
+  // Code entry screen - only for rate tab
+  if (activeTab === "rate" && !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center p-4">
-        <div className="bg-black/40 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-8 max-w-md w-full">
-          <p className="text-xs font-medium tracking-[0.3em] uppercase text-violet-400 mb-4 text-center">
-            Exclusive Access
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+        {/* Header with tabs */}
+        <div className="text-center py-12 sm:py-16">
+          <p className="text-xs font-medium tracking-[0.3em] uppercase text-violet-400 mb-4">
+            Expert Selection
           </p>
-          <h1 className="text-3xl font-bold text-white text-center mb-2">
+          <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-8">
             Curated Rankings
           </h1>
-          <p className="text-white/50 text-center mb-8">
-            Enter your access code to continue
-          </p>
-
-          <div className="space-y-4">
-            <input
-              type="password"
-              placeholder="Enter access code..."
-              value={accessCode}
-              onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-              onKeyDown={(e) => e.key === "Enter" && handleCodeSubmit()}
-              className="w-full px-4 py-3 bg-black/40 border border-violet-500/30 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-violet-500 text-center text-lg tracking-widest"
-            />
-            {codeError && (
-              <p className="text-red-400 text-center text-sm">{codeError}</p>
-            )}
+          
+          {/* Tabs */}
+          <div className="flex justify-center gap-2 px-4">
             <button
-              onClick={handleCodeSubmit}
-              className="w-full py-3 bg-violet-500 hover:bg-violet-400 text-white font-semibold rounded-xl transition-all shadow-xl"
+              onClick={() => setActiveTab("rankings")}
+              className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-white/10 text-white/70 hover:bg-white/20"
             >
-              Enter
+              Rankings
             </button>
+            <button
+              className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base bg-violet-500 text-white shadow-xl"
+            >
+              Rate
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center p-4">
+          <div className="bg-black/40 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-8 max-w-md w-full">
+            <p className="text-xs font-medium tracking-[0.3em] uppercase text-violet-400 mb-4 text-center">
+              Rater Access Required
+            </p>
+            <p className="text-white/50 text-center mb-8">
+              Enter your access code to rate players
+            </p>
+
+            <div className="space-y-4">
+              <input
+                type="password"
+                placeholder="Enter access code..."
+                value={accessCode}
+                onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+                onKeyDown={(e) => e.key === "Enter" && handleCodeSubmit()}
+                className="w-full px-4 py-3 bg-black/40 border border-violet-500/30 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-violet-500 text-center text-lg tracking-widest"
+              />
+              {codeError && (
+                <p className="text-red-400 text-center text-sm">{codeError}</p>
+              )}
+              <button
+                onClick={handleCodeSubmit}
+                className="w-full py-3 bg-violet-500 hover:bg-violet-400 text-white font-semibold rounded-xl transition-all shadow-xl"
+              >
+                Enter
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -484,7 +725,7 @@ export default function CuratedPage() {
   }
 
   // Username entry for raters
-  if (!usernameSet && activeTab === "rate") {
+  if (activeTab === "rate" && isAuthenticated && !usernameSet) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center p-4">
         <div className="bg-black/40 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-8 max-w-md w-full">
@@ -538,11 +779,6 @@ export default function CuratedPage() {
       </div>
     )
   }
-
-  // Separate rankings by tier
-  const top3 = rankings.slice(0, 3)
-  const elite = rankings.slice(3, 15)
-  const rest = rankings.slice(15)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
@@ -628,7 +864,7 @@ export default function CuratedPage() {
         <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
           Curated Rankings
         </h1>
-        {isStreamer && (
+        {isStreamer && activeTab === "rate" && (
           <span className="inline-block px-4 py-2 bg-violet-500/20 border border-violet-500/50 rounded-full text-violet-300 text-sm font-semibold">
             🎬 Streamer Mode Active
           </span>
@@ -685,195 +921,85 @@ export default function CuratedPage() {
         )}
       </div>
 
-      {/* Rankings Tab */}
+      {/* Rankings Tab - PUBLIC */}
       {activeTab === "rankings" && (
-        <div className="max-w-7xl mx-auto px-6 pb-20">
+        <div className="max-w-6xl mx-auto px-6 pb-20">
           {loadingRankings ? (
             <div className="flex justify-center py-12">
               <div className="w-10 h-10 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin" />
             </div>
           ) : rankings.length === 0 ? (
             <div className="text-center text-white/40 py-12">
-              No curated rankings yet. Start rating players!
+              No curated rankings yet. Check back soon!
             </div>
           ) : (
             <>
-              {/* Top 3 - Large Cards */}
+              {/* THE CHOSEN THREE */}
               {top3.length > 0 && (
-                <div className="mb-12">
-                  <h2 className="text-lg font-semibold text-violet-400 mb-6 tracking-wide uppercase">
-                    🏆 Top Players
+                <section className="mb-20">
+                  <h2 className="text-center text-2xl font-display font-bold text-violet-400 mb-2 tracking-wider">
+                    THE CHOSEN THREE
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                    {top3.map((player, index) => {
-                      const style = getCardStyle(player.rating)
-                      const tier = getTierFromRating(player.rating)
+                  <p className="text-center text-white/50 mb-12 text-sm">
+                    The undisputed elite
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                    {/* Reorder: 2nd, 1st, 3rd */}
+                    {[top3[1], top3[0], top3[2]].filter(Boolean).map((player, idx) => {
+                      const actualRank = idx === 1 ? 1 : idx === 0 ? 2 : 3
                       return (
-                        <div
-                          key={player.id}
-                          onClick={() => fetchPlayerNotes(player.playerId)}
-                          className={cn(
-                            "relative rounded-2xl border-2 p-6 transition-all hover:scale-[1.02] cursor-pointer",
-                            style.border
-                          )}
-                          style={{ background: style.bg }}
-                        >
-                          {/* Rank Badge */}
-                          <div className="absolute -top-3 -left-3 w-10 h-10 rounded-full bg-violet-500 flex items-center justify-center text-white font-bold text-lg shadow-xl">
-                            {index + 1}
-                          </div>
-
-                          <div className="flex flex-col items-center text-center">
-                            {/* Avatar */}
-                            <div className="w-24 h-24 rounded-xl overflow-hidden border-2 border-white/20 mb-4">
-                              <Image
-                                src={player.avatar || getDefaultAvatar(player.category)}
-                                alt={player.playerName}
-                                width={96}
-                                height={96}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-
-                            {/* Name */}
-                            <div className={cn("font-bold text-xl mb-1", style.text)}>
-                              {cleanPlayerName(player.playerName)}
-                            </div>
-
-                            {/* Info */}
-                            <div className="flex items-center gap-2 mb-3">
-                              {player.nationality && (
-                                <Flag code={player.nationality} size="sm" />
-                              )}
-                              <span className={cn("text-sm", style.subtext)}>
-                                {categoryShort[player.category]} • {player.clan || "FA"}
-                              </span>
-                            </div>
-
-                            {/* Rating & Tier */}
-                            <div className={cn("text-4xl font-bold", style.text)}>
-                              {Math.round(player.rating)}
-                            </div>
-                            <div className={cn("text-sm font-semibold", style.tierColor)}>
-                              {tier}
-                            </div>
-                          </div>
-                        </div>
+                        <FifaDisplayCard 
+                          key={player.id} 
+                          player={player} 
+                          rank={actualRank}
+                          isCenter={idx === 1}
+                          onPlayerClick={fetchPlayerNotes}
+                        />
                       )
                     })}
                   </div>
-                </div>
+                </section>
               )}
 
-              {/* Elite - Medium Cards */}
+              {/* ELITE WARRIORS */}
               {elite.length > 0 && (
-                <div className="mb-12">
-                  <h2 className="text-lg font-semibold text-violet-400 mb-6 tracking-wide uppercase">
-                    ⭐ Elite Warriors
+                <section className="mb-16">
+                  <h2 className="text-xl font-display font-bold text-white mb-2">
+                    Elite Warriors
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {elite.map((player, index) => {
-                      const style = getCardStyle(player.rating)
-                      const tier = getTierFromRating(player.rating)
-                      return (
-                        <div
-                          key={player.id}
-                          onClick={() => fetchPlayerNotes(player.playerId)}
-                          className={cn(
-                            "relative rounded-xl border-2 p-4 transition-all hover:scale-[1.02] cursor-pointer",
-                            style.border
-                          )}
-                          style={{ background: style.bg }}
-                        >
-                          <div className="flex items-center gap-3">
-                            {/* Rank */}
-                            <div className="text-xl font-bold text-white/60 w-8">
-                              #{index + 4}
-                            </div>
-
-                            {/* Avatar */}
-                            <div className="w-14 h-14 rounded-lg overflow-hidden border-2 border-white/20">
-                              <Image
-                                src={player.avatar || getDefaultAvatar(player.category)}
-                                alt={player.playerName}
-                                width={56}
-                                height={56}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-
-                            {/* Info */}
-                            <div className="flex-1 min-w-0">
-                              <div className={cn("font-bold truncate", style.text)}>
-                                {cleanPlayerName(player.playerName)}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {player.nationality && (
-                                  <Flag code={player.nationality} size="sm" />
-                                )}
-                                <span className={cn("text-sm", style.subtext)}>
-                                  {categoryShort[player.category]} • {player.clan || "FA"}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Rating & Tier */}
-                            <div className="text-right">
-                              <div className={cn("text-2xl font-bold", style.text)}>
-                                {Math.round(player.rating)}
-                              </div>
-                              <div className={cn("text-xs font-semibold", style.tierColor)}>
-                                {tier}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
+                  <p className="text-white/50 mb-6 text-sm">
+                    Rank #4 - #15
+                  </p>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    {elite.map((player) => (
+                      <ElitePlayerCard key={player.id} player={player} onPlayerClick={fetchPlayerNotes} />
+                    ))}
                   </div>
-                </div>
+                </section>
               )}
 
-              {/* Rest - Compact List */}
+              {/* ALL PLAYERS */}
               {rest.length > 0 && (
-                <div>
-                  <h2 className="text-lg font-semibold text-violet-400 mb-6 tracking-wide uppercase">
+                <section>
+                  <h2 className="text-lg font-display font-bold text-white/60 mb-4">
                     All Players
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                    {rest.map((player, index) => {
-                      const style = getCardStyle(player.rating)
-                      const tier = getTierFromRating(player.rating)
-                      return (
-                        <div
-                          key={player.id}
-                          onClick={() => fetchPlayerNotes(player.playerId)}
-                          className={cn(
-                            "rounded-lg border p-3 transition-all hover:scale-[1.02] cursor-pointer",
-                            style.border
-                          )}
-                          style={{ background: style.bg }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-white/40 text-sm w-6">#{index + 16}</span>
-                            {player.nationality && (
-                              <Flag code={player.nationality} size="sm" />
-                            )}
-                            <span className={cn("font-medium truncate flex-1", style.text)}>
-                              {cleanPlayerName(player.playerName)}
-                            </span>
-                            <span className={cn("text-xs", style.subtext)}>
-                              {tier}
-                            </span>
-                            <span className={cn("font-bold", style.text)}>
-                              {Math.round(player.rating)}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    })}
+                  
+                  <div className="bg-black/20 rounded-xl p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {rest.map((player, index) => (
+                        <CompactPlayerCard 
+                          key={player.id} 
+                          player={player} 
+                          rank={index + 16}
+                          onPlayerClick={fetchPlayerNotes}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </section>
               )}
             </>
           )}
@@ -881,7 +1007,7 @@ export default function CuratedPage() {
       )}
 
       {/* Rate Tab */}
-      {activeTab === "rate" && (
+      {activeTab === "rate" && isAuthenticated && usernameSet && (
         <div className="max-w-6xl mx-auto px-6 pb-20">
           {/* Streamer Controls */}
           {isStreamer && !activeSession && (
@@ -943,12 +1069,12 @@ export default function CuratedPage() {
                   className={cn(
                     "relative w-72 rounded-2xl border-2 p-6",
                     activeSession.finalRating 
-                      ? getCardStyle(activeSession.finalRating).border
+                      ? getCuratedCardStyle(activeSession.finalRating).border
                       : "border-violet-500/50"
                   )}
                   style={{
                     background: activeSession.finalRating
-                      ? getCardStyle(activeSession.finalRating).bg
+                      ? getCuratedCardStyle(activeSession.finalRating).bg
                       : "linear-gradient(145deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)"
                   }}
                 >
@@ -1018,6 +1144,12 @@ export default function CuratedPage() {
                             </div>
                           )}
                         </div>
+                        {/* Show rater's note in real-time */}
+                        {raterData?.note && !isMe && (
+                          <div className="text-xs text-white/50 italic px-2 py-1 bg-black/20 rounded-lg truncate">
+                            &ldquo;{raterData.note}&rdquo;
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -1062,6 +1194,12 @@ export default function CuratedPage() {
                             </div>
                           )}
                         </div>
+                        {/* Show rater's note in real-time */}
+                        {raterData?.note && !isMe && (
+                          <div className="text-xs text-white/50 italic px-2 py-1 bg-black/20 rounded-lg truncate">
+                            &ldquo;{raterData.note}&rdquo;
+                          </div>
+                        )}
                       </div>
                     )
                   })}
