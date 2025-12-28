@@ -41,6 +41,7 @@ interface CuratedSession {
     raterName: string
     score: number | null
     note: string | null
+    confirmed: boolean
   }[]
 }
 
@@ -426,6 +427,7 @@ export default function CuratedPage() {
   const [myRating, setMyRating] = useState<string>("")
   const [submittingRating, setSubmittingRating] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  const [myConfirmed, setMyConfirmed] = useState(false) // Whether current rater has confirmed their rating
 
   // Player search for streamer
   const [searchQuery, setSearchQuery] = useState("")
@@ -486,6 +488,8 @@ export default function CuratedPage() {
           if (myRatingData?.note) {
             setMyNote(myRatingData.note)
           }
+          // Sync confirmed state
+          setMyConfirmed(myRatingData?.confirmed ?? false)
         }
       }
     } catch (error) {
@@ -551,9 +555,12 @@ export default function CuratedPage() {
     }
   }
 
-  // Submit rating
-  const submitRating = async (score: string, note?: string) => {
+  // Submit rating (only if not confirmed, or if editing)
+  const submitRating = async (score: string, note?: string, confirmed?: boolean) => {
     if (!usernameSet || !activeSession) return
+    // Don't allow changes if confirmed (unless explicitly editing)
+    if (myConfirmed && confirmed !== false) return
+    
     setSubmittingRating(true)
     try {
       await fetch("/api/curated/ratings", {
@@ -563,10 +570,14 @@ export default function CuratedPage() {
           raterName: username,
           score: score === "" ? null : parseInt(score),
           note: note !== undefined ? note : myNote,
-          raterCode: accessCode
+          raterCode: accessCode,
+          confirmed: confirmed ?? false
         })
       })
       setMyRating(score)
+      if (confirmed !== undefined) {
+        setMyConfirmed(confirmed)
+      }
     } catch (error) {
       console.error("Failed to submit rating:", error)
     } finally {
@@ -577,6 +588,9 @@ export default function CuratedPage() {
   // Submit note separately
   const submitNote = async (note: string) => {
     if (!usernameSet || !activeSession) return
+    // Don't allow changes if confirmed
+    if (myConfirmed) return
+    
     try {
       await fetch("/api/curated/ratings", {
         method: "POST",
@@ -585,12 +599,43 @@ export default function CuratedPage() {
           raterName: username,
           score: myRating === "" ? null : parseInt(myRating),
           note: note,
-          raterCode: accessCode
+          raterCode: accessCode,
+          confirmed: false
         })
       })
       setMyNote(note)
     } catch (error) {
       console.error("Failed to submit note:", error)
+    }
+  }
+
+  // Confirm my rating
+  const confirmMyRating = async () => {
+    if (!usernameSet || !activeSession || !myRating) return
+    await submitRating(myRating, myNote, true)
+  }
+
+  // Edit my rating (unlock it)
+  const editMyRating = async () => {
+    if (!usernameSet || !activeSession) return
+    setSubmittingRating(true)
+    try {
+      await fetch("/api/curated/ratings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          raterName: username,
+          score: myRating === "" ? null : parseInt(myRating),
+          note: myNote,
+          raterCode: accessCode,
+          confirmed: false
+        })
+      })
+      setMyConfirmed(false)
+    } catch (error) {
+      console.error("Failed to edit rating:", error)
+    } finally {
+      setSubmittingRating(false)
     }
   }
 
@@ -1070,6 +1115,7 @@ export default function CuratedPage() {
                   {RATER_NAMES.slice(0, 5).map(raterName => {
                     const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                     const isMe = raterName === username
+                    const isRaterConfirmed = raterData?.confirmed ?? false
                     return (
                       <div key={raterName} className="flex items-start gap-2">
                         <div className="flex-1">
@@ -1081,11 +1127,14 @@ export default function CuratedPage() {
                               {raterName} {isMe && "(You)"}
                             </label>
                             <div className={cn(
-                              "flex-1 rounded-lg border overflow-hidden",
-                              isMe ? "border-violet-500" : "border-white/20",
-                              raterData?.score ? "bg-white/10" : "bg-black/40"
+                              "flex-1 rounded-lg border-2 overflow-hidden transition-colors",
+                              isRaterConfirmed 
+                                ? "border-green-500 bg-green-500/10" 
+                                : raterData?.score 
+                                  ? "border-red-500 bg-red-500/10" 
+                                  : "border-white/20 bg-black/40"
                             )}>
-                              {isMe ? (
+                              {isMe && !myConfirmed ? (
                                 <input
                                   type="number"
                                   min={50}
@@ -1102,10 +1151,32 @@ export default function CuratedPage() {
                                 />
                               ) : (
                                 <div className="px-2 py-1.5 text-center text-lg font-bold text-white">
-                                  {raterData?.score ?? "—"}
+                                  {isMe ? myRating || "—" : (raterData?.score ?? "—")}
                                 </div>
                               )}
                             </div>
+                            {/* Confirm/Edit buttons for current rater */}
+                            {isMe && (
+                              <div className="flex gap-1">
+                                {!myConfirmed ? (
+                                  <button
+                                    onClick={confirmMyRating}
+                                    disabled={!myRating || submittingRating}
+                                    className="px-2 py-1 text-[10px] font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded transition-colors"
+                                  >
+                                    ✓
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={editMyRating}
+                                    disabled={submittingRating}
+                                    className="px-2 py-1 text-[10px] font-bold bg-amber-500 hover:bg-amber-400 text-white rounded transition-colors"
+                                  >
+                                    ✎
+                                  </button>
+                                )}
+                              </div>
+                            )}
                           </div>
                           {/* Note display */}
                           {raterData?.note && (isStreamer || !isMe) && (
@@ -1195,16 +1266,42 @@ export default function CuratedPage() {
                   {RATER_NAMES.slice(5, 10).map(raterName => {
                     const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                     const isMe = raterName === username
+                    const isRaterConfirmed = raterData?.confirmed ?? false
                     return (
                       <div key={raterName} className="flex items-start gap-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
+                            {/* Confirm/Edit buttons for current rater (on right side, buttons come first) */}
+                            {isMe && (
+                              <div className="flex gap-1">
+                                {!myConfirmed ? (
+                                  <button
+                                    onClick={confirmMyRating}
+                                    disabled={!myRating || submittingRating}
+                                    className="px-2 py-1 text-[10px] font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded transition-colors"
+                                  >
+                                    ✓
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={editMyRating}
+                                    disabled={submittingRating}
+                                    className="px-2 py-1 text-[10px] font-bold bg-amber-500 hover:bg-amber-400 text-white rounded transition-colors"
+                                  >
+                                    ✎
+                                  </button>
+                                )}
+                              </div>
+                            )}
                             <div className={cn(
-                              "flex-1 rounded-lg border overflow-hidden",
-                              isMe ? "border-violet-500" : "border-white/20",
-                              raterData?.score ? "bg-white/10" : "bg-black/40"
+                              "flex-1 rounded-lg border-2 overflow-hidden transition-colors",
+                              isRaterConfirmed 
+                                ? "border-green-500 bg-green-500/10" 
+                                : raterData?.score 
+                                  ? "border-red-500 bg-red-500/10" 
+                                  : "border-white/20 bg-black/40"
                             )}>
-                              {isMe ? (
+                              {isMe && !myConfirmed ? (
                                 <input
                                   type="number"
                                   min={50}
@@ -1221,7 +1318,7 @@ export default function CuratedPage() {
                                 />
                               ) : (
                                 <div className="px-2 py-1.5 text-center text-lg font-bold text-white">
-                                  {raterData?.score ?? "—"}
+                                  {isMe ? myRating || "—" : (raterData?.score ?? "—")}
                                 </div>
                               )}
                             </div>
@@ -1245,19 +1342,25 @@ export default function CuratedPage() {
                 </div>
               </div>
 
-              {/* Bottom - Note Input (only for raters, not streamer) */}
+              {/* Bottom - Note Input (only for raters, not streamer, and not when confirmed) */}
               {!isStreamer && (
                 <div className="mt-4 max-w-xl mx-auto w-full">
                   <div className="relative">
                     <textarea
-                      placeholder={`Note about ${cleanPlayerName(activeSession.playerName)} (optional)...`}
+                      placeholder={myConfirmed ? "Rating confirmed - click Edit (✎) to modify" : `Note about ${cleanPlayerName(activeSession.playerName)} (optional)...`}
                       value={myNote}
                       onChange={(e) => {
                         const val = e.target.value.slice(0, 280)
                         setMyNote(val)
                       }}
                       onBlur={() => submitNote(myNote)}
-                      className="w-full px-3 py-2 bg-black/40 border border-violet-500/30 rounded-lg text-white text-sm placeholder-white/30 focus:outline-none focus:border-violet-500 resize-none h-16"
+                      disabled={myConfirmed}
+                      className={cn(
+                        "w-full px-3 py-2 rounded-lg text-white text-sm placeholder-white/30 focus:outline-none resize-none h-16",
+                        myConfirmed 
+                          ? "bg-green-500/10 border-2 border-green-500/50 cursor-not-allowed" 
+                          : "bg-black/40 border border-violet-500/30 focus:border-violet-500"
+                      )}
                     />
                     <div className="absolute bottom-1 right-2 text-[10px] text-white/40">
                       {myNote.length}/280

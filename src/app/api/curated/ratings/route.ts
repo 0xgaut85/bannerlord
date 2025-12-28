@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 // POST - Submit or update a rating
 export async function POST(request: NextRequest) {
   try {
-    const { raterName, score, note, raterCode } = await request.json()
+    const { raterName, score, note, raterCode, confirmed } = await request.json()
 
     // Verify rater code
     if (raterCode !== "OBELIXNW" && raterCode !== "MRASH") {
@@ -22,6 +22,26 @@ export async function POST(request: NextRequest) {
 
     if (activeSession.isConfirmed) {
       return NextResponse.json({ error: "Session already confirmed" }, { status: 400 })
+    }
+
+    // Check if rater already confirmed - if so, they need to "edit" first
+    const existingRating = await prisma.curatedRating.findUnique({
+      where: {
+        sessionId_raterName: {
+          sessionId: activeSession.id,
+          raterName: raterName
+        }
+      }
+    })
+
+    // If rating is confirmed and this is not an explicit edit (confirmed=false), reject score/note updates
+    if (existingRating?.confirmed && confirmed !== false) {
+      // Only allow confirming again or editing (setting confirmed to false)
+      if (confirmed === true) {
+        // Already confirmed, just return success
+        return NextResponse.json(existingRating)
+      }
+      return NextResponse.json({ error: "Rating is locked. Click Edit to modify." }, { status: 400 })
     }
 
     // Validate score
@@ -43,13 +63,15 @@ export async function POST(request: NextRequest) {
       },
       update: {
         score: parsedScore,
-        note: trimmedNote
+        note: trimmedNote,
+        confirmed: confirmed ?? false
       },
       create: {
         sessionId: activeSession.id,
         raterName: raterName,
         score: parsedScore,
-        note: trimmedNote
+        note: trimmedNote,
+        confirmed: confirmed ?? false
       }
     })
 
