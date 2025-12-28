@@ -297,6 +297,7 @@ export default function CuratedPage() {
   }
 
   // Search players (for streamer)
+  // Search players - only Division A for curated rankings
   const searchPlayers = async (query: string) => {
     if (query.length < 2) {
       setSearchResults([])
@@ -304,7 +305,7 @@ export default function CuratedPage() {
     }
     setSearching(true)
     try {
-      const res = await fetch(`/api/players/search?q=${encodeURIComponent(query)}`)
+      const res = await fetch(`/api/players/search?q=${encodeURIComponent(query)}&divisionA=true`)
       if (res.ok) {
         const data = await res.json()
         setSearchResults(data.slice(0, 10))
@@ -885,11 +886,11 @@ export default function CuratedPage() {
           {/* Streamer Controls */}
           {isStreamer && !activeSession && (
             <div className="bg-black/40 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-6 mb-8">
-              <h2 className="text-xl font-bold text-white mb-4">Select Player to Rate</h2>
+              <h2 className="text-xl font-bold text-white mb-4">Select Division A Player to Rate</h2>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search for a player..."
+                  placeholder="Search for a Division A player..."
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value)

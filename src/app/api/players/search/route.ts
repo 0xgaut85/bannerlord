@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const query = searchParams.get("q")
     const includeLegends = searchParams.get("legends") === "true"
+    const divisionAOnly = searchParams.get("divisionA") === "true"
     
     if (!query || query.length < 2) {
       return NextResponse.json([])
@@ -25,6 +26,8 @@ export async function GET(request: NextRequest) {
           contains: query,
           mode: 'insensitive'
         },
+        // Filter by Division A if requested (for curated rankings)
+        ...(divisionAOnly ? { division: 'A' } : {}),
         // If not specifically requesting legends, include all
         ...(includeLegends ? {} : {})
       },
