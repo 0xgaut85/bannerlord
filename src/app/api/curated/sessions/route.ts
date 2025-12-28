@@ -13,7 +13,36 @@ export async function GET() {
       }
     })
 
-    return NextResponse.json(activeSession)
+    if (!activeSession) {
+      return NextResponse.json(null)
+    }
+
+    // Get player details for avatar
+    const player = await prisma.player.findUnique({
+      where: { id: activeSession.playerId },
+      select: { avatar: true, clan: true }
+    })
+
+    // Get clan logo if player has a clan
+    let clanLogo = null
+    if (activeSession.clan) {
+      const clan = await prisma.clan.findFirst({
+        where: {
+          OR: [
+            { shortName: activeSession.clan },
+            { name: activeSession.clan }
+          ]
+        },
+        select: { logo: true }
+      })
+      clanLogo = clan?.logo || null
+    }
+
+    return NextResponse.json({
+      ...activeSession,
+      avatar: player?.avatar || null,
+      clanLogo
+    })
   } catch (error) {
     console.error("Error fetching curated session:", error)
     return NextResponse.json({ error: "Failed to fetch session" }, { status: 500 })
@@ -45,6 +74,21 @@ export async function POST(request: NextRequest) {
       data: { isActive: false }
     })
 
+    // Get clan logo if player has a clan
+    let clanLogo = null
+    if (player.clan) {
+      const clan = await prisma.clan.findFirst({
+        where: {
+          OR: [
+            { shortName: player.clan },
+            { name: player.clan }
+          ]
+        },
+        select: { logo: true }
+      })
+      clanLogo = clan?.logo || null
+    }
+
     // Create new session
     const session = await prisma.curatedSession.create({
       data: {
@@ -60,7 +104,11 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(session)
+    return NextResponse.json({
+      ...session,
+      avatar: player.avatar,
+      clanLogo
+    })
   } catch (error) {
     console.error("Error creating curated session:", error)
     return NextResponse.json({ error: "Failed to create session" }, { status: 500 })
