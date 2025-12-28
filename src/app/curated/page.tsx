@@ -6,8 +6,8 @@ import { Flag } from "@/components/ui"
 import { cn, cleanPlayerName } from "@/lib/utils"
 
 // Types and constants
-import { Tab, Category, CuratedRanking, CuratedSession, PlayerNotes, SearchPlayer, RATER_NAMES } from "./types"
-import { getDefaultAvatar, categoryShort } from "./utils"
+import { Tab, Category, CuratedRanking, CuratedSession, PlayerNotes, RATER_NAMES } from "./types"
+import { getDefaultAvatar } from "./utils"
 
 // Components
 import {
@@ -15,7 +15,7 @@ import {
   ElitePlayerCard,
   CompactPlayerCard,
   RatePlayerCard,
-  DivisionAPlayersList,
+  StreamerPlayerManager,
   PlayerNotesModal,
   RaterBox,
   CodeEntryScreen,
@@ -47,10 +47,7 @@ export default function CuratedPage() {
   const [confirming, setConfirming] = useState(false)
   const [myConfirmed, setMyConfirmed] = useState(false)
 
-  // Player search for streamer
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<SearchPlayer[]>([])
-  const [searching, setSearching] = useState(false)
+  // Session creation
   const [creatingSession, setCreatingSession] = useState(false)
 
   // Note state
@@ -152,26 +149,6 @@ export default function CuratedPage() {
       console.error("Failed to fetch player notes:", error)
     } finally {
       setLoadingNotes(false)
-    }
-  }
-
-  // Search players - only Division A for curated rankings
-  const searchPlayers = async (query: string) => {
-    if (query.length < 2) {
-      setSearchResults([])
-      return
-    }
-    setSearching(true)
-    try {
-      const res = await fetch(`/api/players/search?q=${encodeURIComponent(query)}&divisionA=true`)
-      if (res.ok) {
-        const data = await res.json()
-        setSearchResults(data.slice(0, 10))
-      }
-    } catch (error) {
-      console.error("Failed to search players:", error)
-    } finally {
-      setSearching(false)
     }
   }
 
@@ -529,59 +506,7 @@ export default function CuratedPage() {
         <div className="w-full px-4 pb-4">
           {/* Streamer Controls */}
           {isStreamer && !activeSession && (
-            <div className="space-y-6">
-              {/* Search Box - Compact */}
-              <div className="bg-black/40 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-5 max-w-md mx-auto">
-                <h2 className="text-lg font-bold text-white mb-3 text-center">🔍 Search Division A Player</h2>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Type player name..."
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value)
-                      searchPlayers(e.target.value)
-                    }}
-                    className="w-full px-4 py-3 bg-black/50 border border-violet-500/40 rounded-xl text-white text-lg placeholder-white/40 focus:outline-none focus:border-violet-500"
-                  />
-                  {searching && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 text-sm">
-                      ...
-                    </div>
-                  )}
-                </div>
-                {searchResults.length > 0 && (
-                  <div className="mt-3 space-y-2 max-h-60 overflow-y-auto">
-                    {searchResults.map(player => (
-                      <button
-                        key={player.id}
-                        onClick={() => createSession(player.id)}
-                        disabled={creatingSession}
-                        className="w-full flex items-center gap-3 p-3 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 rounded-xl transition-all text-left"
-                      >
-                        <Image
-                          src={player.avatar || getDefaultAvatar(player.category)}
-                          alt={player.name}
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 rounded-lg object-cover"
-                        />
-                        <div className="flex-1">
-                          <div className="text-white font-semibold">{player.name}</div>
-                          <div className="text-violet-300/60 text-sm">
-                            {player.category} • {player.clan || "FA"}
-                          </div>
-                        </div>
-                        {player.nationality && <Flag code={player.nationality} size="sm" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Division A Players Grid */}
-              <DivisionAPlayersList onSelectPlayer={createSession} disabled={creatingSession} />
-            </div>
+            <StreamerPlayerManager onSelectPlayer={createSession} disabled={creatingSession} />
           )}
 
           {/* Active Rating Session - Large Layout with Notes */}
