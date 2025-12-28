@@ -66,6 +66,9 @@ export default function CuratedPage() {
   const [selectedSlot, setSelectedSlot] = useState<string>("")
   const [customName, setCustomName] = useState<string>("")
 
+  // Track if we've done initial sync (to avoid overwriting local edits during polling)
+  const [initialSyncDone, setInitialSyncDone] = useState(false)
+
   // Handle code submission
   const handleCodeSubmit = () => {
     if (accessCode === "MRASH") {
@@ -104,10 +107,13 @@ export default function CuratedPage() {
       const res = await fetch("/api/curated/sessions")
       if (res.ok) {
         const data = await res.json()
+        const prevSessionId = activeSession?.id
         setActiveSession(data)
         
-        // Sync local state with session data
-        if (data && usernameSet) {
+        // Only sync local state on initial load or when session changes
+        // This prevents overwriting user's local edits during polling
+        const isNewSession = data?.id !== prevSessionId
+        if (data && usernameSet && (!initialSyncDone || isNewSession)) {
           const myData = data.ratings.find((r: any) => r.raterName === username)
           if (myData) {
             setMyRating(myData.score?.toString() || "")
@@ -118,12 +124,13 @@ export default function CuratedPage() {
             setMyNote("")
             setMyConfirmed(false)
           }
+          setInitialSyncDone(true)
         }
       }
     } catch (error) {
       console.error("Failed to fetch session:", error)
     }
-  }, [username, usernameSet])
+  }, [username, usernameSet, initialSyncDone, activeSession?.id])
 
   // Fetch player notes
   const fetchPlayerNotes = async (playerId: string) => {
@@ -257,6 +264,7 @@ export default function CuratedPage() {
       })
       if (res.ok) {
         setActiveSession(null)
+        setInitialSyncDone(false) // Reset for next session
         fetchRankings()
       }
     } catch (error) {
@@ -276,6 +284,7 @@ export default function CuratedPage() {
         body: JSON.stringify({ streamerCode: accessCode })
       })
       setActiveSession(null)
+      setInitialSyncDone(false) // Reset for next session
     } catch (error) {
       console.error("Failed to end session:", error)
     }
