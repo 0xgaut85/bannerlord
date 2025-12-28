@@ -53,7 +53,7 @@ export default function AdminPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (username === "godmode" && password === "godmode123*") {
+    if (username === "admin" && password === "OBELIX2025") {
       setIsAuthenticated(true)
       fetchPlayers()
       fetchRequests()
