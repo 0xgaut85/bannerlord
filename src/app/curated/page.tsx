@@ -1008,7 +1008,7 @@ export default function CuratedPage() {
 
       {/* Rate Tab */}
       {activeTab === "rate" && isAuthenticated && usernameSet && (
-        <div className="max-w-6xl mx-auto px-6 pb-20">
+        <div className="w-full px-4 pb-4">
           {/* Streamer Controls */}
           {isStreamer && !activeSession && (
             <div className="bg-black/40 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-6 mb-8">
@@ -1060,205 +1060,211 @@ export default function CuratedPage() {
             </div>
           )}
 
-          {/* Active Rating Session */}
+          {/* Active Rating Session - Full Width Compact Layout */}
           {activeSession && (
-            <div className="space-y-8">
-              {/* Player Card in Center */}
-              <div className="flex justify-center">
-                <div
-                  className={cn(
-                    "relative w-72 rounded-2xl border-2 p-6",
-                    activeSession.finalRating 
-                      ? getCuratedCardStyle(activeSession.finalRating).border
-                      : "border-violet-500/50"
-                  )}
-                  style={{
-                    background: activeSession.finalRating
-                      ? getCuratedCardStyle(activeSession.finalRating).bg
-                      : "linear-gradient(145deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)"
-                  }}
-                >
-                  <div className="flex flex-col items-center">
-                    <div className="w-32 h-32 rounded-xl overflow-hidden border-2 border-white/20 mb-4">
-                      <Image
-                        src={getDefaultAvatar(activeSession.category)}
-                        alt={activeSession.playerName}
-                        width={128}
-                        height={128}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">
-                      {cleanPlayerName(activeSession.playerName)}
-                    </h2>
-                    <div className="flex items-center gap-2 text-white/70">
-                      {activeSession.nationality && (
-                        <Flag code={activeSession.nationality} size="md" />
-                      )}
-                      <span>{activeSession.category}</span>
-                      <span>•</span>
-                      <span>{activeSession.clan || "FA"}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rater Boxes - 5 on each side */}
-              <div className="grid grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="flex flex-col h-[calc(100vh-200px)] min-h-[500px]">
+              {/* Main Content - 3 Column Layout */}
+              <div className="flex-1 grid grid-cols-[1fr_auto_1fr] gap-4 items-start">
                 {/* Left Side - Raters 1-5 */}
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {RATER_NAMES.slice(0, 5).map(raterName => {
                     const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                     const isMe = raterName === username
                     return (
-                      <div key={raterName} className="space-y-1">
-                        <label className={cn(
-                          "text-sm font-medium",
-                          isMe ? "text-violet-400" : "text-white/50"
-                        )}>
-                          {raterName} {isMe && "(You)"}
-                        </label>
-                        <div className={cn(
-                          "relative rounded-xl border-2 overflow-hidden",
-                          isMe ? "border-violet-500" : "border-white/20",
-                          raterData?.score ? "bg-white/10" : "bg-black/40"
-                        )}>
-                          {isMe ? (
-                            <input
-                              type="number"
-                              min={50}
-                              max={99}
-                              placeholder="50-99"
-                              value={myRating}
-                              onChange={(e) => {
-                                const val = e.target.value
-                                setMyRating(val)
-                                submitRating(val)
-                              }}
-                              disabled={submittingRating}
-                              className="w-full px-4 py-3 bg-transparent text-white text-center text-2xl font-bold focus:outline-none placeholder-white/20"
-                            />
-                          ) : (
-                            <div className="px-4 py-3 text-center text-2xl font-bold text-white">
-                              {raterData?.score ?? "—"}
+                      <div key={raterName} className="flex items-start gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <label className={cn(
+                              "text-xs font-medium whitespace-nowrap",
+                              isMe ? "text-violet-400" : "text-white/50"
+                            )}>
+                              {raterName} {isMe && "(You)"}
+                            </label>
+                            <div className={cn(
+                              "flex-1 rounded-lg border overflow-hidden",
+                              isMe ? "border-violet-500" : "border-white/20",
+                              raterData?.score ? "bg-white/10" : "bg-black/40"
+                            )}>
+                              {isMe ? (
+                                <input
+                                  type="number"
+                                  min={50}
+                                  max={99}
+                                  placeholder="50-99"
+                                  value={myRating}
+                                  onChange={(e) => {
+                                    const val = e.target.value
+                                    setMyRating(val)
+                                    submitRating(val)
+                                  }}
+                                  disabled={submittingRating}
+                                  className="w-full px-2 py-1.5 bg-transparent text-white text-center text-lg font-bold focus:outline-none placeholder-white/20"
+                                />
+                              ) : (
+                                <div className="px-2 py-1.5 text-center text-lg font-bold text-white">
+                                  {raterData?.score ?? "—"}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {/* Note display */}
+                          {raterData?.note && (isStreamer || !isMe) && (
+                            <div className="text-[10px] text-white/60 italic px-1 py-0.5 bg-black/30 rounded mt-1 line-clamp-2">
+                              &ldquo;{raterData.note}&rdquo;
                             </div>
                           )}
                         </div>
-                        {/* Show rater's note in real-time - always show for streamer, hide own note for raters */}
-                        {raterData?.note && (isStreamer || !isMe) && (
-                          <div className="text-xs text-white/60 italic px-2 py-1.5 bg-black/30 rounded-lg border border-white/5">
-                            &ldquo;{raterData.note}&rdquo;
-                          </div>
-                        )}
                       </div>
                     )
                   })}
                 </div>
 
+                {/* Center - Player Card + Average + Buttons */}
+                <div className="flex flex-col items-center gap-3">
+                  {/* Compact Player Card */}
+                  <div
+                    className={cn(
+                      "relative w-48 rounded-xl border-2 p-3",
+                      activeSession.finalRating 
+                        ? getCuratedCardStyle(activeSession.finalRating).border
+                        : "border-violet-500/50"
+                    )}
+                    style={{
+                      background: activeSession.finalRating
+                        ? getCuratedCardStyle(activeSession.finalRating).bg
+                        : "linear-gradient(145deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)"
+                    }}
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-white/20 mb-2">
+                        <Image
+                          src={getDefaultAvatar(activeSession.category)}
+                          alt={activeSession.playerName}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <h2 className="text-lg font-bold text-white text-center leading-tight">
+                        {cleanPlayerName(activeSession.playerName)}
+                      </h2>
+                      <div className="flex items-center gap-1.5 text-white/70 text-xs mt-1">
+                        {activeSession.nationality && (
+                          <Flag code={activeSession.nationality} size="sm" />
+                        )}
+                        <span>{categoryShort[activeSession.category]}</span>
+                        <span>•</span>
+                        <span>{activeSession.clan || "FA"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Average Rating */}
+                  <div className="text-center bg-black/40 border border-violet-500/30 rounded-xl px-6 py-3">
+                    <div className="text-white/50 text-xs">Average</div>
+                    <div className="text-4xl font-bold text-violet-400">
+                      {calculateAverage() ?? "—"}
+                    </div>
+                    <div className="text-white/50 text-xs">
+                      {activeSession.ratings.filter(r => r.score !== null).length}/{RATER_NAMES.length} votes
+                    </div>
+                  </div>
+
+                  {/* Streamer Confirm Buttons */}
+                  {isStreamer && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={confirmSession}
+                        disabled={confirming || calculateAverage() === null}
+                        className="px-4 py-2 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-sm font-bold rounded-lg transition-all disabled:cursor-not-allowed"
+                      >
+                        {confirming ? "..." : "✓ Confirm"}
+                      </button>
+                      <button
+                        onClick={endSession}
+                        className="px-4 py-2 bg-red-500 hover:bg-red-400 text-white text-sm font-bold rounded-lg transition-all"
+                      >
+                        ✕ Cancel
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 {/* Right Side - Raters 6-10 */}
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {RATER_NAMES.slice(5, 10).map(raterName => {
                     const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                     const isMe = raterName === username
                     return (
-                      <div key={raterName} className="space-y-1">
-                        <label className={cn(
-                          "text-sm font-medium",
-                          isMe ? "text-violet-400" : "text-white/50"
-                        )}>
-                          {raterName} {isMe && "(You)"}
-                        </label>
-                        <div className={cn(
-                          "relative rounded-xl border-2 overflow-hidden",
-                          isMe ? "border-violet-500" : "border-white/20",
-                          raterData?.score ? "bg-white/10" : "bg-black/40"
-                        )}>
-                          {isMe ? (
-                            <input
-                              type="number"
-                              min={50}
-                              max={99}
-                              placeholder="50-99"
-                              value={myRating}
-                              onChange={(e) => {
-                                const val = e.target.value
-                                setMyRating(val)
-                                submitRating(val)
-                              }}
-                              disabled={submittingRating}
-                              className="w-full px-4 py-3 bg-transparent text-white text-center text-2xl font-bold focus:outline-none placeholder-white/20"
-                            />
-                          ) : (
-                            <div className="px-4 py-3 text-center text-2xl font-bold text-white">
-                              {raterData?.score ?? "—"}
+                      <div key={raterName} className="flex items-start gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <div className={cn(
+                              "flex-1 rounded-lg border overflow-hidden",
+                              isMe ? "border-violet-500" : "border-white/20",
+                              raterData?.score ? "bg-white/10" : "bg-black/40"
+                            )}>
+                              {isMe ? (
+                                <input
+                                  type="number"
+                                  min={50}
+                                  max={99}
+                                  placeholder="50-99"
+                                  value={myRating}
+                                  onChange={(e) => {
+                                    const val = e.target.value
+                                    setMyRating(val)
+                                    submitRating(val)
+                                  }}
+                                  disabled={submittingRating}
+                                  className="w-full px-2 py-1.5 bg-transparent text-white text-center text-lg font-bold focus:outline-none placeholder-white/20"
+                                />
+                              ) : (
+                                <div className="px-2 py-1.5 text-center text-lg font-bold text-white">
+                                  {raterData?.score ?? "—"}
+                                </div>
+                              )}
+                            </div>
+                            <label className={cn(
+                              "text-xs font-medium whitespace-nowrap",
+                              isMe ? "text-violet-400" : "text-white/50"
+                            )}>
+                              {raterName} {isMe && "(You)"}
+                            </label>
+                          </div>
+                          {/* Note display */}
+                          {raterData?.note && (isStreamer || !isMe) && (
+                            <div className="text-[10px] text-white/60 italic px-1 py-0.5 bg-black/30 rounded mt-1 line-clamp-2">
+                              &ldquo;{raterData.note}&rdquo;
                             </div>
                           )}
                         </div>
-                        {/* Show rater's note in real-time - always show for streamer, hide own note for raters */}
-                        {raterData?.note && (isStreamer || !isMe) && (
-                          <div className="text-xs text-white/60 italic px-2 py-1.5 bg-black/30 rounded-lg border border-white/5">
-                            &ldquo;{raterData.note}&rdquo;
-                          </div>
-                        )}
                       </div>
                     )
                   })}
                 </div>
               </div>
 
-              {/* Note Input */}
-              <div className="max-w-2xl mx-auto">
-                <label className="text-sm font-medium text-violet-400 mb-2 block">
-                  Add a note about {cleanPlayerName(activeSession.playerName)} (optional, max 280 chars)
-                </label>
-                <div className="relative">
-                  <textarea
-                    placeholder="Share your thoughts on this player..."
-                    value={myNote}
-                    onChange={(e) => {
-                      const val = e.target.value.slice(0, 280)
-                      setMyNote(val)
-                    }}
-                    onBlur={() => submitNote(myNote)}
-                    className="w-full px-4 py-3 bg-black/40 border border-violet-500/30 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-violet-500 resize-none h-24"
-                  />
-                  <div className="absolute bottom-2 right-3 text-xs text-white/40">
-                    {myNote.length}/280
+              {/* Bottom - Note Input (only for raters, not streamer) */}
+              {!isStreamer && (
+                <div className="mt-4 max-w-xl mx-auto w-full">
+                  <div className="relative">
+                    <textarea
+                      placeholder={`Note about ${cleanPlayerName(activeSession.playerName)} (optional)...`}
+                      value={myNote}
+                      onChange={(e) => {
+                        const val = e.target.value.slice(0, 280)
+                        setMyNote(val)
+                      }}
+                      onBlur={() => submitNote(myNote)}
+                      className="w-full px-3 py-2 bg-black/40 border border-violet-500/30 rounded-lg text-white text-sm placeholder-white/30 focus:outline-none focus:border-violet-500 resize-none h-16"
+                    />
+                    <div className="absolute bottom-1 right-2 text-[10px] text-white/40">
+                      {myNote.length}/280
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Average Rating Display */}
-              <div className="flex flex-col items-center gap-4">
-                <div className="text-center bg-black/40 border border-violet-500/30 rounded-2xl px-12 py-6">
-                  <div className="text-white/50 text-sm mb-1">Current Average</div>
-                  <div className="text-6xl font-bold text-violet-400">
-                    {calculateAverage() ?? "—"}
-                  </div>
-                  <div className="text-white/50 text-sm mt-1">
-                    {activeSession.ratings.filter(r => r.score !== null).length} / {RATER_NAMES.length} votes
-                  </div>
-                </div>
-
-                {/* Streamer Confirm Button */}
-                {isStreamer && (
-                  <div className="flex gap-4">
-                    <button
-                      onClick={confirmSession}
-                      disabled={confirming || calculateAverage() === null}
-                      className="px-8 py-4 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-xl font-bold rounded-xl transition-all disabled:cursor-not-allowed shadow-xl"
-                    >
-                      {confirming ? "Confirming..." : "✓ Confirm Rating"}
-                    </button>
-                    <button
-                      onClick={endSession}
-                      className="px-8 py-4 bg-red-500 hover:bg-red-400 text-white text-xl font-bold rounded-xl transition-all shadow-xl"
-                    >
-                      ✕ Cancel
-                    </button>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           )}
 
