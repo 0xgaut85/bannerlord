@@ -34,6 +34,13 @@ export default function AdminPage() {
   const [editingPlayer, setEditingPlayer] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
   
+  // Curated rankings management
+  const [curatedPeriodName, setCuratedPeriodName] = useState("")
+  const [savingCurated, setSavingCurated] = useState(false)
+  const [resettingCurated, setResettingCurated] = useState(false)
+  const [curatedPeriods, setCuratedPeriods] = useState<any[]>([])
+  const [curatedStats, setCuratedStats] = useState<{ rankings: number; sessions: number; raters: number }>({ rankings: 0, sessions: 0, raters: 0 })
+  
   // Country search
   const [countrySearch, setCountrySearch] = useState("")
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
@@ -585,6 +592,14 @@ export default function AdminPage() {
                   className={`text-xs sm:text-sm ${activeTab === "periods" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
                 >
                   Timer
+                </Button>
+                <Button 
+                  size="sm"
+                  variant={activeTab === "curated" ? "primary" : "ghost"} 
+                  onClick={() => setActiveTab("curated")}
+                  className={`text-xs sm:text-sm ${activeTab === "curated" ? "!bg-violet-500 !text-white" : "!bg-white/10 !text-white"}`}
+                >
+                  Curated
                 </Button>
               </div>
             </div>
@@ -1449,6 +1464,211 @@ export default function AdminPage() {
                   className="!bg-green-500 !text-black"
                 >
                   {savingPeriod ? "Saving..." : "Save Snapshot"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "curated" && (
+          <div className="space-y-6">
+            {/* Curated Rankings Stats */}
+            <div className="bg-violet-500/10 p-6 rounded-xl border border-violet-500/30">
+              <h3 className="text-violet-400 font-semibold mb-4">📊 Curated Rankings Overview</h3>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="bg-black/20 rounded-xl p-4 text-center">
+                  <div className="text-3xl font-bold text-violet-400">{curatedStats.rankings}</div>
+                  <div className="text-white/50 text-sm">Rankings</div>
+                </div>
+                <div className="bg-black/20 rounded-xl p-4 text-center">
+                  <div className="text-3xl font-bold text-violet-400">{curatedStats.sessions}</div>
+                  <div className="text-white/50 text-sm">Sessions</div>
+                </div>
+                <div className="bg-black/20 rounded-xl p-4 text-center">
+                  <div className="text-3xl font-bold text-violet-400">{curatedStats.raters}</div>
+                  <div className="text-white/50 text-sm">Rater Entries</div>
+                </div>
+              </div>
+              <Button
+                onClick={async () => {
+                  try {
+                    const [rankingsRes, sessionsRes, ratersRes, periodsRes] = await Promise.all([
+                      fetch("/api/curated/rankings"),
+                      fetch("/api/curated/sessions"),
+                      fetch("/api/admin/curated/stats"),
+                      fetch("/api/admin/curated/save-history")
+                    ])
+                    const rankings = rankingsRes.ok ? await rankingsRes.json() : []
+                    const sessions = sessionsRes.ok ? await sessionsRes.json() : null
+                    const stats = ratersRes.ok ? await ratersRes.json() : { raters: 0 }
+                    const periods = periodsRes.ok ? await periodsRes.json() : []
+                    setCuratedStats({
+                      rankings: Array.isArray(rankings) ? rankings.length : 0,
+                      sessions: sessions ? 1 : 0,
+                      raters: stats.raters || 0
+                    })
+                    setCuratedPeriods(periods)
+                  } catch (error) {
+                    console.error("Error fetching curated stats:", error)
+                  }
+                }}
+                className="!bg-violet-500/20 !text-violet-300 hover:!bg-violet-500/30"
+              >
+                🔄 Refresh Stats
+              </Button>
+            </div>
+
+            {/* Save to History */}
+            <div className="bg-green-500/10 p-6 rounded-xl border border-green-500/30">
+              <h3 className="text-green-400 font-semibold mb-4">💾 Save Current Curated Rankings</h3>
+              <p className="text-white/60 text-sm mb-4">
+                Save the current curated rankings to history. This creates a snapshot that will appear in the History page.
+              </p>
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <label className="block text-white/70 text-sm mb-2">Period Name</label>
+                  <input
+                    type="text"
+                    value={curatedPeriodName}
+                    onChange={(e) => setCuratedPeriodName(e.target.value)}
+                    placeholder="e.g., Stream December 2025"
+                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/30"
+                  />
+                </div>
+                <Button
+                  onClick={async () => {
+                    if (!curatedPeriodName) {
+                      alert("Please enter a period name")
+                      return
+                    }
+                    if (!confirm(`Save curated rankings as "${curatedPeriodName}"?`)) {
+                      return
+                    }
+                    setSavingCurated(true)
+                    try {
+                      const res = await fetch("/api/admin/curated/save-history", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ periodName: curatedPeriodName })
+                      })
+                      const data = await res.json()
+                      if (res.ok) {
+                        alert(data.message || "Curated rankings saved!")
+                        setCuratedPeriodName("")
+                        // Refresh periods
+                        const periodsRes = await fetch("/api/admin/curated/save-history")
+                        if (periodsRes.ok) {
+                          setCuratedPeriods(await periodsRes.json())
+                        }
+                      } else {
+                        alert(data.error || "Failed to save curated rankings")
+                      }
+                    } catch (error) {
+                      alert("Error saving curated rankings")
+                    } finally {
+                      setSavingCurated(false)
+                    }
+                  }}
+                  disabled={savingCurated}
+                  className="!bg-green-500 !text-black"
+                >
+                  {savingCurated ? "Saving..." : "Save to History"}
+                </Button>
+              </div>
+            </div>
+
+            {/* Saved Curated Periods */}
+            {curatedPeriods.length > 0 && (
+              <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                <h3 className="text-white font-semibold mb-4">📜 Saved Curated Periods</h3>
+                <div className="space-y-2">
+                  {curatedPeriods.map((period: any) => (
+                    <div key={period.id} className="flex justify-between items-center bg-black/20 rounded-lg p-3">
+                      <div>
+                        <span className="text-white font-medium">{period.name}</span>
+                        <span className="text-white/50 text-sm ml-3">
+                          {period._count?.rankings || 0} players
+                        </span>
+                      </div>
+                      <span className="text-white/40 text-sm">
+                        {new Date(period.savedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Reset Actions */}
+            <div className="bg-red-500/10 p-6 rounded-xl border border-red-500/30">
+              <h3 className="text-red-400 font-semibold mb-4">⚠️ Reset Actions</h3>
+              <p className="text-white/60 text-sm mb-4">
+                These actions are destructive and cannot be undone. Use with caution.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button
+                  onClick={async () => {
+                    if (!confirm("⚠️ DELETE ALL CURATED RANKINGS?\n\nThis will remove all confirmed ratings from the curated ranking list. This cannot be undone!")) {
+                      return
+                    }
+                    if (!confirm("Are you ABSOLUTELY sure? Type 'yes' in the next prompt to confirm.")) {
+                      return
+                    }
+                    const confirmation = prompt("Type 'DELETE' to confirm:")
+                    if (confirmation !== "DELETE") {
+                      alert("Cancelled - confirmation did not match")
+                      return
+                    }
+                    setResettingCurated(true)
+                    try {
+                      const res = await fetch("/api/admin/curated/reset-ratings", {
+                        method: "DELETE"
+                      })
+                      const data = await res.json()
+                      if (res.ok) {
+                        alert(data.message || "Curated rankings reset!")
+                        setCuratedStats(prev => ({ ...prev, rankings: 0, sessions: 0 }))
+                      } else {
+                        alert(data.error || "Failed to reset")
+                      }
+                    } catch (error) {
+                      alert("Error resetting curated rankings")
+                    } finally {
+                      setResettingCurated(false)
+                    }
+                  }}
+                  disabled={resettingCurated}
+                  className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30"
+                >
+                  🗑️ Delete All Rankings (RESET)
+                </Button>
+                <Button
+                  onClick={async () => {
+                    if (!confirm("⚠️ DELETE ALL RATER ENTRIES?\n\nThis will remove all rater names and their ratings from active sessions. Use this to start fresh with new raters.")) {
+                      return
+                    }
+                    setResettingCurated(true)
+                    try {
+                      const res = await fetch("/api/admin/curated/reset-raters", {
+                        method: "DELETE"
+                      })
+                      const data = await res.json()
+                      if (res.ok) {
+                        alert(data.message || "Raters reset!")
+                        setCuratedStats(prev => ({ ...prev, raters: 0 }))
+                      } else {
+                        alert(data.error || "Failed to reset raters")
+                      }
+                    } catch (error) {
+                      alert("Error resetting raters")
+                    } finally {
+                      setResettingCurated(false)
+                    }
+                  }}
+                  disabled={resettingCurated}
+                  className="!bg-orange-500/20 !text-orange-400 hover:!bg-orange-500/30"
+                >
+                  👥 Delete All Raters (RESET)
                 </Button>
               </div>
             </div>

@@ -266,3 +266,26 @@ model CuratedRanking {
   rating      Float
   confirmedAt DateTime       @default(now())
 }
+
+// Historical Curated Rankings
+model CuratedRankingPeriod {
+  id          String                    @id @default(cuid())
+  name        String                    @unique // e.g., "December 2025 Stream"
+  savedAt     DateTime                  @default(now())
+  rankings    CuratedHistoricalRanking[]
+}
+
+model CuratedHistoricalRanking {
+  id          String               @id @default(cuid())
+  periodId    String
+  playerId    String
+  playerName  String
+  category    PlayerCategory
+  nationality String?
+  clan        String?
+  rating      Float
+  rank        Int
+  period      CuratedRankingPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  @@unique([periodId, playerId])
+}
