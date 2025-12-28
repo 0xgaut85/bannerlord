@@ -1198,27 +1198,27 @@ export default function CuratedPage() {
             </div>
           )}
 
-          {/* Active Rating Session - Bigger Layout with Notes */}
+          {/* Active Rating Session - Large Layout with Notes */}
           {activeSession && (
-            <div className="flex items-start justify-center gap-12 py-6">
+            <div className="flex items-start justify-center gap-16 py-8">
               {/* Left Side - Raters 1-5 with notes */}
-              <div className="space-y-3 pt-4">
+              <div className="space-y-4 pt-6">
                 {RATER_NAMES.slice(0, 5).map(raterName => {
                   const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                   const isMe = raterName === username
                   const isRaterConfirmed = raterData?.confirmed ?? false
                   return (
-                    <div key={raterName} className="flex flex-col items-end gap-1">
+                    <div key={raterName} className="flex flex-col items-end gap-1.5">
                       {/* Rater row */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <span className={cn(
-                          "text-sm font-semibold w-24 text-right",
+                          "text-base font-semibold w-28 text-right",
                           isMe ? "text-violet-400" : "text-white/60"
                         )}>
                           {raterName} {isMe && "★"}
                         </span>
                         <div className={cn(
-                          "w-16 h-10 rounded-lg border-2 flex items-center justify-center transition-colors",
+                          "w-20 h-12 rounded-xl border-2 flex items-center justify-center transition-colors",
                           isRaterConfirmed 
                             ? "border-green-500 bg-green-500/20" 
                             : raterData?.score 
@@ -1227,21 +1227,21 @@ export default function CuratedPage() {
                         )}>
                           {isMe && !myConfirmed ? (
                             <input
-                              type="number"
-                              min={50}
-                              max={99}
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
                               placeholder="--"
                               value={myRating}
                               onChange={(e) => {
-                                const val = e.target.value
+                                const val = e.target.value.replace(/\D/g, '').slice(0, 2)
                                 setMyRating(val)
                                 submitRating(val)
                               }}
                               disabled={submittingRating}
-                              className="w-full h-full bg-transparent text-white text-center text-xl font-bold focus:outline-none placeholder-white/30"
+                              className="w-full h-full bg-transparent text-white text-center text-2xl font-bold focus:outline-none placeholder-white/30"
                             />
                           ) : (
-                            <span className="text-xl font-bold text-white">
+                            <span className="text-2xl font-bold text-white">
                               {isMe ? myRating || "—" : (raterData?.score ?? "—")}
                             </span>
                           )}
@@ -1251,7 +1251,7 @@ export default function CuratedPage() {
                             <button
                               onClick={confirmMyRating}
                               disabled={!myRating || submittingRating}
-                              className="w-8 h-8 text-sm font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded-lg transition-colors flex items-center justify-center"
+                              className="w-10 h-10 text-lg font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded-xl transition-colors flex items-center justify-center"
                             >
                               ✓
                             </button>
@@ -1259,17 +1259,17 @@ export default function CuratedPage() {
                             <button
                               onClick={editMyRating}
                               disabled={submittingRating}
-                              className="w-8 h-8 text-sm font-bold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors flex items-center justify-center"
+                              className="w-10 h-10 text-lg font-bold bg-amber-500 hover:bg-amber-400 text-white rounded-xl transition-colors flex items-center justify-center"
                             >
                               ✎
                             </button>
                           )
                         ) : (
-                          <div className="w-8" />
+                          <div className="w-10" />
                         )}
                       </div>
                       {/* Note box below each rater */}
-                      <div className="w-full max-w-[220px]">
+                      <div className="w-full max-w-[280px]">
                         {isMe ? (
                           <textarea
                             placeholder="Your note..."
@@ -1278,13 +1278,13 @@ export default function CuratedPage() {
                             onBlur={() => submitNote(myNote)}
                             disabled={myConfirmed}
                             className={cn(
-                              "w-full px-2 py-1.5 rounded text-white text-xs placeholder-white/30 focus:outline-none resize-none h-12",
+                              "w-full px-3 py-2 rounded-lg text-white text-sm placeholder-white/30 focus:outline-none resize-none h-16",
                               myConfirmed ? "bg-green-500/10 border border-green-500/40" : "bg-black/30 border border-violet-500/20 focus:border-violet-500"
                             )}
                           />
                         ) : (
                           <div className={cn(
-                            "w-full px-2 py-1.5 rounded text-xs h-12 overflow-hidden",
+                            "w-full px-3 py-2 rounded-lg text-sm h-16 overflow-hidden",
                             raterData?.note ? "bg-black/20 text-white/50 italic" : "bg-black/10 text-white/20"
                           )}>
                             {raterData?.note ? `"${raterData.note}"` : "No note"}
@@ -1299,36 +1299,36 @@ export default function CuratedPage() {
               {/* Center - Big Player Card + Controls */}
               <div className="flex flex-col items-center">
                 {/* Big FIFA Card */}
-                <div className="relative w-72 aspect-[2/3] rounded-3xl overflow-hidden shadow-2xl border-4 border-violet-500/50">
+                <div className="relative w-80 aspect-[2/3] rounded-3xl overflow-hidden shadow-2xl border-4 border-violet-500/50">
                   <div className="absolute inset-0" style={{ background: "linear-gradient(145deg, #1e1b4b 0%, #4c1d95 30%, #7c3aed 60%, #312e81 100%)" }} />
                   <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }} />
-                  <div className="absolute inset-4 border border-dashed border-white/15 rounded-2xl pointer-events-none" />
+                  <div className="absolute inset-5 border border-dashed border-white/15 rounded-2xl pointer-events-none" />
                   
-                  <div className="relative h-full flex flex-col p-6">
+                  <div className="relative h-full flex flex-col p-7">
                     {/* Top row */}
                     <div className="flex justify-between items-start">
                       <div className="flex flex-col items-center">
-                        <span className="text-5xl font-black text-white drop-shadow-lg">{calculateAverage() ?? "?"}</span>
-                        <span className="text-sm font-bold text-violet-300 uppercase mt-1">{categoryShort[activeSession.category]}</span>
+                        <span className="text-6xl font-black text-white drop-shadow-lg">{calculateAverage() ?? "?"}</span>
+                        <span className="text-base font-bold text-violet-300 uppercase mt-1">{categoryShort[activeSession.category]}</span>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm text-white/60 font-medium">{activeSession.ratings.filter(r => r.score !== null).length}/{RATER_NAMES.length} votes</div>
+                        <div className="text-base text-white/60 font-medium">{activeSession.ratings.filter(r => r.score !== null).length}/{RATER_NAMES.length} votes</div>
                       </div>
                     </div>
                     
                     {/* Avatar */}
                     <div className="flex-1 flex items-center justify-center">
-                      <div className="w-36 h-36 rounded-2xl overflow-hidden border-2 border-white/30 shadow-xl">
-                        <Image src={getDefaultAvatar(activeSession.category)} alt={activeSession.playerName} width={144} height={144} className="w-full h-full object-cover" />
+                      <div className="w-40 h-40 rounded-2xl overflow-hidden border-2 border-white/30 shadow-xl">
+                        <Image src={getDefaultAvatar(activeSession.category)} alt={activeSession.playerName} width={160} height={160} className="w-full h-full object-cover" />
                       </div>
                     </div>
                     
                     {/* Player Info */}
                     <div className="text-center">
-                      <h2 className="text-2xl font-black text-white tracking-tight drop-shadow-lg">{cleanPlayerName(activeSession.playerName)}</h2>
-                      <div className="flex items-center justify-center gap-2 mt-2">
-                        {activeSession.nationality && <Flag code={activeSession.nationality} size="md" />}
-                        <span className="text-white/70 text-base font-medium">{activeSession.clan || "FA"}</span>
+                      <h2 className="text-3xl font-black text-white tracking-tight drop-shadow-lg">{cleanPlayerName(activeSession.playerName)}</h2>
+                      <div className="flex items-center justify-center gap-3 mt-2">
+                        {activeSession.nationality && <Flag code={activeSession.nationality} size="lg" />}
+                        <span className="text-white/70 text-lg font-medium">{activeSession.clan || "FA"}</span>
                       </div>
                     </div>
                   </div>
@@ -1336,11 +1336,11 @@ export default function CuratedPage() {
 
                 {/* Streamer Buttons */}
                 {isStreamer && (
-                  <div className="flex gap-3 mt-4">
-                    <button onClick={confirmSession} disabled={confirming || calculateAverage() === null} className="px-6 py-3 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-base font-bold rounded-xl transition-all disabled:cursor-not-allowed shadow-lg">
+                  <div className="flex gap-4 mt-5">
+                    <button onClick={confirmSession} disabled={confirming || calculateAverage() === null} className="px-8 py-4 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-lg font-bold rounded-xl transition-all disabled:cursor-not-allowed shadow-lg">
                       {confirming ? "..." : "✓ Confirm Final Rating"}
                     </button>
-                    <button onClick={endSession} className="px-6 py-3 bg-red-500 hover:bg-red-400 text-white text-base font-bold rounded-xl transition-all shadow-lg">
+                    <button onClick={endSession} className="px-8 py-4 bg-red-500 hover:bg-red-400 text-white text-lg font-bold rounded-xl transition-all shadow-lg">
                       ✕ Cancel Session
                     </button>
                   </div>
@@ -1348,21 +1348,21 @@ export default function CuratedPage() {
               </div>
 
               {/* Right Side - Raters 6-10 with notes */}
-              <div className="space-y-3 pt-4">
+              <div className="space-y-4 pt-6">
                 {RATER_NAMES.slice(5, 10).map(raterName => {
                   const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                   const isMe = raterName === username
                   const isRaterConfirmed = raterData?.confirmed ?? false
                   return (
-                    <div key={raterName} className="flex flex-col items-start gap-1">
+                    <div key={raterName} className="flex flex-col items-start gap-1.5">
                       {/* Rater row */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         {isMe ? (
                           !myConfirmed ? (
                             <button
                               onClick={confirmMyRating}
                               disabled={!myRating || submittingRating}
-                              className="w-8 h-8 text-sm font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded-lg transition-colors flex items-center justify-center"
+                              className="w-10 h-10 text-lg font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded-xl transition-colors flex items-center justify-center"
                             >
                               ✓
                             </button>
@@ -1370,16 +1370,16 @@ export default function CuratedPage() {
                             <button
                               onClick={editMyRating}
                               disabled={submittingRating}
-                              className="w-8 h-8 text-sm font-bold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors flex items-center justify-center"
+                              className="w-10 h-10 text-lg font-bold bg-amber-500 hover:bg-amber-400 text-white rounded-xl transition-colors flex items-center justify-center"
                             >
                               ✎
                             </button>
                           )
                         ) : (
-                          <div className="w-8" />
+                          <div className="w-10" />
                         )}
                         <div className={cn(
-                          "w-16 h-10 rounded-lg border-2 flex items-center justify-center transition-colors",
+                          "w-20 h-12 rounded-xl border-2 flex items-center justify-center transition-colors",
                           isRaterConfirmed 
                             ? "border-green-500 bg-green-500/20" 
                             : raterData?.score 
@@ -1388,34 +1388,34 @@ export default function CuratedPage() {
                         )}>
                           {isMe && !myConfirmed ? (
                             <input
-                              type="number"
-                              min={50}
-                              max={99}
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
                               placeholder="--"
                               value={myRating}
                               onChange={(e) => {
-                                const val = e.target.value
+                                const val = e.target.value.replace(/\D/g, '').slice(0, 2)
                                 setMyRating(val)
                                 submitRating(val)
                               }}
                               disabled={submittingRating}
-                              className="w-full h-full bg-transparent text-white text-center text-xl font-bold focus:outline-none placeholder-white/30"
+                              className="w-full h-full bg-transparent text-white text-center text-2xl font-bold focus:outline-none placeholder-white/30"
                             />
                           ) : (
-                            <span className="text-xl font-bold text-white">
+                            <span className="text-2xl font-bold text-white">
                               {isMe ? myRating || "—" : (raterData?.score ?? "—")}
                             </span>
                           )}
                         </div>
                         <span className={cn(
-                          "text-sm font-semibold w-24",
+                          "text-base font-semibold w-28",
                           isMe ? "text-violet-400" : "text-white/60"
                         )}>
                           {isMe && "★ "}{raterName}
                         </span>
                       </div>
                       {/* Note box below each rater */}
-                      <div className="w-full max-w-[220px] ml-10">
+                      <div className="w-full max-w-[280px] ml-13">
                         {isMe ? (
                           <textarea
                             placeholder="Your note..."
@@ -1424,13 +1424,13 @@ export default function CuratedPage() {
                             onBlur={() => submitNote(myNote)}
                             disabled={myConfirmed}
                             className={cn(
-                              "w-full px-2 py-1.5 rounded text-white text-xs placeholder-white/30 focus:outline-none resize-none h-12",
+                              "w-full px-3 py-2 rounded-lg text-white text-sm placeholder-white/30 focus:outline-none resize-none h-16",
                               myConfirmed ? "bg-green-500/10 border border-green-500/40" : "bg-black/30 border border-violet-500/20 focus:border-violet-500"
                             )}
                           />
                         ) : (
                           <div className={cn(
-                            "w-full px-2 py-1.5 rounded text-xs h-12 overflow-hidden",
+                            "w-full px-3 py-2 rounded-lg text-sm h-16 overflow-hidden",
                             raterData?.note ? "bg-black/20 text-white/50 italic" : "bg-black/10 text-white/20"
                           )}>
                             {raterData?.note ? `"${raterData.note}"` : "No note"}
