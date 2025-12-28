@@ -208,6 +208,7 @@ function FifaDisplayCard({
   const style = getCuratedCardStyle(player.rating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const playerTier = getTierFromRating(player.rating)
+  const clanLogo = player.clanLogo || null
   
   const rankLabels: Record<number, string> = { 1: "#1", 2: "#2", 3: "#3" }
   
@@ -219,7 +220,7 @@ function FifaDisplayCard({
         isCenter ? "md:scale-110 z-10" : ""
       )}
     >
-      {/* FIFA Card - AAA+ Premium Design (same layout as current ranking) */}
+      {/* FIFA Card - Same layout as current ranking */}
       <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} hover:scale-105 transition-transform`}>
         {/* Background Base - Rich gradient */}
         <div 
@@ -286,37 +287,65 @@ function FifaDisplayCard({
             </div>
           </div>
 
-          {/* Middle Section: Avatar */}
+          {/* Middle Section: Avatar with Clan Logo and Flag */}
           <div className="flex-1 relative flex flex-col items-center justify-start mt-0">
             {/* Background Glow behind avatar */}
             <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-28 h-28 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} />
             
-            {/* Avatar with frame */}
-            <div className="relative z-10">
-              <div className={`w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden border-2 ${style.border} shadow-xl`}>
-                <Image
-                  src={avatarSrc}
-                  alt={player.playerName}
-                  width={112}
-                  height={112}
-                  className="w-full h-full object-cover"
-                />
+            {/* Player Avatar - circular like current ranking */}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30 z-10">
+              <Image
+                src={avatarSrc}
+                alt={player.playerName}
+                width={96}
+                height={96}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Clan Logo (left) and Flag (right) - positioned lower */}
+            <div className="absolute bottom-0 left-3 z-20">
+              <div className="w-6 h-6 bg-black">
+                {clanLogo && (
+                  <Image
+                    src={clanLogo}
+                    alt="Clan"
+                    width={24}
+                    height={24}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
             </div>
             
-            {/* Tier badge */}
-            <div className={`mt-2 px-3 py-0.5 rounded-full bg-black/30 backdrop-blur-sm border ${style.border}`}>
-              <span className={`text-xs font-bold ${style.tierColor}`}>{playerTier}</span>
+            <div className="absolute right-3 bottom-0 z-20">
+              <Flag code={player.nationality} size="md" />
             </div>
           </div>
-          
-          {/* Bottom Section: Bio */}
-          <div className="mt-auto text-center pb-1">
-            <div className="flex items-center justify-center gap-2">
-              <Flag code={player.nationality} size="sm" />
-              <span className={`text-xs ${style.subtext}`}>
-                {player.clan || "FA"}
-              </span>
+
+          {/* Bottom Section: Tier & Clan */}
+          <div className="mt-auto pt-3">
+            <div className={`h-0.5 w-full bg-gradient-to-r ${style.accent} mb-2 rounded-full opacity-40`} />
+            
+            <div className="flex justify-between items-end">
+              {/* Tier */}
+              <div className="flex flex-col">
+                <span className={`text-[8px] font-bold ${style.subtext} opacity-60 uppercase tracking-widest`}>
+                  Tier
+                </span>
+                <span className={`text-sm font-black ${style.text} drop-shadow-sm`}>
+                  {playerTier}
+                </span>
+              </div>
+
+              {/* Clan Badge */}
+              {player.clan && (
+                <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-md border border-white/10 shadow-lg">
+                  <span className={`text-[10px] font-bold ${style.text} tracking-wide`}>
+                    {player.clan}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -325,7 +354,7 @@ function FifaDisplayCard({
   )
 }
 
-// Elite player card (ranks 4-15) - matches current ranking style
+// Elite player card (ranks 4-15) - Same layout as current ranking
 function ElitePlayerCard({ 
   player, 
   onPlayerClick 
@@ -336,71 +365,99 @@ function ElitePlayerCard({
   const style = getCuratedCardStyle(player.rating)
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const playerTier = getTierFromRating(player.rating)
+  const clanLogo = player.clanLogo || null
   
   return (
-    <button
-      onClick={() => onPlayerClick?.(player.playerId)}
-      className={`relative aspect-[3/4] rounded-2xl overflow-hidden border-2 ${style.border} hover:scale-105 transition-all shadow-lg`}
-    >
-      {/* Background */}
-      <div 
-        className="absolute inset-0"
-        style={{ background: style.bg }}
-      />
-      
-      {/* Overlay Gradient */}
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: style.overlayGradient }}
-      />
-      
-      {/* Heavy Grain */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>
-        <filter id={`noiseFilter-elite-${player.playerId}`}>
-          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter={`url(#noiseFilter-elite-${player.playerId})`} />
-      </svg>
-      
-      {/* Inner dashed border */}
-      <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none z-10" />
-      
-      {/* Content */}
-      <div className="relative h-full flex flex-col p-3 z-20">
-        {/* Rating */}
-        <div className="flex justify-between items-start">
-          <div className={`text-2xl font-black ${style.text}`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
-            {Math.round(player.rating)}
-          </div>
-          <div className={`text-xs font-bold ${style.tierColor}`}>
-            {playerTier}
-          </div>
-        </div>
+    <button onClick={() => onPlayerClick?.(player.playerId)} className="flex justify-center w-full">
+      {/* Small FIFA Card */}
+      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${style.border} hover:scale-105 transition-transform`}>
+        {/* Background Base */}
+        <div 
+          className="absolute inset-0"
+          style={{ background: style.bg }}
+        />
         
-        {/* Avatar */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className={`w-16 h-16 rounded-xl overflow-hidden border-2 ${style.border}`}>
-            <Image
-              src={avatarSrc}
-              alt={player.playerName}
-              width={64}
-              height={64}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </div>
+        {/* Overlay Gradient */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: style.overlayGradient }}
+        />
         
-        {/* Info */}
-        <div className="text-center mt-auto">
-          <div className={`font-bold text-sm truncate ${style.text}`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
-            {cleanPlayerName(player.playerName)}
+        {/* Noise Texture */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>
+          <filter id={`eliteNoise-curated-${player.playerId}`}>
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter={`url(#eliteNoise-curated-${player.playerId})`} />
+        </svg>
+
+        {/* Inner Border (Dashed) */}
+        <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none z-10" />
+        
+        {/* Vignette */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%)" }}
+        />
+
+        {/* Content */}
+        <div className="relative h-full flex flex-col p-2.5 z-30">
+          {/* Top: Rating & Tier */}
+          <div className="flex justify-between items-start">
+            <div className="flex flex-col items-center">
+              <span className={`text-2xl font-black ${style.text} leading-none`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+                {Math.round(player.rating)}
+              </span>
+              <span className={`text-[8px] font-bold ${style.subtext} tracking-wider uppercase`}>
+                {categoryShort[player.category]}
+              </span>
+            </div>
+            <div className="text-right">
+              <div className={`text-sm font-black ${style.text}`}>{playerTier}</div>
+            </div>
           </div>
-          <div className="flex items-center justify-center gap-1 mt-1">
-            <Flag code={player.nationality} size="sm" />
-            <span className={`text-xs ${style.subtext}`}>
-              {player.clan || "FA"}
-            </span>
+
+          {/* Middle: Avatar with Clan Logo and Flag */}
+          <div className="flex-1 relative flex flex-col items-center justify-start py-0.5">
+            <div className="relative w-14 h-14 rounded-full overflow-hidden shadow-lg border border-white/10 z-10">
+              <Image
+                src={avatarSrc}
+                alt={player.playerName}
+                width={56}
+                height={56}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            {/* Clan Logo on left */}
+            <div className="absolute left-0 bottom-0 z-20">
+              <div className="w-5 h-5 bg-black">
+                {clanLogo && (
+                  <Image
+                    src={clanLogo}
+                    alt="Clan"
+                    width={20}
+                    height={20}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            </div>
+            {/* Flag on right */}
+            <div className="absolute right-0 bottom-0 shadow-lg z-20">
+              <Flag code={player.nationality} size="sm" />
+            </div>
+          </div>
+
+          {/* Bottom: Name & Clan */}
+          <div className="mt-auto">
+            <div className={`h-px w-full bg-gradient-to-r ${style.accent} mb-1.5 opacity-40`} />
+            <h3 className={`text-xs font-black ${style.text} uppercase truncate text-center`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+              {cleanPlayerName(player.playerName)}
+            </h3>
+            {player.clan && (
+              <p className={`text-[9px] ${style.subtext} text-center opacity-70 truncate`}>{player.clan}</p>
+            )}
           </div>
         </div>
       </div>
