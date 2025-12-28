@@ -26,6 +26,8 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
   
   // Players added by streamer via search
   const [addedPlayers, setAddedPlayers] = useState<PlayerWithDetails[]>([])
+  const [listSaved, setListSaved] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   
   // Search state
   const [searchQuery, setSearchQuery] = useState("")
@@ -34,6 +36,43 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
   
   // View mode
   const [viewMode, setViewMode] = useState<ViewMode>("ADDED")
+
+  // Load saved list from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedList = localStorage.getItem('curatedStreamerPlayerList')
+      if (savedList) {
+        try {
+          const parsed = JSON.parse(savedList)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setAddedPlayers(parsed)
+            setListSaved(true)
+          }
+        } catch (e) {
+          console.error("Failed to load saved player list:", e)
+        }
+      }
+    }
+  }, [])
+
+  // Save list to localStorage
+  const saveList = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('curatedStreamerPlayerList', JSON.stringify(addedPlayers))
+      setListSaved(true)
+      setHasUnsavedChanges(false)
+    }
+  }
+
+  // Clear saved list
+  const clearSavedList = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('curatedStreamerPlayerList')
+      setAddedPlayers([])
+      setListSaved(false)
+      setHasUnsavedChanges(false)
+    }
+  }
 
   // Fetch Division A players on mount
   useEffect(() => {
@@ -93,6 +132,7 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
     // Check if already added
     if (addedPlayers.some(p => p.id === player.id)) return
     setAddedPlayers(prev => [...prev, player])
+    setHasUnsavedChanges(true)
     setSearchQuery("")
     setSearchResults([])
   }
@@ -100,6 +140,7 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
   // Remove player from added list
   const removePlayer = (playerId: string) => {
     setAddedPlayers(prev => prev.filter(p => p.id !== playerId))
+    setHasUnsavedChanges(true)
   }
 
   // Get players to display based on view mode
@@ -180,12 +221,39 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
       <div className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-2xl p-5">
         {/* Category Tabs */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-white">
-            {viewMode === "ADDED" 
-              ? `⭐ Players Added (${addedPlayers.length})`
-              : `📋 Division A - ${viewMode} (${displayPlayers.length})`
-            }
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-bold text-white">
+              {viewMode === "ADDED" 
+                ? `⭐ Players Added (${addedPlayers.length})`
+                : `📋 Division A - ${viewMode} (${displayPlayers.length})`
+              }
+            </h2>
+            {/* Save/Status indicators for Added view */}
+            {viewMode === "ADDED" && addedPlayers.length > 0 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={saveList}
+                  disabled={!hasUnsavedChanges && listSaved}
+                  className={cn(
+                    "px-3 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-1",
+                    hasUnsavedChanges
+                      ? "bg-green-500 hover:bg-green-400 text-white animate-pulse"
+                      : listSaved
+                        ? "bg-green-500/20 text-green-300 cursor-default"
+                        : "bg-green-500 hover:bg-green-400 text-white"
+                  )}
+                >
+                  💾 {hasUnsavedChanges ? "Save List" : listSaved ? "Saved ✓" : "Save List"}
+                </button>
+                <button
+                  onClick={clearSavedList}
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-all"
+                >
+                  🗑️ Clear
+                </button>
+              </div>
+            )}
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => setViewMode("ADDED")}
