@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 // POST - Submit or update a rating
 export async function POST(request: NextRequest) {
   try {
-    const { raterName, score, raterCode } = await request.json()
+    const { raterName, score, note, raterCode } = await request.json()
 
     // Verify rater code
     if (raterCode !== "OBELIXNW" && raterCode !== "MRASH") {
@@ -30,6 +30,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Score must be between 50 and 99" }, { status: 400 })
     }
 
+    // Validate note length
+    const trimmedNote = note ? note.trim().slice(0, 280) : null
+
     // Upsert rating
     const rating = await prisma.curatedRating.upsert({
       where: {
@@ -39,12 +42,14 @@ export async function POST(request: NextRequest) {
         }
       },
       update: {
-        score: parsedScore
+        score: parsedScore,
+        note: trimmedNote
       },
       create: {
         sessionId: activeSession.id,
         raterName: raterName,
-        score: parsedScore
+        score: parsedScore,
+        note: trimmedNote
       }
     })
 

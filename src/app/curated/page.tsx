@@ -40,6 +40,25 @@ interface CuratedSession {
     id: string
     raterName: string
     score: number | null
+    note: string | null
+  }[]
+}
+
+interface PlayerNotes {
+  player: {
+    id: string
+    name: string
+    category: string
+    nationality: string | null
+    clan: string | null
+    rating: number
+  }
+  ratings: {
+    id: string
+    raterName: string
+    score: number | null
+    note: string | null
+    sessionDate: string
   }[]
 }
 
@@ -201,6 +220,13 @@ export default function CuratedPage() {
   const [searching, setSearching] = useState(false)
   const [creatingSession, setCreatingSession] = useState(false)
 
+  // Note state
+  const [myNote, setMyNote] = useState<string>("")
+
+  // Player notes modal
+  const [selectedPlayerNotes, setSelectedPlayerNotes] = useState<PlayerNotes | null>(null)
+  const [loadingNotes, setLoadingNotes] = useState(false)
+
   // Handle code submission
   const handleCodeSubmit = () => {
     if (accessCode === "MRASH") {
@@ -244,12 +270,31 @@ export default function CuratedPage() {
           if (myRatingData?.score !== null && myRatingData?.score !== undefined) {
             setMyRating(myRatingData.score.toString())
           }
+          if (myRatingData?.note) {
+            setMyNote(myRatingData.note)
+          }
         }
       }
     } catch (error) {
       console.error("Failed to fetch session:", error)
     }
   }, [username, usernameSet])
+
+  // Fetch player notes
+  const fetchPlayerNotes = async (playerId: string) => {
+    setLoadingNotes(true)
+    try {
+      const res = await fetch(`/api/curated/players/${playerId}/notes`)
+      if (res.ok) {
+        const data = await res.json()
+        setSelectedPlayerNotes(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch player notes:", error)
+    } finally {
+      setLoadingNotes(false)
+    }
+  }
 
   // Search players (for streamer)
   const searchPlayers = async (query: string) => {
@@ -294,7 +339,7 @@ export default function CuratedPage() {
   }
 
   // Submit rating
-  const submitRating = async (score: string) => {
+  const submitRating = async (score: string, note?: string) => {
     if (!usernameSet || !activeSession) return
     setSubmittingRating(true)
     try {
@@ -304,6 +349,7 @@ export default function CuratedPage() {
         body: JSON.stringify({
           raterName: username,
           score: score === "" ? null : parseInt(score),
+          note: note !== undefined ? note : myNote,
           raterCode: accessCode
         })
       })
@@ -312,6 +358,26 @@ export default function CuratedPage() {
       console.error("Failed to submit rating:", error)
     } finally {
       setSubmittingRating(false)
+    }
+  }
+
+  // Submit note separately
+  const submitNote = async (note: string) => {
+    if (!usernameSet || !activeSession) return
+    try {
+      await fetch("/api/curated/ratings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          raterName: username,
+          score: myRating === "" ? null : parseInt(myRating),
+          note: note,
+          raterCode: accessCode
+        })
+      })
+      setMyNote(note)
+    } catch (error) {
+      console.error("Failed to submit note:", error)
     }
   }
 
@@ -479,6 +545,80 @@ export default function CuratedPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+      {/* Player Notes Modal */}
+      {selectedPlayerNotes && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-800 rounded-2xl border border-violet-500/30 max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-white/10">
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-3">
+                    {selectedPlayerNotes.player.nationality && (
+                      <Flag code={selectedPlayerNotes.player.nationality} size="md" />
+                    )}
+                    <div>
+                      <h2 className="text-2xl font-display text-white">
+                        {cleanPlayerName(selectedPlayerNotes.player.name)}
+                      </h2>
+                      <p className="text-white/50 text-sm mt-1">
+                        {selectedPlayerNotes.player.category} · {selectedPlayerNotes.player.clan || "FA"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right mr-4">
+                  <div className="text-3xl font-bold text-violet-400">
+                    {Math.round(selectedPlayerNotes.player.rating)}
+                  </div>
+                  <div className="text-white/50 text-xs">
+                    Curated Rating
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedPlayerNotes(null)}
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {loadingNotes ? (
+                <div className="flex justify-center py-8">
+                  <div className="w-8 h-8 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin" />
+                </div>
+              ) : selectedPlayerNotes.ratings.length === 0 ? (
+                <div className="text-center text-white/40 py-8">
+                  No ratings yet
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {selectedPlayerNotes.ratings.map((rating) => (
+                    <div 
+                      key={rating.id}
+                      className="bg-black/20 rounded-xl p-4 border border-white/5"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-white font-medium">
+                          {rating.raterName}
+                        </span>
+                        <span className="text-violet-400 font-bold text-xl">{rating.score}</span>
+                      </div>
+                      {rating.note && (
+                        <p className="text-white/70 text-sm leading-relaxed border-t border-white/10 pt-3 mt-2">
+                          &ldquo;{rating.note}&rdquo;
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="text-center py-12 sm:py-16">
         <p className="text-xs font-medium tracking-[0.3em] uppercase text-violet-400 mb-4">
@@ -570,8 +710,9 @@ export default function CuratedPage() {
                       return (
                         <div
                           key={player.id}
+                          onClick={() => fetchPlayerNotes(player.playerId)}
                           className={cn(
-                            "relative rounded-2xl border-2 p-6 transition-all hover:scale-[1.02]",
+                            "relative rounded-2xl border-2 p-6 transition-all hover:scale-[1.02] cursor-pointer",
                             style.border
                           )}
                           style={{ background: style.bg }}
@@ -601,7 +742,7 @@ export default function CuratedPage() {
                             {/* Info */}
                             <div className="flex items-center gap-2 mb-3">
                               {player.nationality && (
-                                <Flag nationality={player.nationality} size="sm" />
+                                <Flag code={player.nationality} size="sm" />
                               )}
                               <span className={cn("text-sm", style.subtext)}>
                                 {categoryShort[player.category]} • {player.clan || "FA"}
@@ -636,8 +777,9 @@ export default function CuratedPage() {
                       return (
                         <div
                           key={player.id}
+                          onClick={() => fetchPlayerNotes(player.playerId)}
                           className={cn(
-                            "relative rounded-xl border-2 p-4 transition-all hover:scale-[1.02]",
+                            "relative rounded-xl border-2 p-4 transition-all hover:scale-[1.02] cursor-pointer",
                             style.border
                           )}
                           style={{ background: style.bg }}
@@ -666,7 +808,7 @@ export default function CuratedPage() {
                               </div>
                               <div className="flex items-center gap-2">
                                 {player.nationality && (
-                                  <Flag nationality={player.nationality} size="sm" />
+                                  <Flag code={player.nationality} size="sm" />
                                 )}
                                 <span className={cn("text-sm", style.subtext)}>
                                   {categoryShort[player.category]} • {player.clan || "FA"}
@@ -704,8 +846,9 @@ export default function CuratedPage() {
                       return (
                         <div
                           key={player.id}
+                          onClick={() => fetchPlayerNotes(player.playerId)}
                           className={cn(
-                            "rounded-lg border p-3 transition-all hover:scale-[1.02]",
+                            "rounded-lg border p-3 transition-all hover:scale-[1.02] cursor-pointer",
                             style.border
                           )}
                           style={{ background: style.bg }}
@@ -713,7 +856,7 @@ export default function CuratedPage() {
                           <div className="flex items-center gap-2">
                             <span className="text-white/40 text-sm w-6">#{index + 16}</span>
                             {player.nationality && (
-                              <Flag nationality={player.nationality} size="sm" />
+                              <Flag code={player.nationality} size="sm" />
                             )}
                             <span className={cn("font-medium truncate flex-1", style.text)}>
                               {cleanPlayerName(player.playerName)}
@@ -782,7 +925,7 @@ export default function CuratedPage() {
                           {player.category} • {player.clan || "FA"}
                         </div>
                       </div>
-                      {player.nationality && <Flag nationality={player.nationality} size="sm" />}
+                      {player.nationality && <Flag code={player.nationality} size="sm" />}
                     </button>
                   ))}
                 </div>
@@ -823,7 +966,7 @@ export default function CuratedPage() {
                     </h2>
                     <div className="flex items-center gap-2 text-white/70">
                       {activeSession.nationality && (
-                        <Flag nationality={activeSession.nationality} size="md" />
+                        <Flag code={activeSession.nationality} size="md" />
                       )}
                       <span>{activeSession.category}</span>
                       <span>•</span>
@@ -921,6 +1064,28 @@ export default function CuratedPage() {
                       </div>
                     )
                   })}
+                </div>
+              </div>
+
+              {/* Note Input */}
+              <div className="max-w-2xl mx-auto">
+                <label className="text-sm font-medium text-violet-400 mb-2 block">
+                  Add a note about {cleanPlayerName(activeSession.playerName)} (optional, max 280 chars)
+                </label>
+                <div className="relative">
+                  <textarea
+                    placeholder="Share your thoughts on this player..."
+                    value={myNote}
+                    onChange={(e) => {
+                      const val = e.target.value.slice(0, 280)
+                      setMyNote(val)
+                    }}
+                    onBlur={() => submitNote(myNote)}
+                    className="w-full px-4 py-3 bg-black/40 border border-violet-500/30 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-violet-500 resize-none h-24"
+                  />
+                  <div className="absolute bottom-2 right-3 text-xs text-white/40">
+                    {myNote.length}/280
+                  </div>
                 </div>
               </div>
 
