@@ -510,22 +510,39 @@ export default function CuratedPage() {
           )}
 
           {/* Active Rating Session - Large Layout with Notes */}
-          {activeSession && (
+          {activeSession && (() => {
+            // Get all ratings from session, padded to 10 slots
+            const allRatings = activeSession.ratings
+            // Find my rating by username
+            const myRatingData = allRatings.find(r => r.raterName === username)
+            // For display: show all existing ratings + empty slots up to 10
+            // Left side: slots 0-4, Right side: slots 5-9
+            const leftSlots = Array.from({ length: 5 }, (_, i) => {
+              const rating = allRatings[i]
+              const isMe = rating?.raterName === username
+              return { index: i, rating, isMe, displayName: rating?.raterName || `Rater ${i + 1}` }
+            })
+            const rightSlots = Array.from({ length: 5 }, (_, i) => {
+              const rating = allRatings[i + 5]
+              const isMe = rating?.raterName === username
+              return { index: i + 5, rating, isMe, displayName: rating?.raterName || `Rater ${i + 6}` }
+            })
+            // For raters: find their position or assign to first empty slot
+            const mySlotIndex = allRatings.findIndex(r => r.raterName === username)
+            
+            return (
             <div className="flex items-start justify-center gap-16 py-8">
               {/* Left Side - Raters 1-5 with notes */}
               <div className="space-y-4 pt-6">
-                {RATER_NAMES.slice(0, 5).map((slotName, index) => {
-                  // Find rating for this slot - either by slot name or by the current user if they have this slot
-                  const isMySlot = selectedSlot === slotName
-                  const raterData = isMySlot 
-                    ? activeSession.ratings.find(r => r.raterName === username)
-                    : activeSession.ratings.find(r => r.raterName === slotName)
-                  // Display the custom name if this is my slot, otherwise show the raterName from data or slot name
-                  const displayName = isMySlot ? username : (raterData?.raterName || slotName)
+                {leftSlots.map(({ index, rating, isMe, displayName }) => {
+                  // Check if this is my slot (either I have a rating here, or I'm a new rater taking an empty slot)
+                  const isMySlot = isMe || (!myRatingData && !rating && selectedSlot === RATER_NAMES[index])
+                  const raterData = isMySlot ? (myRatingData || rating) : rating
+                  const name = isMySlot ? username : displayName
                   return (
                     <RaterBox
-                      key={slotName}
-                      raterName={displayName}
+                      key={index}
+                      raterName={name}
                       raterData={raterData}
                       isMe={isMySlot}
                       isLeft={true}
@@ -535,7 +552,6 @@ export default function CuratedPage() {
                       submittingRating={submittingRating}
                       onRatingChange={(val) => {
                         setMyRating(val)
-                        // Debounced auto-submit for real-time updates
                         if (ratingDebounceRef.current) clearTimeout(ratingDebounceRef.current)
                         ratingDebounceRef.current = setTimeout(() => {
                           if (val) submitRating(val)
@@ -547,7 +563,6 @@ export default function CuratedPage() {
                       }}
                       onNoteChange={(val) => {
                         setMyNote(val)
-                        // Debounced auto-submit for real-time updates
                         if (noteDebounceRef.current) clearTimeout(noteDebounceRef.current)
                         noteDebounceRef.current = setTimeout(() => {
                           submitNote(val)
@@ -596,18 +611,15 @@ export default function CuratedPage() {
 
               {/* Right Side - Raters 6-10 with notes */}
               <div className="space-y-4 pt-6">
-                {RATER_NAMES.slice(5, 10).map((slotName, index) => {
-                  // Find rating for this slot - either by slot name or by the current user if they have this slot
-                  const isMySlot = selectedSlot === slotName
-                  const raterData = isMySlot 
-                    ? activeSession.ratings.find(r => r.raterName === username)
-                    : activeSession.ratings.find(r => r.raterName === slotName)
-                  // Display the custom name if this is my slot, otherwise show the raterName from data or slot name
-                  const displayName = isMySlot ? username : (raterData?.raterName || slotName)
+                {rightSlots.map(({ index, rating, isMe, displayName }) => {
+                  // Check if this is my slot
+                  const isMySlot = isMe || (!myRatingData && !rating && selectedSlot === RATER_NAMES[index])
+                  const raterData = isMySlot ? (myRatingData || rating) : rating
+                  const name = isMySlot ? username : displayName
                   return (
                     <RaterBox
-                      key={slotName}
-                      raterName={displayName}
+                      key={index}
+                      raterName={name}
                       raterData={raterData}
                       isMe={isMySlot}
                       isLeft={false}
@@ -617,7 +629,6 @@ export default function CuratedPage() {
                       submittingRating={submittingRating}
                       onRatingChange={(val) => {
                         setMyRating(val)
-                        // Debounced auto-submit for real-time updates
                         if (ratingDebounceRef.current) clearTimeout(ratingDebounceRef.current)
                         ratingDebounceRef.current = setTimeout(() => {
                           if (val) submitRating(val)
@@ -646,7 +657,8 @@ export default function CuratedPage() {
                 })}
               </div>
             </div>
-          )}
+            )
+          })()}
 
           {/* No Active Session - Rater View */}
           {!activeSession && !isStreamer && (
