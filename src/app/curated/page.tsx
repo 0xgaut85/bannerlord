@@ -646,6 +646,10 @@ export default function CuratedPage() {
   const [selectedPlayerNotes, setSelectedPlayerNotes] = useState<PlayerNotes | null>(null)
   const [loadingNotes, setLoadingNotes] = useState(false)
 
+  // Rater slot selection (for custom name entry)
+  const [selectedSlot, setSelectedSlot] = useState<string>("")
+  const [customName, setCustomName] = useState<string>("")
+
   // Handle code submission (only for rate tab)
   const handleCodeSubmit = () => {
     if (accessCode === "MRASH") {
@@ -975,53 +979,93 @@ export default function CuratedPage() {
     )
   }
 
-  // Username entry for raters
+  // Username entry for raters - two-step: select slot, then enter name
   if (activeTab === "rate" && isAuthenticated && !usernameSet) {
+    // Step 1: Select rater slot (for non-streamers)
+    if (!isStreamer && !selectedSlot) {
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center p-4">
+          <div className="bg-black/40 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-8 max-w-lg w-full">
+            <p className="text-xs font-medium tracking-[0.3em] uppercase text-violet-400 mb-4 text-center">
+              Rater Mode
+            </p>
+            <h1 className="text-3xl font-bold text-white text-center mb-2">
+              ⭐ Select Your Slot
+            </h1>
+            <p className="text-white/50 text-center mb-8">
+              Choose which rater position you are
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {RATER_NAMES.slice(0, 9).map((slot, index) => (
+                <button
+                  key={slot}
+                  onClick={() => setSelectedSlot(slot)}
+                  className="px-4 py-4 bg-white/5 hover:bg-violet-500/30 border border-white/10 hover:border-violet-500/50 rounded-xl text-white font-medium transition-all text-lg"
+                >
+                  Rater {index + 1}
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={() => setActiveTab("rankings")}
+              className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all"
+            >
+              View Rankings Instead
+            </button>
+          </div>
+        </div>
+      )
+    }
+    
+    // Step 2: Enter custom name
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center p-4">
         <div className="bg-black/40 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-8 max-w-md w-full">
           <p className="text-xs font-medium tracking-[0.3em] uppercase text-violet-400 mb-4 text-center">
-            {isStreamer ? "Streamer Mode" : "Rater Mode"}
+            {isStreamer ? "Streamer Mode" : `Rater ${RATER_NAMES.indexOf(selectedSlot) + 1}`}
           </p>
           <h1 className="text-3xl font-bold text-white text-center mb-2">
-            {isStreamer ? "🎬 Welcome Streamer" : "⭐ Welcome Rater"}
+            {isStreamer ? "🎬 Welcome Streamer" : "✏️ Enter Your Name"}
           </h1>
           <p className="text-white/50 text-center mb-8">
-            {isStreamer ? "Enter your display name" : "Select your rater name"}
+            {isStreamer ? "You'll be shown as the Streamer" : "This name will be displayed next to your ratings"}
           </p>
 
           <div className="space-y-4">
-            {!isStreamer && (
-              <select
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 bg-black/40 border border-violet-500/30 rounded-xl text-white focus:outline-none focus:border-violet-500"
-              >
-                <option value="">Select your name...</option>
-                {RATER_NAMES.map(name => (
-                  <option key={name} value={name}>{name}</option>
-                ))}
-              </select>
-            )}
-            {isStreamer && (
-              <input
-                type="text"
-                placeholder="Your name..."
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 bg-black/40 border border-violet-500/30 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-violet-500"
-              />
-            )}
+            <input
+              type="text"
+              placeholder="Your name..."
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              className="w-full px-4 py-3 bg-black/40 border border-violet-500/30 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-violet-500 text-lg"
+            />
             <button
-              onClick={() => username && setUsernameSet(true)}
-              disabled={!username}
+              onClick={() => {
+                if (customName.trim()) {
+                  // Store the custom name with the slot info
+                  // Format: "CustomName" - we'll use this as the username
+                  setUsername(customName.trim())
+                  setUsernameSet(true)
+                }
+              }}
+              disabled={!customName.trim()}
               className="w-full py-3 bg-violet-500 hover:bg-violet-400 disabled:bg-slate-600 text-white font-semibold rounded-xl transition-all disabled:cursor-not-allowed shadow-xl"
             >
               Continue
             </button>
+            {!isStreamer && (
+              <button
+                onClick={() => setSelectedSlot("")}
+                className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all"
+              >
+                ← Back to Slot Selection
+              </button>
+            )}
             <button
               onClick={() => setActiveTab("rankings")}
-              className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all"
+              className="w-full py-3 bg-white/5 hover:bg-white/10 text-white/70 font-semibold rounded-xl transition-all"
             >
               View Rankings Instead
             </button>
