@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import { Flag } from "@/components/ui"
 import { cn, cleanPlayerName } from "@/lib/utils"
@@ -69,6 +69,10 @@ export default function CuratedPage() {
   // Track if we've done initial sync (to avoid overwriting local edits during polling)
   const [initialSyncDone, setInitialSyncDone] = useState(false)
 
+  // Debounce timers for auto-submit (so streamer sees updates in real-time)
+  const noteDebounceRef = useRef<NodeJS.Timeout | null>(null)
+  const ratingDebounceRef = useRef<NodeJS.Timeout | null>(null)
+
   // Handle code submission
   const handleCodeSubmit = () => {
     if (accessCode === "MRASH") {
@@ -108,11 +112,14 @@ export default function CuratedPage() {
       if (res.ok) {
         const data = await res.json()
         const prevSessionId = activeSession?.id
+        const isNewSession = data?.id !== prevSessionId
+        
+        // Always update session data (so streamer sees all raters' updates in real-time)
         setActiveSession(data)
         
-        // Only sync local state on initial load or when session changes
+        // Only sync MY OWN local state on initial load or when session changes
         // This prevents overwriting user's local edits during polling
-        const isNewSession = data?.id !== prevSessionId
+        // But other raters' data is always updated via setActiveSession above
         if (data && usernameSet && (!initialSyncDone || isNewSession)) {
           const myData = data.ratings.find((r: any) => r.raterName === username)
           if (myData) {
@@ -601,10 +608,30 @@ export default function CuratedPage() {
                       myNote={myNote}
                       myConfirmed={myConfirmed}
                       submittingRating={submittingRating}
-                      onRatingChange={setMyRating}
-                      onRatingBlur={() => submitRating(myRating)}
-                      onNoteChange={setMyNote}
-                      onNoteBlur={() => submitNote(myNote)}
+                      onRatingChange={(val) => {
+                        setMyRating(val)
+                        // Debounced auto-submit for real-time updates
+                        if (ratingDebounceRef.current) clearTimeout(ratingDebounceRef.current)
+                        ratingDebounceRef.current = setTimeout(() => {
+                          if (val) submitRating(val)
+                        }, 500)
+                      }}
+                      onRatingBlur={() => {
+                        if (ratingDebounceRef.current) clearTimeout(ratingDebounceRef.current)
+                        submitRating(myRating)
+                      }}
+                      onNoteChange={(val) => {
+                        setMyNote(val)
+                        // Debounced auto-submit for real-time updates
+                        if (noteDebounceRef.current) clearTimeout(noteDebounceRef.current)
+                        noteDebounceRef.current = setTimeout(() => {
+                          submitNote(val)
+                        }, 500)
+                      }}
+                      onNoteBlur={() => {
+                        if (noteDebounceRef.current) clearTimeout(noteDebounceRef.current)
+                        submitNote(myNote)
+                      }}
                       onConfirm={confirmMyRating}
                       onEdit={editMyRating}
                     />
@@ -663,10 +690,30 @@ export default function CuratedPage() {
                       myNote={myNote}
                       myConfirmed={myConfirmed}
                       submittingRating={submittingRating}
-                      onRatingChange={setMyRating}
-                      onRatingBlur={() => submitRating(myRating)}
-                      onNoteChange={setMyNote}
-                      onNoteBlur={() => submitNote(myNote)}
+                      onRatingChange={(val) => {
+                        setMyRating(val)
+                        // Debounced auto-submit for real-time updates
+                        if (ratingDebounceRef.current) clearTimeout(ratingDebounceRef.current)
+                        ratingDebounceRef.current = setTimeout(() => {
+                          if (val) submitRating(val)
+                        }, 500)
+                      }}
+                      onRatingBlur={() => {
+                        if (ratingDebounceRef.current) clearTimeout(ratingDebounceRef.current)
+                        submitRating(myRating)
+                      }}
+                      onNoteChange={(val) => {
+                        setMyNote(val)
+                        // Debounced auto-submit for real-time updates
+                        if (noteDebounceRef.current) clearTimeout(noteDebounceRef.current)
+                        noteDebounceRef.current = setTimeout(() => {
+                          submitNote(val)
+                        }, 500)
+                      }}
+                      onNoteBlur={() => {
+                        if (noteDebounceRef.current) clearTimeout(noteDebounceRef.current)
+                        submitNote(myNote)
+                      }}
                       onConfirm={confirmMyRating}
                       onEdit={editMyRating}
                     />
