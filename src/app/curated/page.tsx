@@ -164,8 +164,6 @@ export default function CuratedPage() {
       if (res.ok) {
         const session = await res.json()
         setActiveSession(session)
-        setSearchQuery("")
-        setSearchResults([])
       }
     } catch (error) {
       console.error("Failed to create session:", error)
