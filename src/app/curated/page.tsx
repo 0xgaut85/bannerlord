@@ -1141,239 +1141,248 @@ export default function CuratedPage() {
             </div>
           )}
 
-          {/* Active Rating Session - Clean Compact Layout */}
+          {/* Active Rating Session - Bigger Layout with Notes */}
           {activeSession && (
-            <div className="flex items-start justify-center gap-8 py-4">
-              {/* Left Side - Raters 1-5 */}
-              <div className="space-y-1.5 pt-8">
+            <div className="flex items-start justify-center gap-12 py-6">
+              {/* Left Side - Raters 1-5 with notes */}
+              <div className="space-y-3 pt-4">
                 {RATER_NAMES.slice(0, 5).map(raterName => {
                   const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                   const isMe = raterName === username
                   const isRaterConfirmed = raterData?.confirmed ?? false
                   return (
-                    <div key={raterName} className="flex items-center gap-1.5 justify-end">
-                      <span className={cn(
-                        "text-[11px] font-medium truncate max-w-[70px]",
-                        isMe ? "text-violet-400" : "text-white/40"
-                      )}>
-                        {raterName.replace("Rater ", "R")}
-                      </span>
-                      <div className={cn(
-                        "w-12 h-7 rounded border flex items-center justify-center transition-colors",
-                        isRaterConfirmed 
-                          ? "border-green-500 bg-green-500/20" 
-                          : raterData?.score 
-                            ? "border-red-500 bg-red-500/20" 
-                            : "border-white/20 bg-black/40"
-                      )}>
-                        {isMe && !myConfirmed ? (
-                          <input
-                            type="number"
-                            min={50}
-                            max={99}
-                            placeholder="--"
-                            value={myRating}
-                            onChange={(e) => {
-                              const val = e.target.value
-                              setMyRating(val)
-                              submitRating(val)
-                            }}
-                            disabled={submittingRating}
-                            className="w-full h-full bg-transparent text-white text-center text-sm font-bold focus:outline-none placeholder-white/30"
-                          />
+                    <div key={raterName} className="flex flex-col items-end gap-1">
+                      {/* Rater row */}
+                      <div className="flex items-center gap-2">
+                        <span className={cn(
+                          "text-sm font-semibold w-24 text-right",
+                          isMe ? "text-violet-400" : "text-white/60"
+                        )}>
+                          {raterName} {isMe && "★"}
+                        </span>
+                        <div className={cn(
+                          "w-16 h-10 rounded-lg border-2 flex items-center justify-center transition-colors",
+                          isRaterConfirmed 
+                            ? "border-green-500 bg-green-500/20" 
+                            : raterData?.score 
+                              ? "border-red-500 bg-red-500/20" 
+                              : "border-white/20 bg-black/40"
+                        )}>
+                          {isMe && !myConfirmed ? (
+                            <input
+                              type="number"
+                              min={50}
+                              max={99}
+                              placeholder="--"
+                              value={myRating}
+                              onChange={(e) => {
+                                const val = e.target.value
+                                setMyRating(val)
+                                submitRating(val)
+                              }}
+                              disabled={submittingRating}
+                              className="w-full h-full bg-transparent text-white text-center text-xl font-bold focus:outline-none placeholder-white/30"
+                            />
+                          ) : (
+                            <span className="text-xl font-bold text-white">
+                              {isMe ? myRating || "—" : (raterData?.score ?? "—")}
+                            </span>
+                          )}
+                        </div>
+                        {isMe ? (
+                          !myConfirmed ? (
+                            <button
+                              onClick={confirmMyRating}
+                              disabled={!myRating || submittingRating}
+                              className="w-8 h-8 text-sm font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded-lg transition-colors flex items-center justify-center"
+                            >
+                              ✓
+                            </button>
+                          ) : (
+                            <button
+                              onClick={editMyRating}
+                              disabled={submittingRating}
+                              className="w-8 h-8 text-sm font-bold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors flex items-center justify-center"
+                            >
+                              ✎
+                            </button>
+                          )
                         ) : (
-                          <span className="text-sm font-bold text-white">
-                            {isMe ? myRating || "—" : (raterData?.score ?? "—")}
-                          </span>
+                          <div className="w-8" />
                         )}
                       </div>
-                      {isMe && (
-                        !myConfirmed ? (
-                          <button
-                            onClick={confirmMyRating}
-                            disabled={!myRating || submittingRating}
-                            className="w-6 h-6 text-[10px] font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded transition-colors flex items-center justify-center"
-                          >
-                            ✓
-                          </button>
+                      {/* Note box below each rater */}
+                      <div className="w-full max-w-[220px]">
+                        {isMe ? (
+                          <textarea
+                            placeholder="Your note..."
+                            value={myNote}
+                            onChange={(e) => setMyNote(e.target.value.slice(0, 280))}
+                            onBlur={() => submitNote(myNote)}
+                            disabled={myConfirmed}
+                            className={cn(
+                              "w-full px-2 py-1.5 rounded text-white text-xs placeholder-white/30 focus:outline-none resize-none h-12",
+                              myConfirmed ? "bg-green-500/10 border border-green-500/40" : "bg-black/30 border border-violet-500/20 focus:border-violet-500"
+                            )}
+                          />
                         ) : (
-                          <button
-                            onClick={editMyRating}
-                            disabled={submittingRating}
-                            className="w-6 h-6 text-[10px] font-bold bg-amber-500 hover:bg-amber-400 text-white rounded transition-colors flex items-center justify-center"
-                          >
-                            ✎
-                          </button>
-                        )
-                      )}
-                      {!isMe && <div className="w-6" />}
+                          <div className={cn(
+                            "w-full px-2 py-1.5 rounded text-xs h-12 overflow-hidden",
+                            raterData?.note ? "bg-black/20 text-white/50 italic" : "bg-black/10 text-white/20"
+                          )}>
+                            {raterData?.note ? `"${raterData.note}"` : "No note"}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )
                 })}
-                {/* Notes from left raters (for streamer) */}
-                {isStreamer && (
-                  <div className="mt-2 space-y-1 max-w-[180px]">
-                    {RATER_NAMES.slice(0, 5).map(raterName => {
-                      const raterData = activeSession.ratings.find(r => r.raterName === raterName)
-                      if (!raterData?.note) return null
-                      return (
-                        <div key={raterName} className="text-[9px] text-white/50 italic bg-black/20 rounded px-1.5 py-0.5 line-clamp-1">
-                          <span className="text-white/30">{raterName.replace("Rater ", "R")}:</span> {raterData.note}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
               </div>
 
-              {/* Center - Player Card + Controls */}
+              {/* Center - Big Player Card + Controls */}
               <div className="flex flex-col items-center">
-                {/* Compact FIFA Card */}
-                <div className="relative w-52 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 border-violet-500/50">
+                {/* Big FIFA Card */}
+                <div className="relative w-72 aspect-[2/3] rounded-3xl overflow-hidden shadow-2xl border-4 border-violet-500/50">
                   <div className="absolute inset-0" style={{ background: "linear-gradient(145deg, #1e1b4b 0%, #4c1d95 30%, #7c3aed 60%, #312e81 100%)" }} />
                   <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }} />
-                  <div className="absolute inset-3 border border-dashed border-white/15 rounded-xl pointer-events-none" />
+                  <div className="absolute inset-4 border border-dashed border-white/15 rounded-2xl pointer-events-none" />
                   
-                  <div className="relative h-full flex flex-col p-4">
+                  <div className="relative h-full flex flex-col p-6">
                     {/* Top row */}
                     <div className="flex justify-between items-start">
                       <div className="flex flex-col items-center">
-                        <span className="text-3xl font-black text-white drop-shadow-lg">{calculateAverage() ?? "?"}</span>
-                        <span className="text-[9px] font-bold text-violet-300 uppercase">{categoryShort[activeSession.category]}</span>
+                        <span className="text-5xl font-black text-white drop-shadow-lg">{calculateAverage() ?? "?"}</span>
+                        <span className="text-sm font-bold text-violet-300 uppercase mt-1">{categoryShort[activeSession.category]}</span>
                       </div>
                       <div className="text-right">
-                        <div className="text-[10px] text-white/50">{activeSession.ratings.filter(r => r.score !== null).length}/{RATER_NAMES.length}</div>
+                        <div className="text-sm text-white/60 font-medium">{activeSession.ratings.filter(r => r.score !== null).length}/{RATER_NAMES.length} votes</div>
                       </div>
                     </div>
                     
                     {/* Avatar */}
                     <div className="flex-1 flex items-center justify-center">
-                      <div className="w-24 h-24 rounded-xl overflow-hidden border-2 border-white/30 shadow-lg">
-                        <Image src={getDefaultAvatar(activeSession.category)} alt={activeSession.playerName} width={96} height={96} className="w-full h-full object-cover" />
+                      <div className="w-36 h-36 rounded-2xl overflow-hidden border-2 border-white/30 shadow-xl">
+                        <Image src={getDefaultAvatar(activeSession.category)} alt={activeSession.playerName} width={144} height={144} className="w-full h-full object-cover" />
                       </div>
                     </div>
                     
                     {/* Player Info */}
                     <div className="text-center">
-                      <h2 className="text-lg font-black text-white tracking-tight drop-shadow-lg truncate">{cleanPlayerName(activeSession.playerName)}</h2>
-                      <div className="flex items-center justify-center gap-1.5 mt-1">
-                        {activeSession.nationality && <Flag code={activeSession.nationality} size="sm" />}
-                        <span className="text-white/70 text-xs font-medium">{activeSession.clan || "FA"}</span>
+                      <h2 className="text-2xl font-black text-white tracking-tight drop-shadow-lg">{cleanPlayerName(activeSession.playerName)}</h2>
+                      <div className="flex items-center justify-center gap-2 mt-2">
+                        {activeSession.nationality && <Flag code={activeSession.nationality} size="md" />}
+                        <span className="text-white/70 text-base font-medium">{activeSession.clan || "FA"}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Note Input - for both raters and streamer */}
-                <div className="mt-3 w-full">
-                  <textarea
-                    placeholder={myConfirmed ? "Confirmed ✓" : `Note (optional)...`}
-                    value={myNote}
-                    onChange={(e) => setMyNote(e.target.value.slice(0, 280))}
-                    onBlur={() => submitNote(myNote)}
-                    disabled={myConfirmed}
-                    className={cn(
-                      "w-full px-3 py-2 rounded-lg text-white text-xs placeholder-white/30 focus:outline-none resize-none h-14",
-                      myConfirmed ? "bg-green-500/10 border border-green-500/50 cursor-not-allowed" : "bg-black/40 border border-violet-500/30 focus:border-violet-500"
-                    )}
-                  />
-                  <div className="text-right text-[9px] text-white/30 mt-0.5">{myNote.length}/280</div>
-                </div>
-
                 {/* Streamer Buttons */}
                 {isStreamer && (
-                  <div className="flex gap-2 mt-2">
-                    <button onClick={confirmSession} disabled={confirming || calculateAverage() === null} className="px-4 py-2 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-sm font-bold rounded-lg transition-all disabled:cursor-not-allowed">
-                      {confirming ? "..." : "✓ Confirm Final"}
+                  <div className="flex gap-3 mt-4">
+                    <button onClick={confirmSession} disabled={confirming || calculateAverage() === null} className="px-6 py-3 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-base font-bold rounded-xl transition-all disabled:cursor-not-allowed shadow-lg">
+                      {confirming ? "..." : "✓ Confirm Final Rating"}
                     </button>
-                    <button onClick={endSession} className="px-4 py-2 bg-red-500 hover:bg-red-400 text-white text-sm font-bold rounded-lg transition-all">
-                      ✕ Cancel
+                    <button onClick={endSession} className="px-6 py-3 bg-red-500 hover:bg-red-400 text-white text-base font-bold rounded-xl transition-all shadow-lg">
+                      ✕ Cancel Session
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* Right Side - Raters 6-10 */}
-              <div className="space-y-1.5 pt-8">
+              {/* Right Side - Raters 6-10 with notes */}
+              <div className="space-y-3 pt-4">
                 {RATER_NAMES.slice(5, 10).map(raterName => {
                   const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                   const isMe = raterName === username
                   const isRaterConfirmed = raterData?.confirmed ?? false
                   return (
-                    <div key={raterName} className="flex items-center gap-1.5">
-                      {isMe && (
-                        !myConfirmed ? (
-                          <button
-                            onClick={confirmMyRating}
-                            disabled={!myRating || submittingRating}
-                            className="w-6 h-6 text-[10px] font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded transition-colors flex items-center justify-center"
-                          >
-                            ✓
-                          </button>
+                    <div key={raterName} className="flex flex-col items-start gap-1">
+                      {/* Rater row */}
+                      <div className="flex items-center gap-2">
+                        {isMe ? (
+                          !myConfirmed ? (
+                            <button
+                              onClick={confirmMyRating}
+                              disabled={!myRating || submittingRating}
+                              className="w-8 h-8 text-sm font-bold bg-green-500 hover:bg-green-400 disabled:bg-gray-600 text-white rounded-lg transition-colors flex items-center justify-center"
+                            >
+                              ✓
+                            </button>
+                          ) : (
+                            <button
+                              onClick={editMyRating}
+                              disabled={submittingRating}
+                              className="w-8 h-8 text-sm font-bold bg-amber-500 hover:bg-amber-400 text-white rounded-lg transition-colors flex items-center justify-center"
+                            >
+                              ✎
+                            </button>
+                          )
                         ) : (
-                          <button
-                            onClick={editMyRating}
-                            disabled={submittingRating}
-                            className="w-6 h-6 text-[10px] font-bold bg-amber-500 hover:bg-amber-400 text-white rounded transition-colors flex items-center justify-center"
-                          >
-                            ✎
-                          </button>
-                        )
-                      )}
-                      {!isMe && <div className="w-6" />}
-                      <div className={cn(
-                        "w-12 h-7 rounded border flex items-center justify-center transition-colors",
-                        isRaterConfirmed 
-                          ? "border-green-500 bg-green-500/20" 
-                          : raterData?.score 
-                            ? "border-red-500 bg-red-500/20" 
-                            : "border-white/20 bg-black/40"
-                      )}>
-                        {isMe && !myConfirmed ? (
-                          <input
-                            type="number"
-                            min={50}
-                            max={99}
-                            placeholder="--"
-                            value={myRating}
-                            onChange={(e) => {
-                              const val = e.target.value
-                              setMyRating(val)
-                              submitRating(val)
-                            }}
-                            disabled={submittingRating}
-                            className="w-full h-full bg-transparent text-white text-center text-sm font-bold focus:outline-none placeholder-white/30"
+                          <div className="w-8" />
+                        )}
+                        <div className={cn(
+                          "w-16 h-10 rounded-lg border-2 flex items-center justify-center transition-colors",
+                          isRaterConfirmed 
+                            ? "border-green-500 bg-green-500/20" 
+                            : raterData?.score 
+                              ? "border-red-500 bg-red-500/20" 
+                              : "border-white/20 bg-black/40"
+                        )}>
+                          {isMe && !myConfirmed ? (
+                            <input
+                              type="number"
+                              min={50}
+                              max={99}
+                              placeholder="--"
+                              value={myRating}
+                              onChange={(e) => {
+                                const val = e.target.value
+                                setMyRating(val)
+                                submitRating(val)
+                              }}
+                              disabled={submittingRating}
+                              className="w-full h-full bg-transparent text-white text-center text-xl font-bold focus:outline-none placeholder-white/30"
+                            />
+                          ) : (
+                            <span className="text-xl font-bold text-white">
+                              {isMe ? myRating || "—" : (raterData?.score ?? "—")}
+                            </span>
+                          )}
+                        </div>
+                        <span className={cn(
+                          "text-sm font-semibold w-24",
+                          isMe ? "text-violet-400" : "text-white/60"
+                        )}>
+                          {isMe && "★ "}{raterName}
+                        </span>
+                      </div>
+                      {/* Note box below each rater */}
+                      <div className="w-full max-w-[220px] ml-10">
+                        {isMe ? (
+                          <textarea
+                            placeholder="Your note..."
+                            value={myNote}
+                            onChange={(e) => setMyNote(e.target.value.slice(0, 280))}
+                            onBlur={() => submitNote(myNote)}
+                            disabled={myConfirmed}
+                            className={cn(
+                              "w-full px-2 py-1.5 rounded text-white text-xs placeholder-white/30 focus:outline-none resize-none h-12",
+                              myConfirmed ? "bg-green-500/10 border border-green-500/40" : "bg-black/30 border border-violet-500/20 focus:border-violet-500"
+                            )}
                           />
                         ) : (
-                          <span className="text-sm font-bold text-white">
-                            {isMe ? myRating || "—" : (raterData?.score ?? "—")}
-                          </span>
+                          <div className={cn(
+                            "w-full px-2 py-1.5 rounded text-xs h-12 overflow-hidden",
+                            raterData?.note ? "bg-black/20 text-white/50 italic" : "bg-black/10 text-white/20"
+                          )}>
+                            {raterData?.note ? `"${raterData.note}"` : "No note"}
+                          </div>
                         )}
                       </div>
-                      <span className={cn(
-                        "text-[11px] font-medium truncate max-w-[70px]",
-                        isMe ? "text-violet-400" : "text-white/40"
-                      )}>
-                        {raterName.replace("Rater ", "R")}
-                      </span>
                     </div>
                   )
                 })}
-                {/* Notes from right raters (for streamer, excluding own note) */}
-                {isStreamer && (
-                  <div className="mt-2 space-y-1 max-w-[180px]">
-                    {RATER_NAMES.slice(5, 10).map(raterName => {
-                      if (raterName === "Streamer") return null // Don't show own note
-                      const raterData = activeSession.ratings.find(r => r.raterName === raterName)
-                      if (!raterData?.note) return null
-                      return (
-                        <div key={raterName} className="text-[9px] text-white/50 italic bg-black/20 rounded px-1.5 py-0.5 line-clamp-1">
-                          <span className="text-white/30">{raterName.replace("Rater ", "R")}:</span> {raterData.note}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
               </div>
             </div>
           )}
