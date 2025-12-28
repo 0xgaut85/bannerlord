@@ -6,7 +6,7 @@ import { Flag } from "@/components/ui"
 import { cn, cleanPlayerName } from "@/lib/utils"
 
 type Tab = "rankings" | "rate"
-type Category = "ALL" | "INFANTRY" | "CAVALRY" | "ARCHER"
+type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
 // The 10 predefined raters
 const RATER_NAMES = [
@@ -221,74 +221,101 @@ function FifaDisplayCard({
         isCenter ? "md:scale-110 z-10" : ""
       )}
     >
-      {/* FIFA Card */}
-      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} ${style.glowColor} hover:scale-105 transition-transform`}>
-        {/* Background */}
+      {/* FIFA Card - AAA+ Premium Design (same layout as current ranking) */}
+      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} hover:scale-105 transition-transform`}>
+        {/* Background Base - Rich gradient */}
         <div 
           className="absolute inset-0"
           style={{ background: style.bg }}
         />
         
-        {/* Heavy Noise/Grain overlay */}
+        {/* Overlay Gradient for depth */}
         <div 
-          className="absolute inset-0 opacity-50 mix-blend-overlay"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-            opacity: style.noiseOpacity
-          }}
-        />
-        
-        {/* Gradient overlay */}
-        <div 
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{ background: style.overlayGradient }}
         />
         
-        {/* Content */}
-        <div className="relative h-full flex flex-col p-4">
-          {/* Rank badge */}
-          <div className="absolute top-3 left-3">
-            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${style.accent} flex items-center justify-center shadow-lg`}>
-              <span className="text-slate-900 font-black text-sm">{rankLabels[rank]}</span>
+        {/* Heavy Noise/Grain Texture */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>
+          <filter id={`noiseFilter-curated-${player.playerId}`}>
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter={`url(#noiseFilter-curated-${player.playerId})`} />
+        </svg>
+        
+        {/* Secondary grain layer */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-soft-light" style={{ opacity: style.noiseOpacity * 0.5 }}>
+          <filter id={`grainFilter-curated-${player.playerId}`}>
+            <feTurbulence type="turbulence" baseFrequency="1.2" numOctaves="3" stitchTiles="stitch" />
+          </filter>
+          <rect width="100%" height="100%" filter={`url(#grainFilter-curated-${player.playerId})`} />
+        </svg>
+
+        {/* Inner Border (Dashed) - more inset */}
+        <div className="absolute inset-4 border border-dashed border-white/15 rounded-2xl pointer-events-none z-10" />
+        
+        {/* Vignette effect */}
+        <div 
+          className="absolute inset-0 pointer-events-none z-15"
+          style={{ 
+            background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%)"
+          }}
+        />
+
+        {/* Content Container */}
+        <div className="relative h-full flex flex-col p-4 z-30">
+          
+          {/* Top Section: Rating & Position Left, Name Right */}
+          <div className="flex justify-between items-start mb-2">
+            <div className="flex flex-col items-center -ml-1">
+              <span className={`text-4xl font-black ${style.text} leading-none drop-shadow-lg`} style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
+                {Math.round(player.rating)}
+              </span>
+              <span className={`text-[10px] font-bold ${style.subtext} tracking-widest mt-1 uppercase`}>
+                {categoryShort[player.category]}
+              </span>
+              <div className={`h-0.5 w-6 bg-gradient-to-r ${style.accent} mt-1.5 rounded-full`} />
+            </div>
+            
+            <div className="flex-1 text-right mt-1 pl-2">
+              <div className={`text-xs font-bold ${style.subtext} mb-0.5 opacity-80 tracking-widest`}>
+                {rankLabels[rank]}
+              </div>
+              <h2 className={`text-base sm:text-lg font-black ${style.text} uppercase tracking-tight leading-tight drop-shadow-md truncate`} style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>
+                {cleanPlayerName(player.playerName)}
+              </h2>
             </div>
           </div>
-          
-          {/* Rating */}
-          <div className="absolute top-3 right-3 text-right">
-            <div className={`text-3xl font-black ${style.text}`}>
-              {Math.round(player.rating)}
-            </div>
-            <div className={`text-xs font-bold ${style.tierColor}`}>
-              {playerTier}
-            </div>
-          </div>
-          
-          {/* Avatar */}
-          <div className="flex-1 flex items-center justify-center pt-8">
-            <div className="relative">
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-white/30 shadow-xl">
+
+          {/* Middle Section: Avatar */}
+          <div className="flex-1 relative flex flex-col items-center justify-start mt-0">
+            {/* Background Glow behind avatar */}
+            <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-28 h-28 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} />
+            
+            {/* Avatar with frame */}
+            <div className="relative z-10">
+              <div className={`w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden border-2 ${style.border} shadow-xl`}>
                 <Image
                   src={avatarSrc}
                   alt={player.playerName}
-                  width={128}
-                  height={128}
+                  width={112}
+                  height={112}
                   className="w-full h-full object-cover"
                 />
               </div>
             </div>
+            
+            {/* Tier badge */}
+            <div className={`mt-2 px-3 py-0.5 rounded-full bg-black/30 backdrop-blur-sm border ${style.border}`}>
+              <span className={`text-xs font-bold ${style.tierColor}`}>{playerTier}</span>
+            </div>
           </div>
           
-          {/* Player Info */}
-          <div className="mt-auto text-center pb-2">
-            <div className={`font-bold text-lg leading-tight ${style.text} truncate px-2`}>
-              {cleanPlayerName(player.playerName)}
-            </div>
-            <div className="flex items-center justify-center gap-2 mt-2">
+          {/* Bottom Section: Bio */}
+          <div className="mt-auto text-center pb-1">
+            <div className="flex items-center justify-center gap-2">
               <Flag code={player.nationality} size="sm" />
-              <span className={`text-xs font-medium ${style.subtext}`}>
-                {categoryShort[player.category]}
-              </span>
-              <span className={`text-xs ${style.subtext}`}>•</span>
               <span className={`text-xs ${style.subtext}`}>
                 {player.clan || "FA"}
               </span>
@@ -300,7 +327,7 @@ function FifaDisplayCard({
   )
 }
 
-// Elite player card (ranks 4-15)
+// Elite player card (ranks 4-15) - matches current ranking style
 function ElitePlayerCard({ 
   player, 
   onPlayerClick 
@@ -315,7 +342,7 @@ function ElitePlayerCard({
   return (
     <button
       onClick={() => onPlayerClick?.(player.playerId)}
-      className={`relative aspect-[3/4] rounded-2xl overflow-hidden border-2 ${style.border} ${style.glowColor} hover:scale-105 transition-all shadow-lg`}
+      className={`relative aspect-[3/4] rounded-2xl overflow-hidden border-2 ${style.border} hover:scale-105 transition-all shadow-lg`}
     >
       {/* Background */}
       <div 
@@ -323,20 +350,29 @@ function ElitePlayerCard({
         style={{ background: style.bg }}
       />
       
-      {/* Heavy Grain */}
+      {/* Overlay Gradient */}
       <div 
-        className="absolute inset-0 mix-blend-overlay"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          opacity: style.noiseOpacity
-        }}
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: style.overlayGradient }}
       />
       
+      {/* Heavy Grain */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>
+        <filter id={`noiseFilter-elite-${player.playerId}`}>
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter={`url(#noiseFilter-elite-${player.playerId})`} />
+      </svg>
+      
+      {/* Inner dashed border */}
+      <div className="absolute inset-2 border border-dashed border-white/15 rounded-xl pointer-events-none z-10" />
+      
       {/* Content */}
-      <div className="relative h-full flex flex-col p-3">
+      <div className="relative h-full flex flex-col p-3 z-20">
         {/* Rating */}
         <div className="flex justify-between items-start">
-          <div className={`text-2xl font-black ${style.text}`}>
+          <div className={`text-2xl font-black ${style.text}`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
             {Math.round(player.rating)}
           </div>
           <div className={`text-xs font-bold ${style.tierColor}`}>
@@ -346,7 +382,7 @@ function ElitePlayerCard({
         
         {/* Avatar */}
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-white/20">
+          <div className={`w-16 h-16 rounded-xl overflow-hidden border-2 ${style.border}`}>
             <Image
               src={avatarSrc}
               alt={player.playerName}
@@ -359,7 +395,7 @@ function ElitePlayerCard({
         
         {/* Info */}
         <div className="text-center mt-auto">
-          <div className={`font-bold text-sm truncate ${style.text}`}>
+          <div className={`font-bold text-sm truncate ${style.text}`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
             {cleanPlayerName(player.playerName)}
           </div>
           <div className="flex items-center justify-center gap-1 mt-1">
@@ -416,7 +452,7 @@ export default function CuratedPage() {
 
   // Tab state
   const [activeTab, setActiveTab] = useState<Tab>("rankings")
-  const [category, setCategory] = useState<Category>("ALL")
+  const [category, setCategory] = useState<Category>("INFANTRY")
 
   // Rankings state
   const [rankings, setRankings] = useState<CuratedRanking[]>([])
@@ -947,7 +983,7 @@ export default function CuratedPage() {
         {activeTab === "rankings" && (
           <div className="flex justify-center gap-2 mt-4 px-4">
             <div className="flex gap-2">
-              {(["ALL", "INFANTRY", "CAVALRY", "ARCHER"] as Category[]).map(cat => (
+              {(["INFANTRY", "CAVALRY", "ARCHER"] as Category[]).map(cat => (
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
