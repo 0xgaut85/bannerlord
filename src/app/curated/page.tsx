@@ -70,6 +70,41 @@ export default function CuratedPage() {
   const noteDebounceRef = useRef<NodeJS.Timeout | null>(null)
   const ratingDebounceRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Restore session from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedSession = localStorage.getItem('curatedRaterSession')
+      if (savedSession) {
+        try {
+          const { accessCode: savedCode, isStreamer: savedIsStreamer, username: savedUsername, selectedSlot: savedSlot } = JSON.parse(savedSession)
+          if (savedCode && savedUsername) {
+            setAccessCode(savedCode)
+            setIsAuthenticated(true)
+            setIsStreamer(savedIsStreamer || false)
+            setUsername(savedUsername)
+            setSelectedSlot(savedSlot || "")
+            setUsernameSet(true)
+          }
+        } catch (e) {
+          console.error("Failed to restore session:", e)
+          localStorage.removeItem('curatedRaterSession')
+        }
+      }
+    }
+  }, [])
+
+  // Save session to localStorage when auth changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isAuthenticated && usernameSet && username) {
+      localStorage.setItem('curatedRaterSession', JSON.stringify({
+        accessCode,
+        isStreamer,
+        username,
+        selectedSlot
+      }))
+    }
+  }, [isAuthenticated, usernameSet, username, accessCode, isStreamer, selectedSlot])
+
   // Handle code submission
   const handleCodeSubmit = () => {
     if (accessCode === "MRASH") {
@@ -366,7 +401,7 @@ export default function CuratedPage() {
         </h1>
         
         {/* Tabs */}
-        <div className="flex justify-center gap-2 px-4">
+        <div className="flex justify-center items-center gap-2 px-4">
           <button
             onClick={() => setActiveTab("rankings")}
             className={cn(
@@ -389,6 +424,28 @@ export default function CuratedPage() {
           >
             Rate {isStreamer && "🎬"}
           </button>
+          {/* Logout button for authenticated users */}
+          {isAuthenticated && usernameSet && (
+            <button
+              onClick={() => {
+                localStorage.removeItem('curatedRaterSession')
+                setIsAuthenticated(false)
+                setIsStreamer(false)
+                setUsername("")
+                setUsernameSet(false)
+                setSelectedSlot("")
+                setAccessCode("")
+                setMyRating("")
+                setMyNote("")
+                setMyConfirmed(false)
+                setInitialSyncDone(false)
+              }}
+              className="px-3 py-2 rounded-xl text-sm bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-all ml-2"
+              title={`Logged in as ${username}`}
+            >
+              🚪 {username}
+            </button>
+          )}
         </div>
       </div>
 
