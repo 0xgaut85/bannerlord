@@ -14,6 +14,7 @@ interface RaterBoxProps {
   myConfirmed: boolean
   submittingRating: boolean
   onRatingChange: (value: string) => void
+  onRatingBlur: () => void
   onNoteChange: (value: string) => void
   onNoteBlur: () => void
   onConfirm: () => void
@@ -30,6 +31,7 @@ export function RaterBox({
   myConfirmed,
   submittingRating,
   onRatingChange,
+  onRatingBlur,
   onNoteChange,
   onNoteBlur,
   onConfirm,
@@ -68,6 +70,7 @@ export function RaterBox({
                   const val = e.target.value.replace(/\D/g, '').slice(0, 2)
                   onRatingChange(val)
                 }}
+                onBlur={onRatingBlur}
                 disabled={submittingRating}
                 className="w-full h-full bg-transparent text-white text-center text-2xl font-bold focus:outline-none placeholder-white/30"
               />
@@ -171,6 +174,7 @@ export function RaterBox({
                 const val = e.target.value.replace(/\D/g, '').slice(0, 2)
                 onRatingChange(val)
               }}
+              onBlur={onRatingBlur}
               disabled={submittingRating}
               className="w-full h-full bg-transparent text-white text-center text-2xl font-bold focus:outline-none placeholder-white/30"
             />

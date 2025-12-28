@@ -28,7 +28,7 @@ export default function CuratedPage() {
   const [accessCode, setAccessCode] = useState("")
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isStreamer, setIsStreamer] = useState(false)
-  const [username, setUsername] = useState("")
+  const [username, setUsername] = useState("") // The custom display name
   const [usernameSet, setUsernameSet] = useState(false)
   const [codeError, setCodeError] = useState("")
 
@@ -61,6 +61,8 @@ export default function CuratedPage() {
   const [loadingNotes, setLoadingNotes] = useState(false)
 
   // Rater slot selection (for custom name entry)
+  // selectedSlot = "Rater 1", "Rater 2", etc. or "Streamer"
+  // username = the custom display name entered by the user
   const [selectedSlot, setSelectedSlot] = useState<string>("")
   const [customName, setCustomName] = useState<string>("")
 
@@ -69,7 +71,7 @@ export default function CuratedPage() {
     if (accessCode === "MRASH") {
       setIsAuthenticated(true)
       setIsStreamer(true)
-      setUsername("Streamer")
+      setSelectedSlot("Streamer") // Streamer gets the "Streamer" slot
       setCodeError("")
     } else if (accessCode === "OBELIXNW") {
       setIsAuthenticated(true)
@@ -571,24 +573,27 @@ export default function CuratedPage() {
             <div className="flex items-start justify-center gap-16 py-8">
               {/* Left Side - Raters 1-5 with notes */}
               <div className="space-y-4 pt-6">
-                {RATER_NAMES.slice(0, 5).map(raterName => {
-                  const raterData = activeSession.ratings.find(r => r.raterName === raterName)
-                  const isMe = raterName === username
+                {RATER_NAMES.slice(0, 5).map((slotName, index) => {
+                  // Find rating for this slot - either by slot name or by the current user if they have this slot
+                  const isMySlot = selectedSlot === slotName
+                  const raterData = isMySlot 
+                    ? activeSession.ratings.find(r => r.raterName === username)
+                    : activeSession.ratings.find(r => r.raterName === slotName)
+                  // Display the custom name if this is my slot, otherwise show the raterName from data or slot name
+                  const displayName = isMySlot ? username : (raterData?.raterName || slotName)
                   return (
                     <RaterBox
-                      key={raterName}
-                      raterName={raterName}
+                      key={slotName}
+                      raterName={displayName}
                       raterData={raterData}
-                      isMe={isMe}
+                      isMe={isMySlot}
                       isLeft={true}
                       myRating={myRating}
                       myNote={myNote}
                       myConfirmed={myConfirmed}
                       submittingRating={submittingRating}
-                      onRatingChange={(val) => {
-                        setMyRating(val)
-                        submitRating(val)
-                      }}
+                      onRatingChange={setMyRating}
+                      onRatingBlur={() => submitRating(myRating)}
                       onNoteChange={setMyNote}
                       onNoteBlur={() => submitNote(myNote)}
                       onConfirm={confirmMyRating}
@@ -630,24 +635,27 @@ export default function CuratedPage() {
 
               {/* Right Side - Raters 6-10 with notes */}
               <div className="space-y-4 pt-6">
-                {RATER_NAMES.slice(5, 10).map(raterName => {
-                  const raterData = activeSession.ratings.find(r => r.raterName === raterName)
-                  const isMe = raterName === username
+                {RATER_NAMES.slice(5, 10).map((slotName, index) => {
+                  // Find rating for this slot - either by slot name or by the current user if they have this slot
+                  const isMySlot = selectedSlot === slotName
+                  const raterData = isMySlot 
+                    ? activeSession.ratings.find(r => r.raterName === username)
+                    : activeSession.ratings.find(r => r.raterName === slotName)
+                  // Display the custom name if this is my slot, otherwise show the raterName from data or slot name
+                  const displayName = isMySlot ? username : (raterData?.raterName || slotName)
                   return (
                     <RaterBox
-                      key={raterName}
-                      raterName={raterName}
+                      key={slotName}
+                      raterName={displayName}
                       raterData={raterData}
-                      isMe={isMe}
+                      isMe={isMySlot}
                       isLeft={false}
                       myRating={myRating}
                       myNote={myNote}
                       myConfirmed={myConfirmed}
                       submittingRating={submittingRating}
-                      onRatingChange={(val) => {
-                        setMyRating(val)
-                        submitRating(val)
-                      }}
+                      onRatingChange={setMyRating}
+                      onRatingBlur={() => submitRating(myRating)}
                       onNoteChange={setMyNote}
                       onNoteBlur={() => submitNote(myNote)}
                       onConfirm={confirmMyRating}
