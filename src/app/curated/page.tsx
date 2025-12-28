@@ -9,9 +9,10 @@ type Tab = "rankings" | "rate"
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
 
 // The 10 predefined raters
+// Rater 10 is reserved for the streamer
 const RATER_NAMES = [
   "Rater 1", "Rater 2", "Rater 3", "Rater 4", "Rater 5",
-  "Rater 6", "Rater 7", "Rater 8", "Rater 9", "Rater 10"
+  "Rater 6", "Rater 7", "Rater 8", "Rater 9", "Streamer"
 ]
 
 interface CuratedRanking {
@@ -483,6 +484,8 @@ export default function CuratedPage() {
     if (accessCode === "MRASH") {
       setIsStreamer(true)
       setIsAuthenticated(true)
+      setUsername("Streamer") // Auto-set username for streamer
+      setUsernameSet(true)    // Skip username selection
       setCodeError("")
     } else if (accessCode === "OBELIXNW") {
       setIsStreamer(false)
@@ -994,7 +997,7 @@ export default function CuratedPage() {
                       : "bg-white/5 text-white/50 hover:bg-white/10"
                   )}
                 >
-                  {cat === "ALL" ? "All" : cat.charAt(0) + cat.slice(1).toLowerCase()}
+                  {cat.charAt(0) + cat.slice(1).toLowerCase()}
                 </button>
               ))}
             </div>
@@ -1264,33 +1267,31 @@ export default function CuratedPage() {
                   </div>
                 </div>
 
+                {/* Note Input - for both raters and streamer */}
+                <div className="mt-3 w-full">
+                  <textarea
+                    placeholder={myConfirmed ? "Confirmed ✓" : `Note (optional)...`}
+                    value={myNote}
+                    onChange={(e) => setMyNote(e.target.value.slice(0, 280))}
+                    onBlur={() => submitNote(myNote)}
+                    disabled={myConfirmed}
+                    className={cn(
+                      "w-full px-3 py-2 rounded-lg text-white text-xs placeholder-white/30 focus:outline-none resize-none h-14",
+                      myConfirmed ? "bg-green-500/10 border border-green-500/50 cursor-not-allowed" : "bg-black/40 border border-violet-500/30 focus:border-violet-500"
+                    )}
+                  />
+                  <div className="text-right text-[9px] text-white/30 mt-0.5">{myNote.length}/280</div>
+                </div>
+
                 {/* Streamer Buttons */}
                 {isStreamer && (
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2 mt-2">
                     <button onClick={confirmSession} disabled={confirming || calculateAverage() === null} className="px-4 py-2 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-sm font-bold rounded-lg transition-all disabled:cursor-not-allowed">
-                      {confirming ? "..." : "✓ Confirm"}
+                      {confirming ? "..." : "✓ Confirm Final"}
                     </button>
                     <button onClick={endSession} className="px-4 py-2 bg-red-500 hover:bg-red-400 text-white text-sm font-bold rounded-lg transition-all">
                       ✕ Cancel
                     </button>
-                  </div>
-                )}
-
-                {/* Rater Note Input - directly below card */}
-                {!isStreamer && (
-                  <div className="mt-3 w-full">
-                    <textarea
-                      placeholder={myConfirmed ? "Confirmed ✓" : `Note (optional)...`}
-                      value={myNote}
-                      onChange={(e) => setMyNote(e.target.value.slice(0, 280))}
-                      onBlur={() => submitNote(myNote)}
-                      disabled={myConfirmed}
-                      className={cn(
-                        "w-full px-3 py-2 rounded-lg text-white text-xs placeholder-white/30 focus:outline-none resize-none h-14",
-                        myConfirmed ? "bg-green-500/10 border border-green-500/50 cursor-not-allowed" : "bg-black/40 border border-violet-500/30 focus:border-violet-500"
-                      )}
-                    />
-                    <div className="text-right text-[9px] text-white/30 mt-0.5">{myNote.length}/280</div>
                   </div>
                 )}
               </div>
@@ -1361,10 +1362,11 @@ export default function CuratedPage() {
                     </div>
                   )
                 })}
-                {/* Notes from right raters (for streamer) */}
+                {/* Notes from right raters (for streamer, excluding own note) */}
                 {isStreamer && (
                   <div className="mt-2 space-y-1 max-w-[180px]">
                     {RATER_NAMES.slice(5, 10).map(raterName => {
+                      if (raterName === "Streamer") return null // Don't show own note
                       const raterData = activeSession.ratings.find(r => r.raterName === raterName)
                       if (!raterData?.note) return null
                       return (
