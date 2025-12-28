@@ -1144,9 +1144,9 @@ export default function CuratedPage() {
                             </div>
                           )}
                         </div>
-                        {/* Show rater's note in real-time */}
-                        {raterData?.note && !isMe && (
-                          <div className="text-xs text-white/50 italic px-2 py-1 bg-black/20 rounded-lg truncate">
+                        {/* Show rater's note in real-time - always show for streamer, hide own note for raters */}
+                        {raterData?.note && (isStreamer || !isMe) && (
+                          <div className="text-xs text-white/60 italic px-2 py-1.5 bg-black/30 rounded-lg border border-white/5">
                             &ldquo;{raterData.note}&rdquo;
                           </div>
                         )}
@@ -1194,9 +1194,9 @@ export default function CuratedPage() {
                             </div>
                           )}
                         </div>
-                        {/* Show rater's note in real-time */}
-                        {raterData?.note && !isMe && (
-                          <div className="text-xs text-white/50 italic px-2 py-1 bg-black/20 rounded-lg truncate">
+                        {/* Show rater's note in real-time - always show for streamer, hide own note for raters */}
+                        {raterData?.note && (isStreamer || !isMe) && (
+                          <div className="text-xs text-white/60 italic px-2 py-1.5 bg-black/30 rounded-lg border border-white/5">
                             &ldquo;{raterData.note}&rdquo;
                           </div>
                         )}
