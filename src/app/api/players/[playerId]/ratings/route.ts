@@ -119,6 +119,24 @@ export async function GET(
       averageRating = totalWeight > 0 ? weightedSum / totalWeight : null
     }
 
+    // Fetch most recent historical rating for this player to compute delta
+    const lastHistorical = await prisma.historicalRanking.findFirst({
+      where: { playerId },
+      orderBy: { period: { endDate: "desc" } },
+      select: { averageRating: true, period: { select: { name: true } } },
+    })
+
+    const currentRounded = averageRating ? Math.round(averageRating * 10) / 10 : null
+    let previousRating: number | null = null
+    let previousPeriod: string | null = null
+    let ratingDelta: number | null = null
+
+    if (lastHistorical && currentRounded !== null) {
+      previousRating = Math.round(lastHistorical.averageRating * 10) / 10
+      previousPeriod = lastHistorical.period.name
+      ratingDelta = Math.round((currentRounded - previousRating) * 10) / 10
+    }
+
     return NextResponse.json({
       player: {
         id: player.id,
@@ -128,8 +146,11 @@ export async function GET(
         nationality: player.nationality,
       },
       ratings: realRatings,
-      averageRating: averageRating ? Math.round(averageRating * 10) / 10 : null,
+      averageRating: currentRounded,
       totalRatings: realRatings.length,
+      previousRating,
+      previousPeriod,
+      ratingDelta,
     })
   } catch (error) {
     console.error("Player ratings GET error:", error)

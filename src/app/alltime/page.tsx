@@ -47,6 +47,9 @@ interface PlayerRatingsDetails {
   }[]
   averageRating: number | null
   totalRatings: number
+  previousRating: number | null
+  previousPeriod: string | null
+  ratingDelta: number | null
 }
 
 interface HistoricalRatingResponse {
@@ -350,8 +353,18 @@ export default function AllTimePage() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-3xl font-bold text-white">{legendModal.data.averageRating?.toFixed(1) || "-"}</div>
-                      <div className="text-[#555] text-xs">{legendModal.data.totalRatings} rating{legendModal.data.totalRatings !== 1 ? "s" : ""}</div>
+                      <div className="flex items-center justify-end gap-2">
+                        {legendModal.data.ratingDelta !== null && legendModal.data.ratingDelta !== undefined && (
+                          <div className="flex flex-col items-end">
+                            <span className={`text-xs font-semibold ${legendModal.data.ratingDelta > 0 ? "text-emerald-400" : legendModal.data.ratingDelta < 0 ? "text-red-400" : "text-[#555]"}`}>
+                              {legendModal.data.ratingDelta > 0 ? "+" : ""}{legendModal.data.ratingDelta.toFixed(1)}
+                            </span>
+                            <span className="text-[10px] text-[#444]">vs {legendModal.data.previousPeriod}</span>
+                          </div>
+                        )}
+                        <span className="text-3xl font-bold text-white">{legendModal.data.averageRating?.toFixed(1) || "-"}</span>
+                      </div>
+                      <div className="text-[#555] text-xs text-right">{legendModal.data.totalRatings} rating{legendModal.data.totalRatings !== 1 ? "s" : ""}</div>
                     </div>
                     <button onClick={() => setLegendModal({ open: false, loading: false, data: null })} className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-white/[0.08] flex items-center justify-center text-white text-lg">✕</button>
                   </div>
