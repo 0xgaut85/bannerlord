@@ -104,9 +104,11 @@ function getCardStyle(rating: number) {
   }
   if (rating >= 90) return {
     bg: "bg-[#ffdf00]/40",
-    border: "border-[#ffdf00]/70",
+    border: "",
     text: "text-yellow-950",
     tierColor: "text-[#ffdf00]",
+    isHolo: true,
+    holoVariant: "gold" as const,
   }
   if (rating >= 85) return {
     bg: "bg-[#d4af37]/35",
@@ -454,7 +456,7 @@ export default function HistoryPage() {
                               className={cn(
                                 "w-full flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.01]",
                                 style.bg,
-                                (style as any).isHolo ? 'holo-card' : style.border
+                                (style as any).isHolo ? ((style as any).holoVariant === "gold" ? "gold-card" : "holo-card") : style.border
                               )}
                             >
                               <span className={cn(

@@ -36,11 +36,13 @@ function getCardStyle(rating: number) {
   }
   if (rating >= 90) return {
     bg: "linear-gradient(145deg, #e6c800 0%, #f2d500 25%, #ffdf00 50%, #f2d500 75%, #e6c800 100%)",
-    border: "border-[#ffdf00]/70",
+    border: "",
     accent: "from-yellow-200 via-white to-yellow-200",
     text: "text-yellow-950",
     subtext: "text-yellow-900",
     noiseOpacity: 0.18,
+    isHolo: true,
+    holoVariant: "gold" as const,
   }
   if (rating >= 85) return {
     bg: "linear-gradient(145deg, #b8962e 0%, #c6a332 25%, #d4af37 50%, #c6a332 75%, #b8962e 100%)",
@@ -134,14 +136,14 @@ export function FifaDisplayCard({ player, rating, size = "md", onClick }: FifaDi
   
   return (
     <div 
-      className={`relative ${sizeClasses[size]} rounded-2xl overflow-hidden shadow-xl border-2 ${isHolo ? 'holo-card' : style.border} ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
+      className={`relative ${sizeClasses[size]} rounded-2xl overflow-hidden shadow-xl border-2 ${(style as any).isHolo ? ((style as any).holoVariant === "gold" ? "gold-card" : "holo-card") : style.border} ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
       onClick={onClick}
     >
       {/* Background */}
       <div className="absolute inset-0" style={{ background: style.bg }} />
       
       {/* Holographic overlay for 95+ */}
-      {isHolo && <HolographicOverlay />}
+      {isHolo && <HolographicOverlay variant={(style as any).holoVariant || "ruby"} />}
       
       {/* Noise Texture */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>

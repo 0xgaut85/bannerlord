@@ -53,9 +53,11 @@ function getCardStyle(rating: number, isLegend?: boolean) {
   }
   if (rating >= 90) return {
     bg: "linear-gradient(145deg, #e6c800 0%, #f2d500 25%, #ffdf00 50%, #f2d500 75%, #e6c800 100%)",
-    border: "border-[#ffdf00]/70",
+    border: "",
     text: "text-yellow-950",
     subtext: "text-yellow-900",
+    isHolo: true,
+    holoVariant: "gold" as const,
   }
   if (rating >= 85) return {
     bg: "linear-gradient(145deg, #b8962e 0%, #c6a332 25%, #d4af37 50%, #c6a332 75%, #b8962e 100%)",
@@ -173,7 +175,7 @@ function FifaCard({
       onDragEnd={onDragEnd}
       className={cn(
         `relative ${sizeClasses} aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 cursor-grab active:cursor-grabbing`,
-        (style as any).isHolo ? 'holo-card' : style.border,
+        (style as any).isHolo ? ((style as any).holoVariant === "gold" ? "gold-card" : "holo-card") : style.border,
         isDragging ? "opacity-30 scale-95" : "",
         player.isLegend && "legend-card-anim"
       )}
@@ -181,7 +183,7 @@ function FifaCard({
       {/* Background */}
       <div className="absolute inset-0" style={{ background: style.bg }} />
       {/* Holographic overlay for 95+ */}
-      {(style as any).isHolo && <HolographicOverlay />}
+      {(style as any).isHolo && <HolographicOverlay variant={(style as any).holoVariant || "ruby"} />}
       
       {/* Subtle gradient overlay for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/20 pointer-events-none" />

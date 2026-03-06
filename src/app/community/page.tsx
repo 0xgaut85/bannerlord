@@ -55,7 +55,7 @@ function getCardStyle(rating: number) {
   }
   if (rating >= 90) return {
     bg: "linear-gradient(145deg, #e6c800 0%, #f2d500 25%, #ffdf00 50%, #f2d500 75%, #e6c800 100%)",
-    border: "border-[#ffdf00]/70",
+    border: "",
     accent: "from-yellow-200 via-white to-yellow-200",
     text: "text-yellow-950",
     subtext: "text-yellow-900",
@@ -63,6 +63,8 @@ function getCardStyle(rating: number) {
     overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 50%, rgba(255,223,0,0.2) 100%)",
     boxBg: "bg-[#ffdf00]/25",
     tierColor: "text-[#ffdf00]",
+    isHolo: true,
+    holoVariant: "gold" as const,
   }
   if (rating >= 85) return {
     bg: "linear-gradient(145deg, #b8962e 0%, #c6a332 25%, #d4af37 50%, #c6a332 75%, #b8962e 100%)",
@@ -746,15 +748,14 @@ function FifaDisplayCard({
     >
       {/* FIFA Card - AAA+ Premium Design with 3D Tilt */}
       <Tilt3DCard maxTilt={14} scale={1.05}>
-      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? 'holo-card' : style.border}`}>
+      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? ((style as any).holoVariant === "gold" ? "gold-card" : "holo-card") : style.border}`}>
         {/* Background Base - Rich gradient */}
         <div 
           className="absolute inset-0"
           style={{ background: style.bg }}
         />
         
-        {/* Holographic overlay for 95+ */}
-        {(style as any).isHolo && <HolographicOverlay />}
+        {(style as any).isHolo && <HolographicOverlay variant={(style as any).holoVariant || "ruby"} />}
         
         {/* Overlay Gradient for depth */}
         <div 
@@ -900,14 +901,14 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; 
   return (
     <button onClick={() => onPlayerClick?.(player.id)} className="flex justify-center w-full">
       {/* Small FIFA Card - 20% bigger */}
-      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${(style as any).isHolo ? 'holo-card' : style.border} hover:scale-105 transition-transform`}>
+      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${(style as any).isHolo ? ((style as any).holoVariant === "gold" ? "gold-card" : "holo-card") : style.border} hover:scale-105 transition-transform`}>
         {/* Background Base */}
         <div 
           className="absolute inset-0"
           style={{ background: style.bg }}
         />
-        {(style as any).isHolo && <HolographicOverlay />}
-        
+        {(style as any).isHolo && <HolographicOverlay variant={(style as any).holoVariant || "ruby"} />}
+
         {/* Overlay Gradient */}
         <div 
           className="absolute inset-0 pointer-events-none"

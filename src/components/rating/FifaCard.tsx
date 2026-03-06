@@ -52,13 +52,15 @@ function getCardStyle(rating: number, isLegend?: boolean) {
   }
   if (rating >= 90) return {
     bg: "linear-gradient(145deg, #e6c800 0%, #f2d500 25%, #ffdf00 50%, #f2d500 75%, #e6c800 100%)",
-    border: "border-[#ffdf00]/70",
+    border: "",
     accent: "from-yellow-200 via-white to-yellow-200",
     text: "text-yellow-950",
     subtext: "text-yellow-900",
     noiseOpacity: 0.30,
     overlayGradient: "linear-gradient(180deg, rgba(255,223,0,0.2) 0%, transparent 50%, rgba(255,223,0,0.15) 100%)",
     shimmer: "linear-gradient(110deg, transparent 20%, rgba(255,223,0,0.1) 40%, rgba(255,223,0,0.2) 50%, rgba(255,223,0,0.1) 60%, transparent 80%)",
+    isHolo: true,
+    holoVariant: "gold" as const,
   }
   if (rating >= 85) return {
     bg: "linear-gradient(145deg, #b8962e 0%, #c6a332 25%, #d4af37 50%, #c6a332 75%, #b8962e 100%)",
@@ -204,7 +206,7 @@ export function FifaCard({
       
       {/* FIFA Card - AAA+ Premium Design */}
       <Tilt3DCard maxTilt={8} scale={1.02}>
-      <div className={cn(`relative w-64 sm:w-72 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? 'holo-card' : style.border}`, player.isLegend && "legend-card-anim")}>
+      <div className={cn(`relative w-64 sm:w-72 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? ((style as any).holoVariant === "gold" ? "gold-card" : "holo-card") : style.border}`, player.isLegend && "legend-card-anim")}>
         {/* Background Base - Rich gradient */}
         <div 
           className="absolute inset-0"
@@ -212,7 +214,7 @@ export function FifaCard({
         />
         
         {/* Holographic overlay for 95+ */}
-        {(style as any).isHolo && <HolographicOverlay />}
+        {(style as any).isHolo && <HolographicOverlay variant={(style as any).holoVariant || "ruby"} />}
         
         {/* Overlay Gradient for depth */}
         <div 
