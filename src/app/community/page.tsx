@@ -331,6 +331,123 @@ export default function CommunityPage() {
   const config = categoryConfig[category]
   
   return (
+    <>
+    {/* Voter Details Modal */}
+    {selectedVoter && (
+      <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4" onClick={() => setSelectedVoter(null)}>
+        <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="p-6 border-b border-white/10">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-display tracking-tight text-white">
+                  {selectedVoter.discordName || selectedVoter.name}
+                </h2>
+                <p className="text-[#888] text-sm mt-1">
+                  Division {selectedVoter.division || "N/A"} · {selectedVoter.ratings.length} ratings
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedVoter(null)}
+                className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-white/[0.08] flex items-center justify-center text-white text-lg"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+          
+          <div className="p-6 overflow-y-auto max-h-[60vh]">
+            {(["INFANTRY", "CAVALRY", "ARCHER"] as const).map((cat) => {
+              const catRatings = selectedVoter.ratings.filter(r => r.player.category === cat)
+              if (catRatings.length === 0) return null
+              
+              return (
+                <div key={cat} className="mb-6">
+                  <h3 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-3">
+                    {cat} ({catRatings.length})
+                  </h3>
+                  <div className="space-y-2">
+                    {catRatings.map((rating) => (
+                      <div 
+                        key={rating.id}
+                        className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Flag code={rating.player.nationality} size="sm" />
+                          <div>
+                            <span className="text-white font-medium">{rating.player.name}</span>
+                            {rating.player.clan && (
+                              <span className="text-[#555] text-sm ml-2">{rating.player.clan}</span>
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-white font-bold text-lg">{rating.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Player Ratings Modal */}
+    {playerModal.open && (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setPlayerModal({ loading: false, data: null, open: false })}>
+        <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+          {playerModal.loading ? (
+            <div className="p-12 flex justify-center">
+              <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+            </div>
+          ) : playerModal.data ? (
+            <>
+              <div className="p-6 border-b border-white/10">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <Flag code={playerModal.data.player.nationality} size="md" />
+                    <div>
+                      <h2 className="text-2xl font-display text-white">{playerModal.data.player.name}</h2>
+                      <p className="text-[#888] text-sm mt-1">{playerModal.data.player.category} · {playerModal.data.player.clan || "FA"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-white">{playerModal.data.averageRating?.toFixed(1) || "-"}</div>
+                      <div className="text-[#555] text-xs">{playerModal.data.totalRatings} rating{playerModal.data.totalRatings !== 1 ? "s" : ""}</div>
+                    </div>
+                    <button onClick={() => setPlayerModal({ loading: false, data: null, open: false })} className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-white/[0.08] flex items-center justify-center text-white text-lg">✕</button>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                {playerModal.data.ratings.length === 0 ? (
+                  <div className="text-center text-[#555] py-8">No ratings yet</div>
+                ) : (
+                  <div className="space-y-2">
+                    {playerModal.data.ratings.map((rating, idx) => (
+                      <div key={rating.id || idx} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
+                        <div>
+                          <span className="text-white font-medium">{rating.raterDiscordName || rating.raterName || "Anonymous"}</span>
+                          {rating.raterDivision && <span className="text-[#555] text-sm ml-2">Div {rating.raterDivision}</span>}
+                        </div>
+                        <span className="text-white font-bold text-lg">{rating.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="p-12 text-center">
+              <p className="text-[#888]">Could not load ratings</p>
+              <button onClick={() => setPlayerModal({ loading: false, data: null, open: false })} className="mt-4 px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] rounded-lg text-white text-sm">Close</button>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
     <div className="min-h-screen animate-fade-up">
       {/* Header */}
       <div className="text-center py-12 sm:py-16">
@@ -389,123 +506,6 @@ export default function CommunityPage() {
           </div>
         </div>
       </div>
-      
-      {/* Voter Details Modal */}
-      {selectedVoter && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.04] max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-white/[0.04]">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-display tracking-tight text-white">
-                    {selectedVoter.discordName || selectedVoter.name}
-                  </h2>
-                  <p className="text-[#888] text-sm mt-1">
-                    Division {selectedVoter.division || "N/A"} · {selectedVoter.ratings.length} ratings
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedVoter(null)}
-                  className="w-10 h-10 rounded-full bg-white/[0.03] hover:bg-white/[0.04] flex items-center justify-center text-white"
-                >
-                  X
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6 overflow-y-auto max-h-[60vh]">
-              {/* Group by category */}
-              {(["INFANTRY", "CAVALRY", "ARCHER"] as const).map((cat) => {
-                const catRatings = selectedVoter.ratings.filter(r => r.player.category === cat)
-                if (catRatings.length === 0) return null
-                
-                return (
-                  <div key={cat} className="mb-6">
-                    <h3 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-3">
-                      {cat} ({catRatings.length})
-                    </h3>
-                    <div className="space-y-2">
-                      {catRatings.map((rating) => (
-                        <div 
-                          key={rating.id}
-                          className="flex items-center justify-between bg-white/[0.02] rounded-lg p-3"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Flag code={rating.player.nationality} size="sm" />
-                            <div>
-                              <span className="text-white font-medium">{rating.player.name}</span>
-                              {rating.player.clan && (
-                                <span className="text-[#555] text-sm ml-2">{rating.player.clan}</span>
-                              )}
-                            </div>
-                          </div>
-                          <span className="text-white font-bold text-lg">{rating.score}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Player Ratings Modal */}
-      {playerModal.open && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setPlayerModal({ loading: false, data: null, open: false })}>
-          <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
-            {playerModal.loading ? (
-              <div className="p-12 flex justify-center">
-                <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
-              </div>
-            ) : playerModal.data ? (
-              <>
-                <div className="p-6 border-b border-white/10">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <Flag code={playerModal.data.player.nationality} size="md" />
-                      <div>
-                        <h2 className="text-2xl font-display text-white">{playerModal.data.player.name}</h2>
-                        <p className="text-[#888] text-sm mt-1">{playerModal.data.player.category} · {playerModal.data.player.clan || "FA"}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-3xl font-bold text-white">{playerModal.data.averageRating?.toFixed(1) || "-"}</div>
-                        <div className="text-[#555] text-xs">{playerModal.data.totalRatings} rating{playerModal.data.totalRatings !== 1 ? "s" : ""}</div>
-                      </div>
-                      <button onClick={() => setPlayerModal({ loading: false, data: null, open: false })} className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-white/[0.08] flex items-center justify-center text-white text-lg">✕</button>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6 overflow-y-auto max-h-[60vh]">
-                  {playerModal.data.ratings.length === 0 ? (
-                    <div className="text-center text-[#555] py-8">No ratings yet</div>
-                  ) : (
-                    <div className="space-y-2">
-                      {playerModal.data.ratings.map((rating, idx) => (
-                        <div key={rating.id || idx} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
-                          <div>
-                            <span className="text-white font-medium">{rating.raterDiscordName || rating.raterName || "Anonymous"}</span>
-                            {rating.raterDivision && <span className="text-[#555] text-sm ml-2">Div {rating.raterDivision}</span>}
-                          </div>
-                          <span className="text-white font-bold text-lg">{rating.score}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="p-12 text-center">
-                <p className="text-[#888]">Could not load ratings</p>
-                <button onClick={() => setPlayerModal({ loading: false, data: null, open: false })} className="mt-4 px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] rounded-lg text-white text-sm">Close</button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
       
       {showVoters ? (
         <div className="max-w-4xl mx-auto px-6 pb-20">
@@ -719,6 +719,7 @@ export default function CommunityPage() {
         </AnimatePresence>
       )}
     </div>
+    </>
   )
 }
 

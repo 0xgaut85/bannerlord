@@ -328,6 +328,171 @@ export default function AllTimePage() {
   const config = categoryConfig[category]
 
   return (
+    <>
+    {/* ─── LEGEND RATINGS MODAL ─── */}
+    {legendModal.open && (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setLegendModal({ open: false, loading: false, data: null })}>
+        <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+          {legendModal.loading ? (
+            <div className="p-12 flex justify-center">
+              <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+            </div>
+          ) : legendModal.data ? (
+            <>
+              <div className="p-6 border-b border-white/10">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <Flag code={legendModal.data.player.nationality} size="md" />
+                    <div>
+                      <h2 className="text-2xl font-display text-white">{legendModal.data.player.name}</h2>
+                      <p className="text-[#888] text-sm mt-1">{legendModal.data.player.category} · {legendModal.data.player.clan || "?"} <span className="text-yellow-400 text-xs ml-2">LEGEND</span></p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-white">{legendModal.data.averageRating?.toFixed(1) || "-"}</div>
+                      <div className="text-[#555] text-xs">{legendModal.data.totalRatings} rating{legendModal.data.totalRatings !== 1 ? "s" : ""}</div>
+                    </div>
+                    <button onClick={() => setLegendModal({ open: false, loading: false, data: null })} className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-white/[0.08] flex items-center justify-center text-white text-lg">✕</button>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                {legendModal.data.ratings.length === 0 ? (
+                  <div className="text-center text-[#555] py-8">No ratings yet</div>
+                ) : (
+                  <div className="space-y-2">
+                    {legendModal.data.ratings.map((rating, idx) => (
+                      <div key={rating.id || idx} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
+                        <div>
+                          <span className="text-white font-medium">{rating.raterDiscordName || rating.raterName || "Anonymous"}</span>
+                          {rating.raterDivision && <span className="text-[#555] text-sm ml-2">Div {rating.raterDivision}</span>}
+                        </div>
+                        <span className="text-white font-bold text-lg">{rating.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="p-12 text-center">
+              <p className="text-[#888]">Could not load ratings</p>
+              <button onClick={() => setLegendModal({ open: false, loading: false, data: null })} className="mt-4 px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] rounded-lg text-white text-sm">Close</button>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
+    {/* ─── NON-LEGEND PERIOD SELECTOR MODAL ─── */}
+    {selectedNonLegend && (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setSelectedNonLegend(null)}>
+        <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="p-6 border-b border-white/10">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <Flag code={selectedNonLegend.nationality} size="md" />
+                <div>
+                  <h2 className="text-2xl font-display text-white">{cleanPlayerName(selectedNonLegend.playerName)}</h2>
+                  <p className="text-[#888] text-sm mt-1">{selectedNonLegend.category} · {selectedNonLegend.clan || "FA"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-white">{selectedNonLegend.averageRating.toFixed(1)}</div>
+                  <div className="text-[#555] text-xs">All-time avg · {selectedNonLegend.history.length} period{selectedNonLegend.history.length !== 1 ? "s" : ""}</div>
+                </div>
+                <button onClick={() => setSelectedNonLegend(null)} className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-white/[0.08] flex items-center justify-center text-white text-lg">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 overflow-y-auto max-h-[calc(85vh-5rem)]">
+            <div className="flex flex-col md:flex-row gap-6 mb-6">
+              <div className="md:w-2/5 space-y-2">
+                <h3 className="text-xs font-semibold text-[#888] tracking-[0.2em] uppercase mb-3">Select Period</h3>
+                {selectedNonLegend.history.map((h) => {
+                  const isActive = selectedPeriodId === h.periodId
+                  return (
+                    <button
+                      key={h.periodId}
+                      onClick={() => fetchPeriodRatings(h.periodId, selectedNonLegend.playerId)}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 rounded-xl border transition-all",
+                        isActive
+                          ? "bg-white text-black border-white"
+                          : "bg-white/[0.02] border-white/[0.06] text-white hover:bg-white/[0.04] hover:border-white/[0.1]"
+                      )}
+                    >
+                      <span className="font-semibold text-sm">{h.period}</span>
+                      <span className={cn("font-bold text-lg", isActive ? "text-black" : "text-white")}>{h.rating.toFixed(1)}</span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="md:w-3/5 bg-white/[0.02] border border-white/[0.04] rounded-xl p-5">
+                <h3 className="text-xs font-semibold text-[#888] tracking-[0.2em] uppercase mb-4">Rating Evolution</h3>
+                {selectedNonLegend.history.length >= 2 ? (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <LineChart data={selectedNonLegend.history} margin={{ top: 10, right: 15, left: 5, bottom: 5 }}>
+                      <CartesianGrid stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
+                      <XAxis dataKey="period" tick={{ fill: "#555", fontSize: 11 }} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} tickLine={false} />
+                      <YAxis
+                        domain={[(dataMin: number) => Math.floor(dataMin * 2 - 1) / 2, (dataMax: number) => Math.ceil(dataMax * 2 + 1) / 2]}
+                        tick={{ fill: "#555", fontSize: 11 }} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} tickLine={false} tickCount={8}
+                      />
+                      <Tooltip content={<EvolutionTooltip />} />
+                      <Line type="monotone" dataKey="rating" stroke="#fff" strokeWidth={2.5}
+                        dot={{ r: 5, fill: "#fff", stroke: "#fff", strokeWidth: 2 }}
+                        activeDot={{ r: 8, fill: "#fff", stroke: "rgba(255,255,255,0.3)", strokeWidth: 4 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-[220px]">
+                    <div className="text-center">
+                      <div className="text-white text-4xl font-bold">{selectedNonLegend.history[0]?.rating.toFixed(1) || "-"}</div>
+                      <p className="text-[#555] text-sm mt-2">{selectedNonLegend.history[0]?.period || "No data"}</p>
+                      <p className="text-[#444] text-xs mt-1">More periods needed for graph</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {selectedPeriodId && (
+              <div className="border-t border-white/[0.04] pt-5">
+                <h3 className="text-xs font-semibold text-[#888] tracking-[0.2em] uppercase mb-4">
+                  Individual Ratings — {selectedNonLegend.history.find(h => h.periodId === selectedPeriodId)?.period}
+                </h3>
+                {loadingPeriodRatings ? (
+                  <div className="flex justify-center py-6">
+                    <div className="w-6 h-6 border-3 border-white/20 border-t-white rounded-full animate-spin" />
+                  </div>
+                ) : periodRatings && periodRatings.ratings.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[30vh] overflow-y-auto">
+                    {periodRatings.ratings.map((r, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white/[0.02] rounded-lg p-3">
+                        <div>
+                          <span className="text-white font-medium text-sm">{r.raterDiscordName || r.raterName || "Anonymous"}</span>
+                          {r.raterDivision && <span className="text-[#555] text-xs ml-2">Div {r.raterDivision}</span>}
+                        </div>
+                        <span className="text-white font-bold">{r.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : periodRatings ? (
+                  <div className="text-center text-[#555] py-4">No individual ratings recorded for this period</div>
+                ) : null}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+
     <div className="min-h-screen bg-[#050505] animate-fade-up">
       {/* Header */}
       <div className="bg-white/[0.02] border-b border-white/[0.04]">
@@ -342,7 +507,6 @@ export default function AllTimePage() {
             Average performance across all ranking periods
           </p>
 
-          {/* Category Filter */}
           <div className="flex justify-center gap-2">
             {(["INFANTRY", "CAVALRY", "ARCHER"] as Category[]).map((cat) => (
               <CutCornerButton
@@ -356,190 +520,6 @@ export default function AllTimePage() {
           </div>
         </div>
       </div>
-
-      {/* ─── LEGEND RATINGS MODAL ─── */}
-      {legendModal.open && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setLegendModal({ open: false, loading: false, data: null })}>
-          <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
-            {legendModal.loading ? (
-              <div className="p-12 flex justify-center">
-                <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
-              </div>
-            ) : legendModal.data ? (
-              <>
-                <div className="p-6 border-b border-white/10">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <Flag code={legendModal.data.player.nationality} size="md" />
-                      <div>
-                        <h2 className="text-2xl font-display text-white">{legendModal.data.player.name}</h2>
-                        <p className="text-[#888] text-sm mt-1">{legendModal.data.player.category} · {legendModal.data.player.clan || "?"} <span className="text-yellow-400 text-xs ml-2">LEGEND</span></p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-3xl font-bold text-white">{legendModal.data.averageRating?.toFixed(1) || "-"}</div>
-                        <div className="text-[#555] text-xs">{legendModal.data.totalRatings} rating{legendModal.data.totalRatings !== 1 ? "s" : ""}</div>
-                      </div>
-                      <button onClick={() => setLegendModal({ open: false, loading: false, data: null })} className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-white/[0.08] flex items-center justify-center text-white text-lg">✕</button>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6 overflow-y-auto max-h-[60vh]">
-                  {legendModal.data.ratings.length === 0 ? (
-                    <div className="text-center text-[#555] py-8">No ratings yet</div>
-                  ) : (
-                    <div className="space-y-2">
-                      {legendModal.data.ratings.map((rating, idx) => (
-                        <div key={rating.id || idx} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
-                          <div>
-                            <span className="text-white font-medium">{rating.raterDiscordName || rating.raterName || "Anonymous"}</span>
-                            {rating.raterDivision && <span className="text-[#555] text-sm ml-2">Div {rating.raterDivision}</span>}
-                          </div>
-                          <span className="text-white font-bold text-lg">{rating.score}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="p-12 text-center">
-                <p className="text-[#888]">Could not load ratings</p>
-                <button onClick={() => setLegendModal({ open: false, loading: false, data: null })} className="mt-4 px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] rounded-lg text-white text-sm">Close</button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ─── NON-LEGEND PERIOD SELECTOR MODAL ─── */}
-      {selectedNonLegend && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setSelectedNonLegend(null)}>
-          <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
-            {/* Header */}
-            <div className="p-6 border-b border-white/[0.04]">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <Flag code={selectedNonLegend.nationality} size="md" />
-                  <div>
-                    <h2 className="text-2xl font-display text-white">{cleanPlayerName(selectedNonLegend.playerName)}</h2>
-                    <p className="text-[#888] text-sm mt-1">{selectedNonLegend.category} · {selectedNonLegend.clan || "FA"}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-white">{selectedNonLegend.averageRating.toFixed(1)}</div>
-                    <div className="text-[#555] text-xs">All-time avg · {selectedNonLegend.history.length} period{selectedNonLegend.history.length !== 1 ? "s" : ""}</div>
-                  </div>
-                  <button onClick={() => setSelectedNonLegend(null)} className="w-10 h-10 rounded-full bg-white/[0.03] hover:bg-white/[0.05] flex items-center justify-center text-white">✕</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 overflow-y-auto max-h-[calc(85vh-5rem)]">
-              {/* Two-column layout: periods left, graph right */}
-              <div className="flex flex-col md:flex-row gap-6 mb-6">
-                {/* Period Selector */}
-                <div className="md:w-2/5 space-y-2">
-                  <h3 className="text-xs font-semibold text-[#888] tracking-[0.2em] uppercase mb-3">Select Period</h3>
-                  {selectedNonLegend.history.map((h) => {
-                    const isActive = selectedPeriodId === h.periodId
-                    return (
-                      <button
-                        key={h.periodId}
-                        onClick={() => fetchPeriodRatings(h.periodId, selectedNonLegend.playerId)}
-                        className={cn(
-                          "w-full flex items-center justify-between p-4 rounded-xl border transition-all",
-                          isActive
-                            ? "bg-white text-black border-white"
-                            : "bg-white/[0.02] border-white/[0.06] text-white hover:bg-white/[0.04] hover:border-white/[0.1]"
-                        )}
-                      >
-                        <span className="font-semibold text-sm">{h.period}</span>
-                        <span className={cn("font-bold text-lg", isActive ? "text-black" : "text-white")}>{h.rating.toFixed(1)}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-
-                {/* Evolution Graph */}
-                <div className="md:w-3/5 bg-white/[0.02] border border-white/[0.04] rounded-xl p-5">
-                  <h3 className="text-xs font-semibold text-[#888] tracking-[0.2em] uppercase mb-4">Rating Evolution</h3>
-                  {selectedNonLegend.history.length >= 2 ? (
-                    <ResponsiveContainer width="100%" height={220}>
-                      <LineChart data={selectedNonLegend.history} margin={{ top: 10, right: 15, left: 5, bottom: 5 }}>
-                        <CartesianGrid stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
-                        <XAxis
-                          dataKey="period"
-                          tick={{ fill: "#555", fontSize: 11 }}
-                          axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
-                          tickLine={false}
-                        />
-                        <YAxis
-                          domain={[
-                            (dataMin: number) => Math.floor(dataMin * 2 - 1) / 2,
-                            (dataMax: number) => Math.ceil(dataMax * 2 + 1) / 2,
-                          ]}
-                          tick={{ fill: "#555", fontSize: 11 }}
-                          axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
-                          tickLine={false}
-                          tickCount={8}
-                        />
-                        <Tooltip content={<EvolutionTooltip />} />
-                        <Line
-                          type="monotone"
-                          dataKey="rating"
-                          stroke="#fff"
-                          strokeWidth={2.5}
-                          dot={{ r: 5, fill: "#fff", stroke: "#fff", strokeWidth: 2 }}
-                          activeDot={{ r: 8, fill: "#fff", stroke: "rgba(255,255,255,0.3)", strokeWidth: 4 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="flex items-center justify-center h-[220px]">
-                      <div className="text-center">
-                        <div className="text-white text-4xl font-bold">{selectedNonLegend.history[0]?.rating.toFixed(1) || "-"}</div>
-                        <p className="text-[#555] text-sm mt-2">{selectedNonLegend.history[0]?.period || "No data"}</p>
-                        <p className="text-[#444] text-xs mt-1">More periods needed for graph</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Period Individual Ratings */}
-              {selectedPeriodId && (
-                <div className="border-t border-white/[0.04] pt-5">
-                  <h3 className="text-xs font-semibold text-[#888] tracking-[0.2em] uppercase mb-4">
-                    Individual Ratings — {selectedNonLegend.history.find(h => h.periodId === selectedPeriodId)?.period}
-                  </h3>
-                  {loadingPeriodRatings ? (
-                    <div className="flex justify-center py-6">
-                      <div className="w-6 h-6 border-3 border-white/20 border-t-white rounded-full animate-spin" />
-                    </div>
-                  ) : periodRatings && periodRatings.ratings.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[30vh] overflow-y-auto">
-                      {periodRatings.ratings.map((r, idx) => (
-                        <div key={idx} className="flex items-center justify-between bg-white/[0.02] rounded-lg p-3">
-                          <div>
-                            <span className="text-white font-medium text-sm">{r.raterDiscordName || r.raterName || "Anonymous"}</span>
-                            {r.raterDivision && <span className="text-[#555] text-xs ml-2">Div {r.raterDivision}</span>}
-                          </div>
-                          <span className="text-white font-bold">{r.score}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : periodRatings ? (
-                    <div className="text-center text-[#555] py-4">No individual ratings recorded for this period</div>
-                  ) : null}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {isLoading ? (
         <div className="flex justify-center py-20">
@@ -707,6 +687,7 @@ export default function AllTimePage() {
         </AnimatePresence>
       )}
     </div>
+    </>
   )
 }
 
