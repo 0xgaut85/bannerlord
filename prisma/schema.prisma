@@ -182,12 +182,13 @@ enum RequestStatus {
 
 // Historical ranking snapshots
 model RankingPeriod {
-  id          String              @id @default(cuid())
-  name        String              @unique // e.g., "December 2025"
-  startDate   DateTime
-  endDate     DateTime
-  createdAt   DateTime            @default(now())
-  rankings    HistoricalRanking[]
+  id                String              @id @default(cuid())
+  name              String              @unique // e.g., "December 2025"
+  startDate         DateTime
+  endDate           DateTime
+  createdAt         DateTime            @default(now())
+  rankings          HistoricalRanking[]
+  historicalRatings HistoricalRating[]
 }
 
 model HistoricalRanking {
@@ -204,6 +205,20 @@ model HistoricalRanking {
   period        RankingPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
 
   @@unique([periodId, playerId])
+}
+
+model HistoricalRating {
+  id               String        @id @default(cuid())
+  periodId         String
+  playerId         String
+  raterId          String
+  score            Int
+  raterName        String?
+  raterDiscordName String?
+  raterDivision    String?
+  period           RankingPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  @@index([periodId, playerId])
 }
 
 // Settings for ranking period timer

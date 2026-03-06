@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     const now = new Date()
 
     // 1. Save snapshot (legends excluded)
-    await prisma.rankingPeriod.create({
+    const period = await prisma.rankingPeriod.create({
       data: {
         name: periodName,
         startDate: new Date(now.getFullYear(), now.getMonth(), 1),
@@ -108,18 +108,40 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // 2. Delete ratings for non-legend players only (legends keep theirs forever)
+    // 2. Preserve individual ratings as HistoricalRating records
     const legendPlayers = await prisma.player.findMany({
       where: { isLegend: true },
       select: { id: true }
     })
     const legendIds = legendPlayers.map(p => p.id)
 
+    const ratingsToPreserve = await prisma.rating.findMany({
+      where: { playerId: { notIn: legendIds } },
+      include: {
+        rater: { select: { name: true, discordName: true, division: true } }
+      }
+    })
+
+    if (ratingsToPreserve.length > 0) {
+      await prisma.historicalRating.createMany({
+        data: ratingsToPreserve.map(r => ({
+          periodId: period.id,
+          playerId: r.playerId,
+          raterId: r.raterId,
+          score: r.score,
+          raterName: r.rater.name,
+          raterDiscordName: r.rater.discordName,
+          raterDivision: r.rater.division,
+        }))
+      })
+    }
+
+    // 3. Delete ratings for non-legend players only (legends keep theirs forever)
     const deleted = await prisma.rating.deleteMany({
       where: { playerId: { notIn: legendIds } }
     })
 
-    // 3. Update site settings for new period
+    // 4. Update site settings for new period
     const newEnd = newPeriodEnd ? new Date(newPeriodEnd) : new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
     await prisma.siteSettings.upsert({
       where: { id: "settings" },
@@ -139,6 +161,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       snapshot: periodName,
+      ratingsPreserved: ratingsToPreserve.length,
       ratingsDeleted: deleted.count,
       legendsPreserved: legendIds.length,
       newPeriod: newPeriodName,

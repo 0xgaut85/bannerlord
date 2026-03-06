@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
-import { Button } from "@/components/ui"
+import { Button, Tilt3DCard } from "@/components/ui"
 import { FifaDisplayCard } from "@/components/ui/FifaDisplayCard"
 import { signIn } from "next-auth/react"
 
@@ -66,7 +66,7 @@ export default function HomePage() {
               <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="space-y-4 lg:space-y-5 w-full max-w-2xl mx-auto">
+            <div className="space-y-4 lg:space-y-5 w-full mx-auto px-2">
               <CardSection label="Infantry" players={infantry} />
               <CardSection label="Cavalry" players={cavalry} />
               <CardSection label="Archer" players={archers} />
@@ -148,22 +148,23 @@ function CardSection({ label, players }: { label: string; players: RankedPlayer[
       <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2 text-center">
         {label}
       </p>
-      <div className="flex justify-center gap-1 sm:gap-2">
+      <div className="flex justify-center gap-2 sm:gap-3">
         {players.map((p) => (
-          <FifaDisplayCard
-            key={p.id}
-            player={{
-              id: p.id,
-              name: p.name,
-              category: p.category,
-              nationality: p.nationality,
-              clan: p.clan,
-              avatar: p.avatar,
-              clanLogo: p.clanLogo,
-            }}
-            rating={p.averageRating}
-            size="sm"
-          />
+          <Tilt3DCard key={p.id} maxTilt={10} scale={1.04}>
+            <FifaDisplayCard
+              player={{
+                id: p.id,
+                name: p.name,
+                category: p.category,
+                nationality: p.nationality,
+                clan: p.clan,
+                avatar: p.avatar,
+                clanLogo: p.clanLogo,
+              }}
+              rating={p.averageRating}
+              size="md"
+            />
+          </Tilt3DCard>
         ))}
       </div>
     </div>

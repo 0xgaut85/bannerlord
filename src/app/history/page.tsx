@@ -38,7 +38,7 @@ interface PeriodDetails {
 }
 
 interface PlayerRating {
-  id: string
+  id?: string
   score: number
   raterName: string
   raterDiscordName: string | null
@@ -103,14 +103,14 @@ function getCardStyle(rating: number) {
     isHolo: true,
   }
   if (rating >= 90) return {
-    bg: "bg-[#faf5c0]/30",
-    border: "border-yellow-200/60",
+    bg: "bg-[#faf5c0]/50",
+    border: "border-yellow-200/80",
     text: "text-yellow-950",
     tierColor: "text-yellow-300",
   }
   if (rating >= 85) return {
-    bg: "bg-[#e8d660]/25",
-    border: "border-yellow-300/50",
+    bg: "bg-[#e8d660]/45",
+    border: "border-yellow-300/70",
     text: "text-yellow-950",
     tierColor: "text-yellow-400",
   }
@@ -278,16 +278,32 @@ export default function HistoryPage() {
     }
   }
   
-  const fetchPlayerRatings = async (playerId: string) => {
+  const fetchPlayerRatings = async (playerId: string, playerName: string, playerCategory: string, playerClan: string | null, playerNationality: string | null) => {
     setLoadingPlayerRatings(true)
     try {
-      const res = await fetch(`/api/players/${playerId}/ratings`)
-      if (res.ok) {
-        const data = await res.json()
-        setSelectedPlayer(data)
+      if (selectedPeriod) {
+        const res = await fetch(`/api/history/${selectedPeriod.id}/players/${playerId}/ratings`)
+        if (res.ok) {
+          const data = await res.json()
+          setSelectedPlayer({
+            player: { id: playerId, name: playerName, category: playerCategory, clan: playerClan, nationality: playerNationality },
+            ratings: data.ratings || [],
+            averageRating: data.averageRating,
+            totalRatings: data.totalRatings,
+          })
+        } else {
+          const errorText = await res.text().catch(() => "unknown")
+          console.error(`Historical ratings API error ${res.status}:`, errorText)
+        }
       } else {
-        const errorText = await res.text().catch(() => "unknown")
-        console.error(`Player ratings API error ${res.status}:`, errorText)
+        const res = await fetch(`/api/players/${playerId}/ratings`)
+        if (res.ok) {
+          const data = await res.json()
+          setSelectedPlayer(data)
+        } else {
+          const errorText = await res.text().catch(() => "unknown")
+          console.error(`Player ratings API error ${res.status}:`, errorText)
+        }
       }
     } catch (error) {
       console.error("Error fetching player ratings:", error)
@@ -434,7 +450,7 @@ export default function HistoryPage() {
                           return (
                             <button
                               key={ranking.id}
-                              onClick={() => fetchPlayerRatings(ranking.playerId)}
+                              onClick={() => fetchPlayerRatings(ranking.playerId, ranking.playerName, ranking.category, ranking.clan, ranking.nationality)}
                               className={cn(
                                 "w-full flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.01]",
                                 style.bg,
@@ -722,17 +738,24 @@ export default function HistoryPage() {
                 <div className="p-6 max-h-[50vh] overflow-y-auto">
                   <h4 className="text-sm font-medium text-[#888] mb-4">Individual Ratings</h4>
                   {selectedPlayer.ratings.length === 0 ? (
-                    <p className="text-[#555] text-center py-4">No ratings yet</p>
+                    <div className="text-center py-4">
+                      <p className="text-[#888]">No individual ratings recorded for this period.</p>
+                      {selectedPlayer.averageRating !== null && (
+                        <p className="text-[#555] text-sm mt-2">
+                          Aggregated rating: {selectedPlayer.averageRating.toFixed(1)} from {selectedPlayer.totalRatings} votes
+                        </p>
+                      )}
+                    </div>
                   ) : (
                     <div className="space-y-2">
-                      {selectedPlayer.ratings.map((rating) => (
+                      {selectedPlayer.ratings.map((rating, idx) => (
                         <div 
-                          key={rating.id}
+                          key={rating.id || idx}
                           className="flex items-center justify-between p-3 bg-white/[0.02] rounded-lg"
                         >
                           <div>
                             <span className="text-white font-medium">
-                              {rating.raterDiscordName || rating.raterName}
+                              {rating.raterDiscordName || rating.raterName || "Anonymous"}
                             </span>
                             {rating.raterDivision && (
                               <span className="ml-2 text-xs text-[#888]">

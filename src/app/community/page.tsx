@@ -623,7 +623,7 @@ export default function CommunityPage() {
                 </p>
               </FadeUp>
 
-              <div className="flex flex-col md:flex-row justify-center items-center md:items-end gap-6">
+              <div className="flex flex-col md:flex-row justify-center items-center md:items-end gap-10 md:gap-14">
                 {/* Reorder: 2nd, 1st, 3rd -- center (rank 1) animates first */}
                 {[top3[1], top3[0], top3[2]].filter(Boolean).map((player, idx) => {
                   const actualRank = idx === 1 ? 1 : idx === 0 ? 2 : 3
