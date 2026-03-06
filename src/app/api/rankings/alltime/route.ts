@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
       nationality: string | null
       ratings: number[]
       periodNames: string[]
-      history: { period: string; rating: number }[]
+      history: { period: string; periodId: string; rating: number }[]
       isLegend: boolean
       avatar: string | null
     }>()
@@ -111,6 +111,7 @@ export async function GET(request: NextRequest) {
         existing.periodNames.push(ranking.period.name)
         existing.history.push({
           period: ranking.period.name,
+          periodId: ranking.periodId,
           rating: ranking.averageRating
         })
         // Update to latest info
@@ -128,6 +129,7 @@ export async function GET(request: NextRequest) {
           periodNames: [ranking.period.name],
           history: [{
             period: ranking.period.name,
+            periodId: ranking.periodId,
             rating: ranking.averageRating
           }],
           isLegend: false,
@@ -186,7 +188,7 @@ export async function GET(request: NextRequest) {
           nationality: legend.nationality,
           ratings: [avgRating],
           periodNames: ["Legend"],
-          history: [{ period: "Legend", rating: avgRating }],
+          history: [{ period: "Legend", periodId: "", rating: avgRating }],
           isLegend: true,
           avatar: legend.avatar,
         })
@@ -198,7 +200,7 @@ export async function GET(request: NextRequest) {
         // Replace all historical ratings with the fresh calculated legend rating
         existing.ratings = [avgRating]
         existing.periodNames = ["Legend"]
-        existing.history = [{ period: "Legend", rating: avgRating }]
+        existing.history = [{ period: "Legend", periodId: "", rating: avgRating }]
         // Update player info from legend data
         existing.playerName = legend.name
         existing.clan = legend.clan
@@ -232,7 +234,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       rankings: rankedRankings,
-      periods: periods.map(p => p.name)
+      periods: periods.map(p => ({ id: p.id, name: p.name }))
     })
   } catch (error) {
     console.error("All-time GET error:", error)
