@@ -203,8 +203,7 @@ export default function CommunityPage() {
   const [selectedVoter, setSelectedVoter] = useState<VoterDetails | null>(null)
   const [loadingVoters, setLoadingVoters] = useState(false)
   const [votersDisplayCount, setVotersDisplayCount] = useState(12)
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerRatingsDetails | null>(null)
-  const [loadingPlayerRatings, setLoadingPlayerRatings] = useState(false)
+  const [playerModal, setPlayerModal] = useState<{ loading: boolean; data: PlayerRatingsDetails | null; open: boolean }>({ loading: false, data: null, open: false })
   
   // Timer state
   const [periodEnd, setPeriodEnd] = useState<Date | null>(null)
@@ -300,20 +299,19 @@ export default function CommunityPage() {
   }
 
   const fetchPlayerRatings = async (playerId: string) => {
-    setLoadingPlayerRatings(true)
+    setPlayerModal({ loading: true, data: null, open: true })
     try {
       const res = await fetch(`/api/players/${playerId}/ratings`)
       if (res.ok) {
         const data = await res.json()
-        setSelectedPlayer(data)
+        setPlayerModal({ loading: false, data, open: true })
       } else {
-        const errorText = await res.text().catch(() => "unknown")
-        console.error(`Player ratings API error ${res.status}:`, errorText)
+        console.error(`Player ratings API error ${res.status}`)
+        setPlayerModal({ loading: false, data: null, open: true })
       }
     } catch (error) {
       console.error("Error fetching player ratings:", error)
-    } finally {
-      setLoadingPlayerRatings(false)
+      setPlayerModal({ loading: false, data: null, open: true })
     }
   }
   

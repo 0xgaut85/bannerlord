@@ -40,6 +40,11 @@ export default function AdminPage() {
   const [newPeriodEndDate, setNewPeriodEndDate] = useState("")
   const [startingNewPeriod, setStartingNewPeriod] = useState(false)
   
+  // Historical period deletion
+  const [historicalPeriods, setHistoricalPeriods] = useState<{ id: string; name: string; _count: { rankings: number } }[]>([])
+  const [deletingPeriod, setDeletingPeriod] = useState(false)
+  const [selectedPeriodToDelete, setSelectedPeriodToDelete] = useState("")
+
   // Curated rankings management
   const [curatedPeriodName, setCuratedPeriodName] = useState("")
   const [savingCurated, setSavingCurated] = useState(false)
@@ -411,6 +416,18 @@ export default function AdminPage() {
     }
   }
 
+  const fetchHistoricalPeriods = async () => {
+    try {
+      const res = await fetch("/api/rankings/history")
+      if (res.ok) {
+        const data = await res.json()
+        setHistoricalPeriods(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch historical periods", error)
+    }
+  }
+
   const fetchPlayers = async () => {
     setLoading(true)
     try {
@@ -603,7 +620,7 @@ export default function AdminPage() {
                 <Button 
                   size="sm"
                   variant={activeTab === "periods" ? "primary" : "ghost"} 
-                  onClick={() => setActiveTab("periods")}
+                  onClick={() => { setActiveTab("periods"); fetchHistoricalPeriods() }}
                   className={`text-xs sm:text-sm ${activeTab === "periods" ? "!bg-white !text-black" : "!bg-transparent !text-[#555]"}`}
                 >
                   Timer
@@ -1483,6 +1500,84 @@ export default function AdminPage() {
                   {savingPeriod ? "Saving..." : "Save Snapshot"}
                 </Button>
               </div>
+            </div>
+
+            {/* Delete Historical Period */}
+            <div className="bg-red-500/10 p-6 rounded-xl border border-red-500/30">
+              <h3 className="text-red-400 font-semibold mb-2">Delete Historical Period</h3>
+              <p className="text-[#888] text-sm mb-5">
+                Permanently delete a saved historical period and all its ranking/rating data. <span className="text-red-400 font-medium">This cannot be undone.</span>
+              </p>
+
+              {historicalPeriods.length === 0 ? (
+                <p className="text-[#555] text-sm">No historical periods saved yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 gap-2">
+                    {historicalPeriods.map((period) => (
+                      <div
+                        key={period.id}
+                        onClick={() => setSelectedPeriodToDelete(selectedPeriodToDelete === period.name ? "" : period.name)}
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl border cursor-pointer transition-all ${
+                          selectedPeriodToDelete === period.name
+                            ? "bg-red-500/20 border-red-500/60"
+                            : "bg-white/[0.02] border-white/[0.04] hover:border-white/10"
+                        }`}
+                      >
+                        <div>
+                          <span className="text-white font-medium">{period.name}</span>
+                          <span className="text-[#555] text-xs ml-3">
+                            {period._count?.rankings ?? 0} players ranked
+                          </span>
+                        </div>
+                        {selectedPeriodToDelete === period.name && (
+                          <span className="text-red-400 text-xs font-semibold">Selected</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button
+                    onClick={async () => {
+                      if (!selectedPeriodToDelete) {
+                        alert("Select a period to delete first")
+                        return
+                      }
+                      if (!confirm(`Delete "${selectedPeriodToDelete}" and all its data? This cannot be undone.`)) return
+                      if (!confirm(`FINAL CONFIRMATION: permanently delete "${selectedPeriodToDelete}"?`)) return
+
+                      setDeletingPeriod(true)
+                      try {
+                        const res = await fetch("/api/admin/delete-period", {
+                          method: "DELETE",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            periodName: selectedPeriodToDelete,
+                            adminUsername: username,
+                            adminPassword: password,
+                          })
+                        })
+                        const data = await res.json()
+                        if (res.ok) {
+                          alert(`"${data.deleted}" has been deleted.\n\nRemaining: ${data.remaining.join(", ") || "none"}`)
+                          setSelectedPeriodToDelete("")
+                          await fetchHistoricalPeriods()
+                        } else {
+                          alert(data.error || "Failed to delete period")
+                        }
+                      } catch (error) {
+                        alert("Error deleting period")
+                      } finally {
+                        setDeletingPeriod(false)
+                      }
+                    }}
+                    disabled={!selectedPeriodToDelete || deletingPeriod}
+                    className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30 disabled:opacity-40"
+                  >
+                    {deletingPeriod ? "Deleting..." : `Delete "${selectedPeriodToDelete || "..."}"`}
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Start New Rating Period */}
