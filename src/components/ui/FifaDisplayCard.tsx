@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { Flag } from "@/components/ui"
+import { HolographicOverlay } from "@/components/ui/HolographicOverlay"
 import { cleanPlayerName } from "@/lib/utils"
 
 interface FifaDisplayCardProps {
@@ -22,12 +23,13 @@ interface FifaDisplayCardProps {
 // AAA+ Premium card styles
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
-    bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
-    border: "border-cyan-300/60",
-    accent: "from-cyan-300 via-white to-cyan-300",
+    bg: "linear-gradient(145deg, #0a0a0a 0%, #111118 25%, #0d0d14 50%, #111118 75%, #0a0a0a 100%)",
+    border: "",
+    accent: "from-white via-purple-200 to-white",
     text: "text-white",
-    subtext: "text-cyan-200",
-    noiseOpacity: 0.35,
+    subtext: "text-purple-200",
+    noiseOpacity: 0.25,
+    isHolo: true,
   }
   if (rating >= 90) return {
     bg: "linear-gradient(145deg, #f0e68c 0%, #f5eea0 25%, #faf5c0 50%, #f5eea0 75%, #f0e68c 100%)",
@@ -122,17 +124,21 @@ const sizeClasses = {
 }
 
 export function FifaDisplayCard({ player, rating, size = "md", onClick }: FifaDisplayCardProps) {
-  const style = getCardStyle(rating)
+  const style = getCardStyle(rating) as ReturnType<typeof getCardStyle> & { isHolo?: boolean }
   const avatarSrc = player.avatar || getDefaultAvatar(player.category)
   const playerTier = getTierFromRating(rating)
+  const isHolo = !!(style as any).isHolo
   
   return (
     <div 
-      className={`relative ${sizeClasses[size]} rounded-2xl overflow-hidden shadow-xl border-2 ${style.border} ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
+      className={`relative ${sizeClasses[size]} rounded-2xl overflow-hidden shadow-xl border-2 ${isHolo ? 'holo-card' : style.border} ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
       onClick={onClick}
     >
       {/* Background */}
       <div className="absolute inset-0" style={{ background: style.bg }} />
+      
+      {/* Holographic overlay for 95+ */}
+      {isHolo && <HolographicOverlay />}
       
       {/* Noise Texture */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none mix-blend-overlay" style={{ opacity: style.noiseOpacity }}>

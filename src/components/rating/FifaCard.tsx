@@ -1,7 +1,7 @@
 "use client"
 
 import { Player } from "@prisma/client"
-import { Button, Slider, Flag, Tilt3DCard } from "@/components/ui"
+import { Button, Slider, Flag, Tilt3DCard, HolographicOverlay } from "@/components/ui"
 import Image from "next/image"
 import { cleanPlayerName } from "@/lib/utils"
 
@@ -38,15 +38,15 @@ function getCardStyle(rating: number, isLegend?: boolean) {
   if (isLegend) return LEGEND_STYLE
   
   if (rating >= 95) return {
-    // ICON - Obsidian Diamond with aurora undertones
-    bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
-    border: "border-cyan-300/60",
-    accent: "from-cyan-300 via-white to-cyan-300",
+    bg: "linear-gradient(145deg, #0a0a0a 0%, #111118 25%, #0d0d14 50%, #111118 75%, #0a0a0a 100%)",
+    border: "",
+    accent: "from-white via-purple-200 to-white",
     text: "text-white",
-    subtext: "text-cyan-200",
-    noiseOpacity: 0.35,
-    overlayGradient: "linear-gradient(180deg, rgba(6,182,212,0.1) 0%, transparent 40%, rgba(6,182,212,0.05) 100%)",
+    subtext: "text-purple-200",
+    noiseOpacity: 0.25,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 40%, rgba(255,255,255,0.03) 100%)",
     shimmer: "linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 60%, transparent 80%)",
+    isHolo: true,
   }
   if (rating >= 90) return {
     bg: "linear-gradient(145deg, #f0e68c 0%, #f5eea0 25%, #faf5c0 50%, #f5eea0 75%, #f0e68c 100%)",
@@ -202,12 +202,15 @@ export function FifaCard({
       
       {/* FIFA Card - AAA+ Premium Design */}
       <Tilt3DCard maxTilt={8} scale={1.02}>
-      <div className={`relative w-64 sm:w-72 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border}`}>
+      <div className={`relative w-64 sm:w-72 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? 'holo-card' : style.border}`}>
         {/* Background Base - Rich gradient */}
         <div 
           className="absolute inset-0"
           style={{ background: style.bg }}
         />
+        
+        {/* Holographic overlay for 95+ */}
+        {(style as any).isHolo && <HolographicOverlay />}
         
         {/* Overlay Gradient for depth */}
         <div 

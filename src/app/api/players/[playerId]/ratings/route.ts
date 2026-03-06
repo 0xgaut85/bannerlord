@@ -53,10 +53,10 @@ async function getEligibleUserIds(): Promise<string[]> {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ playerId: string }> }
+  { params }: { params: { playerId: string } }
 ) {
   try {
-    const { playerId } = await params
+    const { playerId } = params
 
     // Get eligible user IDs first (same as rankings)
     const eligibleUserIds = await getEligibleUserIds()

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, DragEvent, useRef } from "react"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
-import { Flag } from "@/components/ui"
+import { Flag, HolographicOverlay } from "@/components/ui"
 import { cn, cleanPlayerName } from "@/lib/utils"
 
 interface Player {
@@ -40,10 +40,11 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     noiseOpacity: 0.65,
   }
   if (rating >= 95) return {
-    bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
-    border: "border-cyan-300/60",
+    bg: "linear-gradient(145deg, #0a0a0a 0%, #111118 25%, #0d0d14 50%, #111118 75%, #0a0a0a 100%)",
+    border: "",
     text: "text-white",
-    subtext: "text-cyan-200",
+    subtext: "text-purple-200",
+    isHolo: true,
   }
   if (rating >= 90) return {
     bg: "linear-gradient(145deg, #f0e68c 0%, #f5eea0 25%, #faf5c0 50%, #f5eea0 75%, #f0e68c 100%)",
@@ -167,12 +168,14 @@ function FifaCard({
       onDragEnd={onDragEnd}
       className={cn(
         `relative ${sizeClasses} aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 cursor-grab active:cursor-grabbing`,
-        style.border,
+        (style as any).isHolo ? 'holo-card' : style.border,
         isDragging ? "opacity-30 scale-95" : ""
       )}
     >
       {/* Background */}
       <div className="absolute inset-0" style={{ background: style.bg }} />
+      {/* Holographic overlay for 95+ */}
+      {(style as any).isHolo && <HolographicOverlay />}
       
       {/* Subtle gradient overlay for depth */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/20 pointer-events-none" />

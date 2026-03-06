@@ -96,10 +96,11 @@ type ViewMode = "periods" | "players"
 // AAA+ Premium card styles (matching community page)
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
-    bg: "bg-cyan-500/20",
-    border: "border-cyan-300/60",
+    bg: "bg-purple-500/20",
+    border: "border-purple-300/60",
     text: "text-white",
-    tierColor: "text-cyan-400",
+    tierColor: "text-purple-300",
+    isHolo: true,
   }
   if (rating >= 90) return {
     bg: "bg-[#faf5c0]/30",
@@ -284,6 +285,9 @@ export default function HistoryPage() {
       if (res.ok) {
         const data = await res.json()
         setSelectedPlayer(data)
+      } else {
+        const errorText = await res.text().catch(() => "unknown")
+        console.error(`Player ratings API error ${res.status}:`, errorText)
       }
     } catch (error) {
       console.error("Error fetching player ratings:", error)
@@ -434,7 +438,7 @@ export default function HistoryPage() {
                               className={cn(
                                 "w-full flex items-center gap-4 p-4 rounded-xl border transition-all hover:scale-[1.01]",
                                 style.bg,
-                                style.border
+                                (style as any).isHolo ? 'holo-card' : style.border
                               )}
                             >
                               <span className={cn(

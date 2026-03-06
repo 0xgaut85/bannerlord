@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { PlayerWithRating } from "@/types"
-import { Flag, Tilt3DCard, CutCornerButton, AnimatedCard, StaggerItem, RowRevealItem, FadeUp, FadeIn, ShimmerDivider } from "@/components/ui"
+import { Flag, Tilt3DCard, CutCornerButton, AnimatedCard, StaggerItem, RowRevealItem, FadeUp, FadeIn, ShimmerDivider, HolographicOverlay } from "@/components/ui"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn, cleanPlayerName } from "@/lib/utils"
 
@@ -42,16 +42,16 @@ function getTierFromRating(rating: number): string {
 // AAA+ Premium card styles with heavy textures
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
-    // ICON - Obsidian Diamond with aurora undertones
-    bg: "linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%)",
-    border: "border-cyan-300/60",
-    accent: "from-cyan-300 via-white to-cyan-300",
+    bg: "linear-gradient(145deg, #0a0a0a 0%, #111118 25%, #0d0d14 50%, #111118 75%, #0a0a0a 100%)",
+    border: "",
+    accent: "from-white via-purple-200 to-white",
     text: "text-white",
-    subtext: "text-cyan-200",
-    noiseOpacity: 0.35,
-    overlayGradient: "linear-gradient(180deg, rgba(6,182,212,0.1) 0%, transparent 40%, rgba(6,182,212,0.05) 100%)",
-    boxBg: "bg-cyan-500/20",
-    tierColor: "text-cyan-400",
+    subtext: "text-purple-200",
+    noiseOpacity: 0.25,
+    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 40%, rgba(255,255,255,0.03) 100%)",
+    boxBg: "bg-purple-500/20",
+    tierColor: "text-purple-300",
+    isHolo: true,
   }
   if (rating >= 90) return {
     bg: "linear-gradient(145deg, #f0e68c 0%, #f5eea0 25%, #faf5c0 50%, #f5eea0 75%, #f0e68c 100%)",
@@ -302,7 +302,11 @@ export default function CommunityPage() {
     try {
       const res = await fetch(`/api/players/${playerId}/ratings`)
       if (res.ok) {
-        setSelectedPlayer(await res.json())
+        const data = await res.json()
+        setSelectedPlayer(data)
+      } else {
+        const errorText = await res.text().catch(() => "unknown")
+        console.error(`Player ratings API error ${res.status}:`, errorText)
       }
     } catch (error) {
       console.error("Error fetching player ratings:", error)
@@ -764,12 +768,15 @@ function FifaDisplayCard({
     >
       {/* FIFA Card - AAA+ Premium Design with 3D Tilt */}
       <Tilt3DCard maxTilt={14} scale={1.05}>
-      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border}`}>
+      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? 'holo-card' : style.border}`}>
         {/* Background Base - Rich gradient */}
         <div 
           className="absolute inset-0"
           style={{ background: style.bg }}
         />
+        
+        {/* Holographic overlay for 95+ */}
+        {(style as any).isHolo && <HolographicOverlay />}
         
         {/* Overlay Gradient for depth */}
         <div 
@@ -915,12 +922,13 @@ function ElitePlayerCard({ player, onPlayerClick }: { player: PlayerWithRating; 
   return (
     <button onClick={() => onPlayerClick?.(player.id)} className="flex justify-center w-full">
       {/* Small FIFA Card - 20% bigger */}
-      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${style.border} hover:scale-105 transition-transform`}>
+      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${(style as any).isHolo ? 'holo-card' : style.border} hover:scale-105 transition-transform`}>
         {/* Background Base */}
         <div 
           className="absolute inset-0"
           style={{ background: style.bg }}
         />
+        {(style as any).isHolo && <HolographicOverlay />}
         
         {/* Overlay Gradient */}
         <div 
