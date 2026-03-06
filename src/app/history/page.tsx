@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
-import { Flag } from "@/components/ui"
+import { Flag, CutCornerButton } from "@/components/ui"
 import { cn, getTierFromRating } from "@/lib/utils"
 import { useDebounce } from "@/hooks/useDebounce"
 import {
@@ -339,31 +339,19 @@ export default function HistoryPage() {
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex justify-center mb-10">
-          <div className="inline-flex bg-white/[0.03] rounded-xl p-1 border border-white/[0.04]">
-            <button
-              onClick={() => setViewMode("periods")}
-              className={cn(
-                "px-6 py-2.5 rounded-lg text-sm font-semibold transition-all",
-                viewMode === "periods"
-                  ? "bg-white text-black"
-                  : "text-[#555] hover:text-white"
-              )}
-            >
-              Period Rankings
-            </button>
-            <button
-              onClick={() => setViewMode("players")}
-              className={cn(
-                "px-6 py-2.5 rounded-lg text-sm font-semibold transition-all",
-                viewMode === "players"
-                  ? "bg-white text-black"
-                  : "text-[#555] hover:text-white"
-              )}
-            >
-              Player Evolution
-            </button>
-          </div>
+        <div className="flex justify-center gap-2 mb-10">
+          <CutCornerButton
+            onClick={() => setViewMode("periods")}
+            active={viewMode === "periods"}
+          >
+            Period Rankings
+          </CutCornerButton>
+          <CutCornerButton
+            onClick={() => setViewMode("players")}
+            active={viewMode === "players"}
+          >
+            Player Evolution
+          </CutCornerButton>
         </div>
 
         {viewMode === "periods" ? (

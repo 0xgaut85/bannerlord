@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useSession, signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Button, Card, Input, Badge } from "@/components/ui"
+import { Button, Card, Input, Badge, CutCornerButton } from "@/components/ui"
 import { EligibilityProgress } from "@/components/rating"
 import { Division } from "@prisma/client"
 
@@ -148,19 +148,14 @@ export default function ProfilePage() {
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {divisions.map((d) => (
-                <button
+                <CutCornerButton
                   key={d}
                   onClick={() => setDivision(d)}
-                  className={`
-                    py-3 rounded-xl font-semibold text-lg transition-all duration-300
-                    ${division === d 
-                      ? "bg-white text-black font-bold" 
-                      : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
-                    }
-                  `}
+                  active={division === d}
+                  className="w-full"
                 >
                   {d}
-                </button>
+                </CutCornerButton>
               ))}
             </div>
             <p className="mt-3 text-xs text-[#555]">

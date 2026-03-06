@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { PlayerWithRating } from "@/types"
-import { Flag, Tilt3DCard } from "@/components/ui"
+import { Flag, Tilt3DCard, CutCornerButton, AnimatedCard, StaggerItem, RowRevealItem, FadeUp, FadeIn, ShimmerDivider } from "@/components/ui"
+import { motion, AnimatePresence } from "framer-motion"
 import { cn, cleanPlayerName } from "@/lib/utils"
 
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
@@ -369,30 +370,20 @@ export default function CommunityPage() {
         <div className="flex justify-center gap-2 mt-8 px-4 overflow-x-auto pb-2">
           <div className="flex gap-2 min-w-max">
             {(Object.keys(categoryConfig) as Category[]).map((cat) => (
-              <button
+              <CutCornerButton
                 key={cat}
                 onClick={() => { setCategory(cat); setShowVoters(false) }}
-                className={cn(
-                  "px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap",
-                  category === cat && !showVoters
-                    ? "bg-white text-black"
-                    : "bg-white/[0.03] text-[#555] hover:text-white hover:bg-white/[0.04] border border-white/[0.04]"
-                )}
+                active={category === cat && !showVoters}
               >
                 {categoryConfig[cat].label}
-              </button>
+              </CutCornerButton>
             ))}
-            <button
+            <CutCornerButton
               onClick={handleShowVoters}
-              className={cn(
-                "px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap",
-                showVoters
-                  ? "bg-white text-black"
-                  : "bg-white/[0.03] text-[#555] hover:text-white hover:bg-white/[0.04] border border-white/[0.04]"
-              )}
+              active={showVoters}
             >
               Voters
-            </button>
+            </CutCornerButton>
           </div>
         </div>
       </div>
@@ -549,9 +540,9 @@ export default function CommunityPage() {
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {voters.slice(0, votersDisplayCount).map((voter) => (
+                {voters.slice(0, votersDisplayCount).map((voter, vIdx) => (
+                  <StaggerItem key={voter.id} index={vIdx} staggerDelay={0.04}>
                   <button
-                    key={voter.id}
                     onClick={() => fetchVoterDetails(voter.id)}
                     className={cn(
                       "border rounded-xl p-4 text-left transition-all",
@@ -587,6 +578,7 @@ export default function CommunityPage() {
                       </span>
                     </div>
                   </button>
+                  </StaggerItem>
                 ))}
               </div>
               
@@ -608,66 +600,90 @@ export default function CommunityPage() {
           <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="max-w-6xl mx-auto px-6 pb-20">
+        <AnimatePresence mode="wait">
+        <motion.div
+          key={showVoters ? "voters" : category}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-6xl mx-auto px-6 pb-20"
+        >
           {/* THE CHOSEN THREE */}
           {top3.length > 0 && (
             <section className="mb-20">
-              <h2 className="text-center text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">
-                THE CHOSEN THREE
-              </h2>
-              <p className="text-center text-[#888] mb-12 text-sm">
-                The undisputed elite
-              </p>
-              
+              <FadeUp>
+                <h2 className="text-center text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">
+                  THE CHOSEN THREE
+                </h2>
+                <p className="text-center text-[#888] mb-12 text-sm">
+                  The undisputed elite
+                </p>
+              </FadeUp>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-                {/* Reorder: 2nd, 1st, 3rd */}
+                {/* Reorder: 2nd, 1st, 3rd -- center (rank 1) animates first */}
                 {[top3[1], top3[0], top3[2]].filter(Boolean).map((player, idx) => {
                   const actualRank = idx === 1 ? 1 : idx === 0 ? 2 : 3
+                  const animDelay = idx === 1 ? 0 : idx === 0 ? 0.25 : 0.5
                   return (
-                    <FifaDisplayCard 
-                      key={player.id} 
-                      player={player} 
-                      rank={actualRank}
-                      isCenter={idx === 1}
-                      onPlayerClick={fetchPlayerRatings}
-                    />
+                    <AnimatedCard key={player.id} delay={animDelay} initialScale={1.4}>
+                      <FifaDisplayCard 
+                        player={player} 
+                        rank={actualRank}
+                        isCenter={idx === 1}
+                        onPlayerClick={fetchPlayerRatings}
+                      />
+                    </AnimatedCard>
                   )
                 })}
               </div>
             </section>
           )}
+
+          <ShimmerDivider className="mb-16" />
           
           {/* ELITE WARRIORS */}
           {elite.length > 0 && (
             <section className="mb-16">
-              <h2 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">
-                Elite Warriors
-              </h2>
-              <p className="text-[#888] mb-6 text-sm">
-                Rank #4 - #15
-              </p>
+              <FadeUp>
+                <h2 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">
+                  Elite Warriors
+                </h2>
+                <p className="text-[#888] mb-6 text-sm">
+                  Rank #4 - #15
+                </p>
+              </FadeUp>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {elite.map((player) => (
-                  <ElitePlayerCard key={player.id} player={player} onPlayerClick={fetchPlayerRatings} />
+                {elite.map((player, i) => (
+                  <StaggerItem key={player.id} index={i} staggerDelay={0.06}>
+                    <ElitePlayerCard player={player} onPlayerClick={fetchPlayerRatings} />
+                  </StaggerItem>
                 ))}
               </div>
             </section>
           )}
+
+          <ShimmerDivider className="mb-16" />
           
           {/* RISING STARS */}
           {promising.length > 0 && (
             <section className="mb-16">
-              <h2 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">
-                Rising Stars
-              </h2>
-              <p className="text-[#888] mb-6 text-sm">
-                Rank #16 - #30
-              </p>
+              <FadeUp>
+                <h2 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">
+                  Rising Stars
+                </h2>
+                <p className="text-[#888] mb-6 text-sm">
+                  Rank #16 - #30
+                </p>
+              </FadeUp>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                {promising.map((player) => (
-                  <CompactPlayerCard key={player.id} player={player} onPlayerClick={fetchPlayerRatings} />
+                {promising.map((player, i) => (
+                  <RowRevealItem key={player.id} index={i} columnsPerRow={4} rowDelay={0.12}>
+                    <CompactPlayerCard player={player} onPlayerClick={fetchPlayerRatings} />
+                  </RowRevealItem>
                 ))}
               </div>
             </section>
@@ -675,6 +691,7 @@ export default function CommunityPage() {
           
           {/* REMAINING PLAYERS IN THIS CATEGORY */}
           {rest.length > 0 && (
+            <FadeIn>
             <section>
               <h2 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
                 All {config.label}
@@ -705,14 +722,16 @@ export default function CommunityPage() {
                 </div>
               </div>
             </section>
+            </FadeIn>
           )}
-          
+
           {players.length === 0 && !isLoading && (
             <div className="text-center py-20 text-[#555]">
               <p className="text-xl">No players in this category yet</p>
             </div>
           )}
-        </div>
+        </motion.div>
+        </AnimatePresence>
       )}
     </div>
   )
