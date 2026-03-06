@@ -196,3 +196,63 @@ body {
   pointer-events: none;
   mix-blend-mode: overlay;
 }
+
+/* ──── Holographic card effect ──── */
+@keyframes holoShift {
+  0%   { background-position: 0% 50%; filter: hue-rotate(0deg); }
+  25%  { background-position: 50% 100%; }
+  50%  { background-position: 100% 50%; filter: hue-rotate(90deg); }
+  75%  { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+}
+
+@keyframes holoShimmer {
+  0%   { transform: translateX(-120%) rotate(25deg); }
+  100% { transform: translateX(120%) rotate(25deg); }
+}
+
+@keyframes holoBorder {
+  0%   { border-color: rgba(255,100,100,0.6); }
+  16%  { border-color: rgba(255,200,50,0.6); }
+  33%  { border-color: rgba(100,255,100,0.6); }
+  50%  { border-color: rgba(50,200,255,0.6); }
+  66%  { border-color: rgba(150,100,255,0.6); }
+  83%  { border-color: rgba(255,100,200,0.6); }
+  100% { border-color: rgba(255,100,100,0.6); }
+}
+
+.holo-card {
+  animation: holoBorder 4s linear infinite;
+}
+
+.holo-bg {
+  background: linear-gradient(
+    135deg,
+    #ff000022, #ff880022, #ffff0022, #00ff0022,
+    #00ffff22, #0088ff22, #8800ff22, #ff00ff22, #ff000022
+  );
+  background-size: 400% 400%;
+  animation: holoShift 6s ease infinite;
+}
+
+.holo-shimmer {
+  overflow: hidden;
+}
+.holo-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.2),
+    rgba(255,255,255,0.08),
+    transparent
+  );
+  transform: translateX(-120%) rotate(25deg);
+  animation: holoShimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
