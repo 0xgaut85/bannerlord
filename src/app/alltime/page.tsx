@@ -380,10 +380,10 @@ export default function AllTimePage() {
         <AnimatePresence mode="wait">
         <motion.div
           key={category}
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-6xl mx-auto px-6 pb-20 pt-12"
         >
           {/* THE CHOSEN THREE */}
@@ -398,13 +398,13 @@ export default function AllTimePage() {
                 </p>
               </FadeUp>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+              <div className="flex flex-col md:flex-row justify-center items-center md:items-end gap-6">
                 {/* Reorder: 2nd, 1st, 3rd -- center animates first */}
                 {[top3[1], top3[0], top3[2]].filter(Boolean).map((player, idx) => {
                   const actualRank = idx === 1 ? 1 : idx === 0 ? 2 : 3
-                  const animDelay = idx === 1 ? 0 : idx === 0 ? 0.25 : 0.5
+                  const animDelay = idx === 1 ? 0 : idx === 0 ? 0.6 : 1.2
                   return (
-                    <AnimatedCard key={player.playerId} delay={animDelay} initialScale={1.4}>
+                    <AnimatedCard key={player.playerId} delay={animDelay} initialScale={1.6}>
                       <FifaDisplayCard 
                         player={player} 
                         rank={actualRank}
@@ -435,7 +435,7 @@ export default function AllTimePage() {
               
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {elite.map((player, i) => (
-                  <StaggerItem key={player.playerId} index={i} staggerDelay={0.06}>
+                  <StaggerItem key={player.playerId} index={i} staggerDelay={0.15}>
                     <ElitePlayerCard 
                       player={player} 
                       onPlayerClick={fetchPlayerRatings}
@@ -463,7 +463,7 @@ export default function AllTimePage() {
               
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {promising.map((player, i) => (
-                  <RowRevealItem key={player.playerId} index={i} columnsPerRow={4} rowDelay={0.12}>
+                  <RowRevealItem key={player.playerId} index={i} columnsPerRow={4}>
                     <CompactPlayerCard 
                       player={player} 
                       onPlayerClick={fetchPlayerRatings} 

@@ -1,9 +1,14 @@
 "use client"
 
+import { useRef, useEffect, type ReactNode } from "react"
 import { motion } from "framer-motion"
-import type { ReactNode } from "react"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1]
+gsap.registerPlugin(ScrollTrigger)
+
+const CINEMATIC_EASE = "power3.out"
+const DRAMATIC_EASE = "power4.out"
 
 interface AnimatedCardProps {
   children: ReactNode
@@ -15,19 +20,46 @@ interface AnimatedCardProps {
 export function AnimatedCard({
   children,
   delay = 0,
-  initialScale = 1.4,
+  initialScale = 1.6,
   className,
 }: AnimatedCardProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!ref.current) return
+
+    gsap.set(ref.current, {
+      opacity: 0,
+      scale: initialScale,
+      y: 60,
+      filter: "blur(8px)",
+    })
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: ref.current,
+        start: "top 85%",
+        once: true,
+      },
+      delay,
+    })
+
+    tl.to(ref.current, {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      filter: "blur(0px)",
+      duration: 1.4,
+      ease: DRAMATIC_EASE,
+    })
+
+    return () => { tl.kill() }
+  }, [delay, initialScale])
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: initialScale, y: 30 }}
-      whileInView={{ opacity: 1, scale: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, ease: EASE_OUT_EXPO, delay }}
-      className={className}
-    >
+    <div ref={ref} className={className}>
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -41,23 +73,41 @@ interface StaggerItemProps {
 export function StaggerItem({
   children,
   index,
-  staggerDelay = 0.06,
+  staggerDelay = 0.12,
   className,
 }: StaggerItemProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!ref.current) return
+
+    gsap.set(ref.current, {
+      opacity: 0,
+      x: -30,
+      scale: 0.92,
+    })
+
+    const tween = gsap.to(ref.current, {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      duration: 0.9,
+      ease: CINEMATIC_EASE,
+      delay: index * staggerDelay,
+      scrollTrigger: {
+        trigger: ref.current,
+        start: "top 90%",
+        once: true,
+      },
+    })
+
+    return () => { tween.kill() }
+  }, [index, staggerDelay])
+
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{
-        duration: 0.5,
-        ease: EASE_OUT_EXPO,
-        delay: index * staggerDelay,
-      }}
-      className={className}
-    >
+    <div ref={ref} className={className}>
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -65,7 +115,6 @@ interface RowRevealItemProps {
   children: ReactNode
   index: number
   columnsPerRow?: number
-  rowDelay?: number
   className?: string
 }
 
@@ -73,24 +122,42 @@ export function RowRevealItem({
   children,
   index,
   columnsPerRow = 4,
-  rowDelay = 0.12,
   className,
 }: RowRevealItemProps) {
-  const row = Math.floor(index / columnsPerRow)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!ref.current) return
+
+    gsap.set(ref.current, {
+      opacity: 0,
+      y: 25,
+      scale: 0.9,
+    })
+
+    const itemDelay = index * 0.5
+
+    const tween = gsap.to(ref.current, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.8,
+      ease: CINEMATIC_EASE,
+      delay: itemDelay,
+      scrollTrigger: {
+        trigger: ref.current,
+        start: "top 92%",
+        once: true,
+      },
+    })
+
+    return () => { tween.kill() }
+  }, [index, columnsPerRow])
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{
-        duration: 0.45,
-        ease: EASE_OUT_EXPO,
-        delay: row * rowDelay + (index % columnsPerRow) * 0.03,
-      }}
-      className={className}
-    >
+    <div ref={ref} className={className}>
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -101,17 +168,34 @@ interface FadeUpProps {
   y?: number
 }
 
-export function FadeUp({ children, delay = 0, className, y = 12 }: FadeUpProps) {
+export function FadeUp({ children, delay = 0, className, y = 30 }: FadeUpProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!ref.current) return
+
+    gsap.set(ref.current, { opacity: 0, y })
+
+    const tween = gsap.to(ref.current, {
+      opacity: 1,
+      y: 0,
+      duration: 1.0,
+      ease: CINEMATIC_EASE,
+      delay,
+      scrollTrigger: {
+        trigger: ref.current,
+        start: "top 88%",
+        once: true,
+      },
+    })
+
+    return () => { tween.kill() }
+  }, [delay, y])
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.5, ease: EASE_OUT_EXPO, delay }}
-      className={className}
-    >
+    <div ref={ref} className={className}>
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -122,16 +206,33 @@ interface FadeInProps {
 }
 
 export function FadeIn({ children, delay = 0, className }: FadeInProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!ref.current) return
+
+    gsap.set(ref.current, { opacity: 0, y: 20 })
+
+    const tween = gsap.to(ref.current, {
+      opacity: 1,
+      y: 0,
+      duration: 1.2,
+      ease: CINEMATIC_EASE,
+      delay,
+      scrollTrigger: {
+        trigger: ref.current,
+        start: "top 90%",
+        once: true,
+      },
+    })
+
+    return () => { tween.kill() }
+  }, [delay])
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.6, ease: "easeOut", delay }}
-      className={className}
-    >
+    <div ref={ref} className={className}>
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -141,11 +242,12 @@ export function ShimmerDivider({ className }: { className?: string }) {
       <motion.div
         className="h-px w-full"
         style={{
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), rgba(255,255,255,0.15), rgba(255,255,255,0.08), transparent)",
+          background:
+            "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), rgba(255,255,255,0.12), rgba(255,255,255,0.06), transparent)",
           backgroundSize: "200% 100%",
         }}
         animate={{ backgroundPosition: ["200% 0", "-200% 0"] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
       />
     </div>
   )
