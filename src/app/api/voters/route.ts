@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
           discordName: true,
           division: true,
           ratings: {
+            where: {
+              player: { isLegend: false }
+            },
             include: {
               player: {
                 select: {
@@ -43,14 +46,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(user)
     }
     
-    // Get all users who have made at least one rating
+    // Get all users who have rated at least one non-legend player in the current period
     const users = await prisma.user.findMany({
       where: {
         NOT: {
           discordId: { startsWith: "system_" }
         },
         ratings: {
-          some: {} // Has at least one rating
+          some: {
+            player: { isLegend: false }
+          }
         }
       },
       select: {
@@ -59,6 +64,9 @@ export async function GET(request: NextRequest) {
         discordName: true,
         division: true,
         ratings: {
+          where: {
+            player: { isLegend: false }
+          },
           select: {
             player: {
               select: { category: true }
@@ -71,7 +79,7 @@ export async function GET(request: NextRequest) {
       }
     })
     
-    // Map users with eligibility status
+    // Map users with eligibility status (only counting non-legend ratings)
     const allVoters = users.map(user => {
       const infantryCount = user.ratings.filter(r => r.player.category === "INFANTRY").length
       const cavalryCount = user.ratings.filter(r => r.player.category === "CAVALRY").length
