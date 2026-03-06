@@ -5,10 +5,10 @@ export const dynamic = "force-dynamic"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { periodId: string; playerId: string } }
+  { params }: { params: Promise<{ periodId: string; playerId: string }> }
 ) {
   try {
-    const { periodId, playerId } = params
+    const { periodId, playerId } = await params
 
     const ratings = await prisma.historicalRating.findMany({
       where: { periodId, playerId },
