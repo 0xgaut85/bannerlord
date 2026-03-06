@@ -12,8 +12,8 @@ interface PlayerNotesModalProps {
 export function PlayerNotesModal({ notes, onClose }: PlayerNotesModalProps) {
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-800 rounded-2xl border border-violet-500/30 max-w-2xl w-full max-h-[80vh] overflow-hidden">
-        <div className="p-6 border-b border-white/10">
+      <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.04] max-w-2xl w-full max-h-[80vh] overflow-hidden">
+        <div className="p-6 border-b border-white/[0.04]">
           <div className="flex justify-between items-center">
             <div>
               <div className="flex items-center gap-3">
@@ -24,23 +24,23 @@ export function PlayerNotesModal({ notes, onClose }: PlayerNotesModalProps) {
                   <h2 className="text-2xl font-display text-white">
                     {cleanPlayerName(notes.player.name)}
                   </h2>
-                  <p className="text-white/50 text-sm mt-1">
+                  <p className="text-[#888] text-sm mt-1">
                     {notes.player.category} · {notes.player.clan || "FA"}
                   </p>
                 </div>
               </div>
             </div>
             <div className="text-right mr-4">
-              <div className="text-3xl font-bold text-violet-400">
+              <div className="text-3xl font-bold text-white">
                 {Math.round(notes.player.rating)}
               </div>
-              <div className="text-white/50 text-xs">
+              <div className="text-[#888] text-xs">
                 Curated Rating
               </div>
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+              className="w-10 h-10 rounded-full bg-white/[0.03] hover:bg-white/[0.05] flex items-center justify-center text-white"
             >
               ✕
             </button>
@@ -53,16 +53,16 @@ export function PlayerNotesModal({ notes, onClose }: PlayerNotesModalProps) {
           </h3>
           
           {notes.ratings.length === 0 ? (
-            <p className="text-white/50 text-center py-8">No ratings yet</p>
+            <p className="text-[#888] text-center py-8">No ratings yet</p>
           ) : (
             <div className="space-y-4">
               {notes.ratings.map(rating => (
                 <div 
                   key={rating.id}
-                  className="bg-black/30 rounded-xl p-4 border border-white/10"
+                  className="bg-white/[0.02] rounded-xl p-4 border border-white/[0.04]"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-violet-400 font-semibold">
+                    <span className="text-white font-semibold">
                       {rating.raterName}
                     </span>
                     <div className="flex items-center gap-2">
@@ -71,7 +71,7 @@ export function PlayerNotesModal({ notes, onClose }: PlayerNotesModalProps) {
                           {rating.score}
                         </span>
                       )}
-                      <span className="text-white/30 text-xs">
+                      <span className="text-[#555] text-xs">
                         {new Date(rating.sessionDate).toLocaleDateString()}
                       </span>
                     </div>
@@ -81,7 +81,7 @@ export function PlayerNotesModal({ notes, onClose }: PlayerNotesModalProps) {
                       &quot;{rating.note}&quot;
                     </p>
                   ) : (
-                    <p className="text-white/30 text-sm">No comment</p>
+                    <p className="text-[#555] text-sm">No comment</p>
                   )}
                 </div>
               ))}
@@ -92,4 +92,3 @@ export function PlayerNotesModal({ notes, onClose }: PlayerNotesModalProps) {
     </div>
   )
 }
-

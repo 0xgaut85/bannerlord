@@ -58,13 +58,13 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
         placeholder="Search for a user..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+        className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
       />
       
       {(results.length > 0 || isLoading) && (
-        <div className="absolute top-full left-0 right-0 mt-2 z-10 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-80 overflow-y-auto shadow-xl">
+        <div className="absolute top-full left-0 right-0 mt-2 z-10 bg-[#050505] rounded-xl border border-white/[0.04] p-2 max-h-80 overflow-y-auto shadow-xl">
           {isLoading ? (
-            <div className="py-6 text-center text-white/40">
+            <div className="py-6 text-center text-[#888]">
               Searching...
             </div>
           ) : (
@@ -77,7 +77,7 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
                     setQuery("")
                     setResults([])
                   }}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/10 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.05] transition-colors text-left"
                 >
                   {user.image ? (
                     <Image 
@@ -88,8 +88,8 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
                       className="w-10 h-10 rounded-full object-cover" 
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                      <span className="text-sm font-semibold text-amber-500">
+                    <div className="w-10 h-10 rounded-full bg-white/[0.05] flex items-center justify-center">
+                      <span className="text-sm font-semibold text-[#888]">
                         {(user.discordName || user.name || "U")[0].toUpperCase()}
                       </span>
                     </div>
@@ -98,10 +98,10 @@ export function UserSearch({ onSelectUser }: UserSearchProps) {
                     <div className="font-medium text-white truncate">
                       {user.discordName || user.name || "Unknown"}
                     </div>
-                    <div className="text-sm text-white/50 flex items-center gap-2">
+                    <div className="text-sm text-[#888] flex items-center gap-2">
                       {user.team && <span>{user.team}</span>}
                       {user.division && (
-                        <span className="bg-amber-500 text-black px-1.5 py-0.5 rounded text-xs font-medium">
+                        <span className="bg-white text-black px-1.5 py-0.5 rounded text-xs font-medium">
                           Div {user.division}
                         </span>
                       )}

@@ -392,7 +392,7 @@ export default function CuratedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+    <div className="min-h-screen bg-[#050505] animate-fade-up">
       {/* Player Notes Modal */}
       {selectedPlayerNotes && (
         <PlayerNotesModal
@@ -403,7 +403,7 @@ export default function CuratedPage() {
 
       {/* Header */}
       <div className="text-center py-8 sm:py-12">
-        <p className="text-xs font-medium tracking-[0.3em] uppercase text-violet-400 mb-3">
+        <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-3">
           Expert Selection
         </p>
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-white mb-6">
@@ -417,8 +417,8 @@ export default function CuratedPage() {
             className={cn(
               "px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-all",
               activeTab === "rankings"
-                ? "bg-violet-500 text-white shadow-xl"
-                : "bg-white/10 text-white/70 hover:bg-white/20"
+                ? "bg-white text-black"
+                : "text-[#555] hover:text-white bg-white/[0.02] border border-white/[0.04]"
             )}
           >
             Rankings
@@ -428,8 +428,8 @@ export default function CuratedPage() {
             className={cn(
               "px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base transition-all",
               activeTab === "rate"
-                ? "bg-violet-500 text-white shadow-xl"
-                : "bg-white/10 text-white/70 hover:bg-white/20"
+                ? "bg-white text-black"
+                : "text-[#555] hover:text-white bg-white/[0.02] border border-white/[0.04]"
             )}
           >
             Rate {isStreamer && "🎬"}
@@ -450,7 +450,7 @@ export default function CuratedPage() {
                 setMyConfirmed(false)
                 setInitialSyncDone(false)
               }}
-              className="px-3 py-2 rounded-xl text-sm bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-all ml-2"
+              className="px-3 py-2 rounded-xl text-sm bg-white/[0.02] text-red-400 hover:bg-white/[0.05] border border-white/[0.04] transition-all ml-2"
               title={`Logged in as ${username}`}
             >
               🚪 {username}
@@ -471,8 +471,8 @@ export default function CuratedPage() {
                 className={cn(
                   "px-4 py-2 rounded-xl font-semibold text-sm transition-all",
                   category === cat
-                    ? "bg-violet-500 text-white shadow-lg"
-                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                    ? "bg-white text-black"
+                    : "text-[#555] hover:text-white bg-white/[0.02] border border-white/[0.04]"
                 )}
               >
                 {cat.charAt(0) + cat.slice(1).toLowerCase()}
@@ -481,12 +481,12 @@ export default function CuratedPage() {
           </div>
 
           {loadingRankings ? (
-            <div className="text-center py-12 text-white/50">Loading rankings...</div>
+            <div className="text-center py-12 text-[#888]">Loading rankings...</div>
           ) : rankings.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">📋</div>
               <h2 className="text-2xl font-bold text-white mb-2">No Rankings Yet</h2>
-              <p className="text-white/50">Curated rankings will appear here once confirmed</p>
+              <p className="text-[#888]">Curated rankings will appear here once confirmed</p>
             </div>
           ) : (
             <>
@@ -547,7 +547,7 @@ export default function CuratedPage() {
                     All Players
                   </h2>
                   
-                  <div className="bg-black/20 rounded-xl p-4">
+                  <div className="bg-white/[0.02] rounded-xl p-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                       {rest.map((player, index) => (
                         <CompactPlayerCard 
@@ -660,7 +660,7 @@ export default function CuratedPage() {
                     <button 
                       onClick={confirmSession} 
                       disabled={confirming || calculateAverage() === null} 
-                      className="px-8 py-4 bg-green-500 hover:bg-green-400 disabled:bg-slate-600 text-white text-lg font-bold rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
+                      className="px-8 py-4 bg-green-500 hover:bg-green-400 disabled:bg-[#111] disabled:text-[#444] text-white text-lg font-bold rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
                     >
                       {confirming ? "..." : "✓ Confirm Final Rating"}
                     </button>
@@ -730,7 +730,7 @@ export default function CuratedPage() {
             <div className="text-center py-12">
               <div className="text-6xl mb-4">⏳</div>
               <h2 className="text-2xl font-bold text-white mb-2">Waiting for Session</h2>
-              <p className="text-white/50">
+              <p className="text-[#888]">
                 The streamer hasn&apos;t started a rating session yet. Please wait...
               </p>
             </div>

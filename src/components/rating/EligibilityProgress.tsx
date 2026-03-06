@@ -14,8 +14,8 @@ export function EligibilityProgress({ status, dark }: EligibilityProgressProps) 
     { 
       key: "infantry" as const, 
       label: "Infantry", 
-      color: "text-amber-500",
-      bgColor: "bg-amber-500"
+      color: "text-white",
+      bgColor: "bg-white"
     },
     { 
       key: "cavalry" as const, 
@@ -40,10 +40,10 @@ export function EligibilityProgress({ status, dark }: EligibilityProgressProps) 
           
           return (
             <div key={cat.key} className="flex items-center gap-2">
-              <span className={cn("font-medium", isComplete ? cat.color : "text-white/50")}>
+              <span className={cn("font-medium", isComplete ? cat.color : "text-[#888]")}>
                 {cat.label}:
               </span>
-              <span className={cn("font-semibold", isComplete ? cat.color : "text-white/70")}>
+              <span className={cn("font-semibold", isComplete ? cat.color : "text-white")}>
                 {data.current}/{data.required}
               </span>
               {isComplete && <span className="text-green-400 text-xs">OK</span>}
@@ -62,13 +62,13 @@ export function EligibilityProgress({ status, dark }: EligibilityProgressProps) 
   return (
     <Card className="mb-6">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="font-medium text-[#1a1a1a]">Eligibility Progress</h3>
+        <h3 className="font-medium text-white">Eligibility Progress</h3>
         {status.isEligible ? (
-          <span className="text-sm text-[#c9a962] font-medium">
+          <span className="text-sm text-[#888] font-medium">
             Your list counts
           </span>
         ) : (
-          <span className="text-sm text-[#8a8a8a]">
+          <span className="text-sm text-[#888]">
             Complete all requirements
           </span>
         )}
@@ -84,11 +84,11 @@ export function EligibilityProgress({ status, dark }: EligibilityProgressProps) 
             <div key={cat.key} className="text-center">
               <div className={cn(
                 "text-sm font-medium mb-2",
-                isComplete ? cat.color : "text-[#8a8a8a]"
+                isComplete ? cat.color : "text-[#888]"
               )}>
                 {cat.label}
               </div>
-              <div className="h-1.5 bg-[#e5e5e5] rounded-full overflow-hidden mb-2">
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
                 <div 
                   className={cn("h-full transition-all duration-500 rounded-full", cat.bgColor)}
                   style={{ width: `${percentage}%` }}
@@ -96,7 +96,7 @@ export function EligibilityProgress({ status, dark }: EligibilityProgressProps) 
               </div>
               <div className={cn(
                 "text-xs font-medium",
-                isComplete ? cat.color : "text-[#8a8a8a]"
+                isComplete ? cat.color : "text-[#888]"
               )}>
                 {data.current} / {data.required}
               </div>

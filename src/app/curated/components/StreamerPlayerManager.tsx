@@ -20,24 +20,19 @@ interface StreamerPlayerManagerProps {
 type ViewMode = "ADDED" | "INFANTRY" | "CAVALRY" | "ARCHER"
 
 export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlayerManagerProps) {
-  // Division A players from current rankings
   const [divisionAPlayers, setDivisionAPlayers] = useState<PlayerWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   
-  // Players added by streamer via search
   const [addedPlayers, setAddedPlayers] = useState<PlayerWithDetails[]>([])
   const [listSaved, setListSaved] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   
-  // Search state
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<PlayerWithDetails[]>([])
   const [searching, setSearching] = useState(false)
   
-  // View mode
   const [viewMode, setViewMode] = useState<ViewMode>("ADDED")
 
-  // Load saved list from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedList = localStorage.getItem('curatedStreamerPlayerList')
@@ -55,7 +50,6 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
     }
   }, [])
 
-  // Save list to localStorage
   const saveList = () => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('curatedStreamerPlayerList', JSON.stringify(addedPlayers))
@@ -64,7 +58,6 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
     }
   }
 
-  // Clear saved list
   const clearSavedList = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('curatedStreamerPlayerList')
@@ -74,7 +67,6 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
     }
   }
 
-  // Fetch Division A players on mount
   useEffect(() => {
     async function fetchPlayers() {
       setLoading(true)
@@ -94,7 +86,6 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
           }
         }
         
-        // Sort alphabetically by name
         allPlayers.sort((a, b) => a.name.localeCompare(b.name))
         setDivisionAPlayers(allPlayers)
       } catch (error) {
@@ -106,7 +97,6 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
     fetchPlayers()
   }, [])
 
-  // Search players (global - all divisions, including legends)
   const searchPlayers = async (query: string) => {
     if (query.length < 2) {
       setSearchResults([])
@@ -114,7 +104,6 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
     }
     setSearching(true)
     try {
-      // Search without divisionA filter to get all players including legends
       const res = await fetch(`/api/players/search?q=${encodeURIComponent(query)}&legends=true`)
       if (res.ok) {
         const data = await res.json()
@@ -127,9 +116,7 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
     }
   }
 
-  // Add player to the added list
   const addPlayer = (player: PlayerWithDetails) => {
-    // Check if already added
     if (addedPlayers.some(p => p.id === player.id)) return
     setAddedPlayers(prev => [...prev, player])
     setHasUnsavedChanges(true)
@@ -137,13 +124,11 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
     setSearchResults([])
   }
 
-  // Remove player from added list
   const removePlayer = (playerId: string) => {
     setAddedPlayers(prev => prev.filter(p => p.id !== playerId))
     setHasUnsavedChanges(true)
   }
 
-  // Get players to display based on view mode
   const getDisplayPlayers = (): PlayerWithDetails[] => {
     if (viewMode === "ADDED") {
       return addedPlayers
@@ -156,9 +141,9 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
   return (
     <div className="space-y-4">
       {/* Search Box */}
-      <div className="bg-black/40 backdrop-blur-sm border border-violet-500/30 rounded-2xl p-5">
-        <h2 className="text-lg font-bold text-white mb-3 text-center">🔍 Search Any Player</h2>
-        <p className="text-white/40 text-sm text-center mb-3">Search all players (any division, legends included)</p>
+      <div className="bg-white/[0.02] backdrop-blur-sm border border-white/[0.04] rounded-2xl p-5">
+        <h2 className="text-lg font-bold text-white mb-3 text-center">Search Any Player</h2>
+        <p className="text-[#888] text-sm text-center mb-3">Search all players (any division, legends included)</p>
         <div className="relative max-w-md mx-auto">
           <input
             type="text"
@@ -168,10 +153,10 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
               setSearchQuery(e.target.value)
               searchPlayers(e.target.value)
             }}
-            className="w-full px-4 py-3 bg-black/50 border border-violet-500/40 rounded-xl text-white text-lg placeholder-white/40 focus:outline-none focus:border-violet-500"
+            className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.04] rounded-xl text-white text-lg placeholder:text-[#444] focus:outline-none focus:border-white/20"
           />
           {searching && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 text-sm">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#888] text-sm">
               ...
             </div>
           )}
@@ -191,7 +176,7 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
                     "w-full flex items-center gap-3 p-3 border rounded-xl transition-all text-left",
                     isAlreadyAdded 
                       ? "bg-green-500/10 border-green-500/30 cursor-default"
-                      : "bg-violet-500/10 hover:bg-violet-500/20 border-violet-500/30"
+                      : "bg-white/[0.02] hover:bg-white/[0.05] border-white/[0.04]"
                   )}
                 >
                   <Image
@@ -203,9 +188,9 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
                   />
                   <div className="flex-1">
                     <div className="text-white font-semibold">{player.name}</div>
-                    <div className="text-violet-300/60 text-sm">
+                    <div className="text-[#555] text-sm">
                       {player.category} • {player.clan || "FA"}
-                      {player.isLegend && " • 🏆 Legend"}
+                      {player.isLegend && " • Legend"}
                     </div>
                   </div>
                   {player.nationality && <Flag code={player.nationality} size="sm" />}
@@ -218,17 +203,16 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
       </div>
 
       {/* Player List */}
-      <div className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-2xl p-5">
+      <div className="bg-white/[0.02] backdrop-blur-sm border border-white/[0.04] rounded-2xl p-5">
         {/* Category Tabs */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-bold text-white">
               {viewMode === "ADDED" 
-                ? `⭐ Players Added (${addedPlayers.length})`
-                : `📋 Division A - ${viewMode} (${displayPlayers.length})`
+                ? `Players Added (${addedPlayers.length})`
+                : `Division A - ${viewMode} (${displayPlayers.length})`
               }
             </h2>
-            {/* Save/Status indicators for Added view */}
             {viewMode === "ADDED" && addedPlayers.length > 0 && (
               <div className="flex items-center gap-2">
                 <button
@@ -243,13 +227,13 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
                         : "bg-green-500 hover:bg-green-400 text-white"
                   )}
                 >
-                  💾 {hasUnsavedChanges ? "Save List" : listSaved ? "Saved ✓" : "Save List"}
+                  {hasUnsavedChanges ? "Save List" : listSaved ? "Saved ✓" : "Save List"}
                 </button>
                 <button
                   onClick={clearSavedList}
                   className="px-3 py-1.5 text-sm font-medium rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-all"
                 >
-                  🗑️ Clear
+                  Clear
                 </button>
               </div>
             )}
@@ -260,11 +244,11 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
               className={cn(
                 "px-3 py-1.5 text-sm font-medium rounded-lg transition-all",
                 viewMode === "ADDED"
-                  ? "bg-amber-500 text-white"
-                  : "bg-white/5 text-white/60 hover:bg-white/10"
+                  ? "bg-white text-black"
+                  : "bg-white/[0.02] text-[#555] hover:text-white border border-white/[0.04]"
               )}
             >
-              ⭐ Added ({addedPlayers.length})
+              Added ({addedPlayers.length})
             </button>
             {(["INFANTRY", "CAVALRY", "ARCHER"] as const).map(cat => (
               <button
@@ -273,8 +257,8 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
                 className={cn(
                   "px-3 py-1.5 text-sm font-medium rounded-lg transition-all",
                   viewMode === cat
-                    ? "bg-violet-500 text-white"
-                    : "bg-white/5 text-white/60 hover:bg-white/10"
+                    ? "bg-white text-black"
+                    : "bg-white/[0.02] text-[#555] hover:text-white border border-white/[0.04]"
                 )}
               >
                 {categoryShort[cat]}
@@ -285,9 +269,9 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
 
         {/* Player Grid */}
         {loading && viewMode !== "ADDED" ? (
-          <div className="text-center py-8 text-white/50">Loading players...</div>
+          <div className="text-center py-8 text-[#888]">Loading players...</div>
         ) : displayPlayers.length === 0 ? (
-          <div className="text-center py-8 text-white/50">
+          <div className="text-center py-8 text-[#888]">
             {viewMode === "ADDED" 
               ? "No players added yet. Use the search above to add players."
               : "No players found"
@@ -298,9 +282,8 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
             {displayPlayers.map(player => (
               <div
                 key={player.id}
-                className="relative flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-violet-500/20 border border-white/10 hover:border-violet-500/50 rounded-xl transition-all"
+                className="relative flex flex-col items-center gap-2 p-3 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.04] hover:border-white/10 rounded-xl transition-all"
               >
-                {/* Remove button for added players */}
                 {viewMode === "ADDED" && (
                   <button
                     onClick={(e) => {
@@ -329,9 +312,9 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
                     <div className="text-white font-medium text-sm truncate max-w-[100px]">
                       {cleanPlayerName(player.name)}
                     </div>
-                    <div className="text-white/40 text-xs">
+                    <div className="text-[#888] text-xs">
                       {categoryShort[player.category]}
-                      {player.isLegend && " • 🏆"}
+                      {player.isLegend && " • Legend"}
                     </div>
                   </div>
                   {player.nationality && (
@@ -346,4 +329,3 @@ export function StreamerPlayerManager({ onSelectPlayer, disabled }: StreamerPlay
     </div>
   )
 }
-

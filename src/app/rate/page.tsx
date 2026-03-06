@@ -331,18 +331,18 @@ export default function RatePage() {
   // Not logged in
   if (status === "unauthenticated") {
     return (
-      <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
+      <div className="h-screen bg-[#050505] flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center">
-          <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
+          <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
             Authentication Required
           </p>
           <h1 className="font-display text-4xl font-bold text-white mb-4">
             Sign in to Rate Players
           </h1>
-          <p className="text-white/60 mb-10">
+          <p className="text-[#888] mb-10">
             Connect your Discord account to create your own player rankings
           </p>
-          <Button onClick={() => signIn("discord")} size="lg" variant="primary" className="!bg-amber-500 !text-black hover:!bg-amber-400">
+          <Button onClick={() => signIn("discord")} size="lg" variant="primary" className="!bg-white !text-black hover:!bg-white/90">
             Sign in with Discord
           </Button>
         </div>
@@ -353,7 +353,7 @@ export default function RatePage() {
   // User is banned
   if (session?.user?.isBanned) {
     return (
-      <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
+      <div className="h-screen bg-[#050505] flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
             <span className="text-4xl">🚫</span>
@@ -364,7 +364,7 @@ export default function RatePage() {
           <h1 className="font-display text-4xl font-bold text-white mb-4">
             You Have Been Banned
           </h1>
-          <p className="text-white/60 mb-4">
+          <p className="text-[#888] mb-4">
             Your account has been banned from submitting ratings.
           </p>
           {session.user.banReason && (
@@ -374,7 +374,7 @@ export default function RatePage() {
               </p>
             </div>
           )}
-          <p className="text-white/40 text-sm">
+          <p className="text-[#555] text-sm">
             If you believe this is a mistake, please contact an administrator.
           </p>
         </div>
@@ -385,18 +385,18 @@ export default function RatePage() {
   // Profile not complete
   if (session && !session.user?.isProfileComplete) {
     return (
-      <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
+      <div className="h-screen bg-[#050505] flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center">
-          <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
+          <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
             Profile Setup
           </p>
           <h1 className="font-display text-4xl font-bold text-white mb-4">
             Complete Your Profile
           </h1>
-          <p className="text-white/60 mb-10">
+          <p className="text-[#888] mb-10">
             Please set your team and division before rating players
           </p>
-          <Button onClick={() => router.push("/profile")} size="lg" variant="primary" className="!bg-amber-500 !text-black hover:!bg-amber-400">
+          <Button onClick={() => router.push("/profile")} size="lg" variant="primary" className="!bg-white !text-black hover:!bg-white/90">
             Go to Profile
           </Button>
         </div>
@@ -411,16 +411,16 @@ export default function RatePage() {
   // Loading
   if (status === "loading" || isLoading) {
     return (
-      <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+      <div className="h-screen bg-[#050505] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
       </div>
     )
   }
   
   return (
-    <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#050505] flex flex-col overflow-hidden animate-fade-up">
       {/* Compact Top Bar */}
-      <div className="bg-black/20 backdrop-blur-sm border-b border-white/10 px-4 py-2">
+      <div className="bg-white/[0.02] backdrop-blur-sm border-b border-white/[0.04] px-4 py-2">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <h1 className="text-lg font-display font-bold text-white shrink-0">Rate Players</h1>
           
@@ -431,24 +431,24 @@ export default function RatePage() {
               placeholder="Search player..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-1.5 bg-white/10 rounded-lg border border-white/20 text-white text-sm placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              className="w-full px-3 py-1.5 bg-white/[0.03] rounded-lg border border-white/[0.04] text-white text-sm placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
             />
             
             {(searchResults.length > 0 || isSearching) && (
-              <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-slate-800 rounded-lg border border-white/20 p-1 max-h-60 overflow-y-auto shadow-xl">
+              <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0a0a0a] rounded-lg border border-white/[0.04] p-1 max-h-60 overflow-y-auto shadow-xl">
                 {isSearching ? (
-                  <div className="py-3 text-center text-white/40 text-sm">Searching...</div>
+                  <div className="py-3 text-center text-[#555] text-sm">Searching...</div>
                 ) : (
                   <div className="space-y-0.5">
                     {searchResults.map((player) => (
                       <button
                         key={player.id}
                         onClick={() => handleSelectPlayer(player)}
-                        className="w-full flex items-center gap-2 p-2 rounded hover:bg-white/10 transition-colors text-left"
+                        className="w-full flex items-center gap-2 p-2 rounded hover:bg-white/[0.03] transition-colors text-left"
                       >
                         <Flag code={player.nationality} size="sm" />
                         <span className="text-white text-sm truncate">{player.name}</span>
-                        <span className="text-white/40 text-xs ml-auto">{player.category}</span>
+                        <span className="text-[#555] text-xs ml-auto">{player.category}</span>
                       </button>
                     ))}
                   </div>
@@ -462,19 +462,19 @@ export default function RatePage() {
       </div>
       
       {/* Filters Bar */}
-      <div className="bg-black/10 border-b border-white/5 px-4 py-2 overflow-x-auto">
+      <div className="bg-white/[0.02] border-b border-white/[0.04] px-4 py-2 overflow-x-auto">
         <div className="max-w-6xl mx-auto flex items-center gap-4 min-w-max">
           {/* Division Filters */}
           <div className="flex items-center gap-1 sm:gap-2">
-            <span className="text-white/40 text-xs font-medium hidden sm:inline">Division:</span>
+            <span className="text-[#555] text-xs font-medium hidden sm:inline">Division:</span>
             {DIVISION_BUTTONS.map(div => (
               <button
                 key={div}
                 onClick={() => toggleDivision(div)}
-                className={`px-1.5 sm:px-2 py-0.5 rounded text-xs font-bold transition-all ${
+                className={`px-1.5 sm:px-2 py-0.5 rounded text-xs transition-all ${
                   selectedDivisions.includes(div)
-                    ? "bg-amber-500 text-black"
-                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                    ? "bg-white text-black font-semibold"
+                    : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
                 }`}
               >
                 {div}
@@ -483,7 +483,7 @@ export default function RatePage() {
             {selectedDivisions.length > 0 && (
               <button
                 onClick={() => setSelectedDivisions([])}
-                className="px-1.5 sm:px-2 py-0.5 text-xs text-white/40 hover:text-white/60"
+                className="px-1.5 sm:px-2 py-0.5 text-xs text-[#555] hover:text-white"
               >
                 ✕
               </button>
@@ -492,15 +492,15 @@ export default function RatePage() {
           
           {/* Category Filters */}
           <div className="flex items-center gap-1 sm:gap-2 ml-2 sm:ml-4">
-            <span className="text-white/40 text-xs font-medium hidden sm:inline">Class:</span>
+            <span className="text-[#555] text-xs font-medium hidden sm:inline">Class:</span>
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-1.5 sm:px-2 py-0.5 rounded text-xs font-bold transition-all ${
+                className={`px-1.5 sm:px-2 py-0.5 rounded text-xs transition-all ${
                   selectedCategory === cat
-                    ? "bg-amber-500 text-black"
-                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                    ? "bg-white text-black font-semibold"
+                    : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
                 }`}
               >
                 {cat === "ALL" ? "All" : cat.charAt(0) + cat.slice(1).toLowerCase()}
@@ -509,7 +509,7 @@ export default function RatePage() {
           </div>
           
           {/* Player count */}
-          <div className="ml-auto text-white/40 text-xs whitespace-nowrap pl-2">
+          <div className="ml-auto text-[#555] text-xs whitespace-nowrap pl-2">
             {filteredPlayers.length} players
           </div>
         </div>
@@ -517,8 +517,8 @@ export default function RatePage() {
       
       {/* Note about eligibility */}
       {!eligibility.isEligible && (
-        <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-center">
-          <p className="text-amber-400 text-xs">
+        <div className="px-4 py-2 bg-white/[0.02] border-b border-white/[0.04] text-center">
+          <p className="text-[#888] text-xs">
             Rate at least {MIN_RATINGS.INFANTRY} infantry, {MIN_RATINGS.CAVALRY} cavalry, and {MIN_RATINGS.ARCHER} archers to have your ratings count
           </p>
         </div>
@@ -538,16 +538,16 @@ export default function RatePage() {
       
       {/* Rating Period Ended Notice - Only for non-legends */}
       {RATING_PERIOD_ENDED && !isRatingLegends && (
-        <div className="mx-4 mt-4 p-6 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center">
+        <div className="mx-4 mt-4 p-6 bg-white/[0.02] border border-white/[0.04] rounded-xl text-center">
           <div className="text-4xl mb-4">📅</div>
-          <h2 className="text-xl font-display font-bold text-amber-400 mb-2">
+          <h2 className="text-xl font-display font-bold text-white mb-2">
             December 2025 Rating Period Ended
           </h2>
-          <p className="text-white/60 mb-4">
-            New ratings open on <span className="text-amber-400 font-semibold">12/01/2026</span>
+          <p className="text-[#888] mb-4">
+            New ratings open on <span className="text-white font-semibold">12/01/2026</span>
           </p>
-          <p className="text-white/40 text-sm">
-            You can still rate <button onClick={() => setSelectedCategory("LEGENDS")} className="text-amber-500 hover:text-amber-400 underline">Legends</button> in the meantime!
+          <p className="text-[#555] text-sm">
+            You can still rate <button onClick={() => setSelectedCategory("LEGENDS")} className="text-white hover:text-white/80 underline">Legends</button> in the meantime!
           </p>
         </div>
       )}
@@ -561,10 +561,10 @@ export default function RatePage() {
               <div className="bg-red-500/20 border-2 border-red-500/50 rounded-2xl p-8">
                 <div className="text-red-400 text-6xl mb-4">!</div>
                 <h3 className="text-white font-display text-2xl mb-2">Cannot Rate Yourself</h3>
-                <p className="text-white/60 mb-2">
+                <p className="text-[#888] mb-2">
                   The player &quot;{currentPlayer.name}&quot; matches your profile name.
                 </p>
-                <p className="text-white/40 text-sm mb-6">
+                <p className="text-[#555] text-sm mb-6">
                   You cannot rate yourself. Please skip to continue.
                 </p>
                 <div className="flex gap-4 justify-center">
@@ -573,11 +573,11 @@ export default function RatePage() {
                       Previous
                     </Button>
                   )}
-                  <Button onClick={handleSkip} className="bg-amber-500 hover:bg-amber-600 text-black">
+                  <Button onClick={handleSkip} className="bg-white hover:bg-white/90 text-black">
                     Skip Player
                   </Button>
                 </div>
-                <p className="text-white/30 text-xs mt-4">
+                <p className="text-[#555] text-xs mt-4">
                   {currentIndex + 1} / {filteredPlayers.length}
                 </p>
               </div>
@@ -611,14 +611,14 @@ export default function RatePage() {
             />
           )
         ) : (
-          <div className="text-center py-16 text-white/60">
+          <div className="text-center py-16 text-[#888]">
             <p className="font-display text-2xl">
               {players.length === 0 ? "No players yet" : "No players match your filters"}
             </p>
             {filteredPlayers.length === 0 && players.length > 0 && (
               <button
                 onClick={() => { setSelectedDivisions([]); setSelectedCategory("ALL") }}
-                className="mt-4 text-amber-500 hover:text-amber-400 text-sm"
+                className="mt-4 text-white hover:text-white/80 text-sm"
               >
                 Clear filters
               </button>

@@ -67,13 +67,13 @@ export default function ProfilePage() {
   if (status === "unauthenticated") {
     return (
       <div className="page-transition max-w-lg mx-auto px-6 lg:px-8 py-20 text-center">
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#c9a962] mb-4">
+        <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
           Authentication Required
         </p>
-        <h1 className="font-display text-3xl font-semibold text-[#1a1a1a] mb-4">
+        <h1 className="font-display text-3xl font-semibold text-white mb-4">
           Sign in to View Profile
         </h1>
-        <p className="text-[#5a5a5a] mb-10">
+        <p className="text-[#888] mb-10">
           Connect your Discord account to manage your profile
         </p>
         <Button onClick={() => signIn("discord")} size="lg" variant="primary">
@@ -87,26 +87,26 @@ export default function ProfilePage() {
   if (status === "loading") {
     return (
       <div className="page-transition max-w-lg mx-auto px-6 lg:px-8 py-20">
-        <div className="h-96 glass rounded-xl animate-pulse" />
+        <div className="h-96 bg-white/[0.03] rounded-xl animate-pulse" />
       </div>
     )
   }
   
   return (
-    <div className="page-transition max-w-lg mx-auto px-6 lg:px-8 py-12 sm:py-16">
+    <div className="page-transition animate-fade-up max-w-lg mx-auto px-6 lg:px-8 py-12 sm:py-16">
       {/* Header */}
       <div className="text-center mb-10">
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#8a8a8a] mb-4">
+        <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
           Your Profile
         </p>
-        <h1 className="font-display text-4xl font-semibold text-[#1a1a1a]">
+        <h1 className="font-display text-4xl font-bold text-white">
           Profile Settings
         </h1>
       </div>
       
       {/* Profile Card */}
       <Card className="mb-6">
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/30">
+        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/[0.04]">
           {session?.user?.image ? (
             <Image 
               src={session.user.image} 
@@ -116,17 +116,17 @@ export default function ProfilePage() {
               className="w-16 h-16 rounded-full ring-2 ring-white/50 object-cover"
             />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-[#c9a962]/20 flex items-center justify-center">
-              <span className="font-display text-xl font-semibold text-[#c9a962]">
+            <div className="w-16 h-16 rounded-full bg-white/[0.05] flex items-center justify-center">
+              <span className="font-display text-xl font-semibold text-white">
                 {(session?.user?.discordName || session?.user?.name || "U")[0].toUpperCase()}
               </span>
             </div>
           )}
           <div>
-            <h2 className="font-display text-xl font-semibold text-[#1a1a1a]">
+            <h2 className="font-display text-xl font-semibold text-white">
               {session?.user?.discordName || session?.user?.name || "Unknown"}
             </h2>
-            <p className="text-[#8a8a8a] text-sm">
+            <p className="text-[#555] text-sm">
               Connected via Discord
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function ProfilePage() {
           />
           
           <div>
-            <label className="block text-sm font-medium text-[#1a1a1a] mb-3">
+            <label className="block text-sm font-medium text-white mb-3">
               Division
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
@@ -154,8 +154,8 @@ export default function ProfilePage() {
                   className={`
                     py-3 rounded-xl font-semibold text-lg transition-all duration-300
                     ${division === d 
-                      ? "glass-button-primary text-white" 
-                      : "glass text-[#5a5a5a] hover:text-[#1a1a1a]"
+                      ? "bg-white text-black font-bold" 
+                      : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
                     }
                   `}
                 >
@@ -163,21 +163,21 @@ export default function ProfilePage() {
                 </button>
               ))}
             </div>
-            <p className="mt-3 text-xs text-[#8a8a8a]">
+            <p className="mt-3 text-xs text-[#555]">
               Division affects your vote weight: A (100%) · B (80%) · C (70%) · D (50%) · E (40%) · F (30%)
             </p>
           </div>
           
           {/* Error */}
           {error && (
-            <div className="p-4 glass rounded-xl border border-red-200 text-red-700 text-sm">
+            <div className="p-4 bg-white/[0.02] rounded-xl border border-red-500/30 text-red-400 text-sm">
               {error}
             </div>
           )}
           
           {/* Success */}
           {isSaved && (
-            <div className="p-4 glass rounded-xl border border-[#c9a962]/30 text-[#a68b47] text-sm">
+            <div className="p-4 bg-white/[0.02] rounded-xl border border-green-500/30 text-green-400 text-sm">
               Profile saved successfully
             </div>
           )}

@@ -19,12 +19,7 @@ interface TabsProps {
 
 export function Tabs({ defaultValue, children, className, onChange }: TabsProps) {
   const [activeTab, setActiveTab] = useState(defaultValue)
-  
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab)
-    onChange?.(tab)
-  }
-  
+  const handleTabChange = (tab: string) => { setActiveTab(tab); onChange?.(tab) }
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
       <div className={className}>{children}</div>
@@ -32,43 +27,24 @@ export function Tabs({ defaultValue, children, className, onChange }: TabsProps)
   )
 }
 
-interface TabsListProps {
-  children: ReactNode
-  className?: string
-}
-
-export function TabsList({ children, className }: TabsListProps) {
+export function TabsList({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn(
-      "inline-flex items-center gap-1 p-1.5 glass rounded-xl",
-      className
-    )}>
+    <div className={cn("inline-flex items-center gap-0.5 p-1 rounded-lg bg-white/[0.02] border border-white/[0.04]", className)}>
       {children}
     </div>
   )
 }
 
-interface TabsTriggerProps {
-  value: string
-  children: ReactNode
-  className?: string
-}
-
-export function TabsTrigger({ value, children, className }: TabsTriggerProps) {
-  const context = useContext(TabsContext)
-  if (!context) throw new Error("TabsTrigger must be used within Tabs")
-  
-  const { activeTab, setActiveTab } = context
-  const isActive = activeTab === value
-  
+export function TabsTrigger({ value, children, className }: { value: string; children: ReactNode; className?: string }) {
+  const ctx = useContext(TabsContext)
+  if (!ctx) throw new Error("TabsTrigger must be used within Tabs")
+  const isActive = ctx.activeTab === value
   return (
     <button
-      onClick={() => setActiveTab(value)}
+      onClick={() => ctx.setActiveTab(value)}
       className={cn(
-        "px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-300",
-        isActive 
-          ? "bg-white/80 text-[#c9a962] shadow-sm border border-white/50" 
-          : "text-[#5a5a5a] hover:text-[#1a1a1a] hover:bg-white/40",
+        "px-4 py-2 text-[13px] font-medium rounded-md transition-all duration-150",
+        isActive ? "bg-white text-black" : "text-[#555] hover:text-white hover:bg-white/[0.04]",
         className
       )}
     >
@@ -77,19 +53,9 @@ export function TabsTrigger({ value, children, className }: TabsTriggerProps) {
   )
 }
 
-interface TabsContentProps {
-  value: string
-  children: ReactNode
-  className?: string
-}
-
-export function TabsContent({ value, children, className }: TabsContentProps) {
-  const context = useContext(TabsContext)
-  if (!context) throw new Error("TabsContent must be used within Tabs")
-  
-  const { activeTab } = context
-  
-  if (activeTab !== value) return null
-  
-  return <div className={className}>{children}</div>
+export function TabsContent({ value, children, className }: { value: string; children: ReactNode; className?: string }) {
+  const ctx = useContext(TabsContext)
+  if (!ctx) throw new Error("TabsContent must be used within Tabs")
+  if (ctx.activeTab !== value) return null
+  return <div className={cn("animate-fade-in", className)}>{children}</div>
 }

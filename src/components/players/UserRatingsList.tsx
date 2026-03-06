@@ -66,16 +66,16 @@ export function UserRatingsList({ userId, onBack }: UserRatingsListProps) {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="h-24 bg-white/10 rounded-xl animate-pulse" />
-        <div className="h-64 bg-white/10 rounded-xl animate-pulse" />
+        <div className="h-24 bg-white/[0.05] rounded-xl animate-pulse" />
+        <div className="h-64 bg-white/[0.05] rounded-xl animate-pulse" />
       </div>
     )
   }
   
   if (!data) {
     return (
-      <div className="bg-white/10 rounded-xl p-8 text-center">
-        <p className="text-white/40">User not found</p>
+      <div className="bg-white/[0.05] rounded-xl p-8 text-center">
+        <p className="text-[#888]">User not found</p>
       </div>
     )
   }
@@ -95,17 +95,17 @@ export function UserRatingsList({ userId, onBack }: UserRatingsListProps) {
   const RatingList = ({ items }: { items: Rating[] }) => (
     <div className="space-y-2">
       {items.length === 0 ? (
-        <p className="text-white/40 text-center py-6">No ratings yet</p>
+        <p className="text-[#888] text-center py-6">No ratings yet</p>
       ) : (
         items.map((rating, index) => (
           <div 
             key={rating.id}
-            className="flex items-center gap-3 p-4 bg-white/10 rounded-xl"
+            className="flex items-center gap-3 p-4 bg-white/[0.05] rounded-xl"
           >
-            <span className="text-sm text-white/40 w-8 font-medium">{index + 1}</span>
+            <span className="text-sm text-[#888] w-8 font-medium">{index + 1}</span>
             <span className="flex-1 font-medium text-white">{rating.player.name}</span>
-            <span className="text-xs text-white/40 uppercase tracking-wide">{rating.player.nationality}</span>
-            <span className="font-display text-xl font-semibold text-amber-500 min-w-[50px] text-right">
+            <span className="text-xs text-[#888] uppercase tracking-wide">{rating.player.nationality}</span>
+            <span className="font-display text-xl font-semibold text-white min-w-[50px] text-right">
               {rating.score}
             </span>
           </div>
@@ -119,13 +119,13 @@ export function UserRatingsList({ userId, onBack }: UserRatingsListProps) {
       {/* Back button */}
       <button
         onClick={onBack}
-        className="text-sm text-white/50 hover:text-white transition-colors"
+        className="text-sm text-[#888] hover:text-white transition-colors"
       >
         ← Back to search
       </button>
       
       {/* User Info */}
-      <div className="bg-white/10 rounded-xl p-6 flex items-center gap-4 border border-white/10">
+      <div className="bg-white/[0.05] rounded-xl p-6 flex items-center gap-4 border border-white/[0.04]">
         {user.image ? (
           <Image 
             src={user.image} 
@@ -135,8 +135,8 @@ export function UserRatingsList({ userId, onBack }: UserRatingsListProps) {
             className="w-16 h-16 rounded-full ring-2 ring-white/30 object-cover" 
           />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center">
-            <span className="font-display text-xl font-semibold text-amber-500">
+          <div className="w-16 h-16 rounded-full bg-white/[0.05] flex items-center justify-center">
+            <span className="font-display text-xl font-semibold text-[#888]">
               {(user.discordName || user.name || "U")[0].toUpperCase()}
             </span>
           </div>
@@ -145,7 +145,7 @@ export function UserRatingsList({ userId, onBack }: UserRatingsListProps) {
           <h2 className="font-display text-2xl font-semibold text-white">
             {user.discordName || user.name || "Unknown User"}
           </h2>
-          <div className="flex items-center gap-3 text-white/50">
+          <div className="flex items-center gap-3 text-[#888]">
             {user.team && <span>{user.team}</span>}
             {user.division && (
               <Badge variant="division">Division {user.division}</Badge>
@@ -159,14 +159,14 @@ export function UserRatingsList({ userId, onBack }: UserRatingsListProps) {
       
       {/* Ratings Tabs */}
       <Tabs defaultValue="infantry">
-        <TabsList className="w-full grid grid-cols-3 !bg-white/10 !border-white/20">
-          <TabsTrigger value="infantry" className="!text-white/70 data-[active=true]:!bg-white/20 data-[active=true]:!text-white">
+        <TabsList className="w-full grid grid-cols-3 !bg-white/[0.05] !border-white/[0.04]">
+          <TabsTrigger value="infantry" className="!text-[#888] data-[active=true]:!bg-white data-[active=true]:!text-black">
             Infantry ({infantryRatings.length})
           </TabsTrigger>
-          <TabsTrigger value="cavalry" className="!text-white/70 data-[active=true]:!bg-white/20 data-[active=true]:!text-white">
+          <TabsTrigger value="cavalry" className="!text-[#888] data-[active=true]:!bg-white data-[active=true]:!text-black">
             Cavalry ({cavalryRatings.length})
           </TabsTrigger>
-          <TabsTrigger value="archer" className="!text-white/70 data-[active=true]:!bg-white/20 data-[active=true]:!text-white">
+          <TabsTrigger value="archer" className="!text-[#888] data-[active=true]:!bg-white data-[active=true]:!text-black">
             Archers ({archerRatings.length})
           </TabsTrigger>
         </TabsList>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Flag } from "@/components/ui"
+import { Flag, Tilt3DCard } from "@/components/ui"
 import { cn, cleanPlayerName } from "@/lib/utils"
 
 interface HistoryPoint {
@@ -264,17 +264,17 @@ export default function AllTimePage() {
   const config = categoryConfig[category]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+    <div className="min-h-screen bg-[#050505] animate-fade-up">
       {/* Header */}
-      <div className="bg-black/30 border-b border-white/10">
+      <div className="bg-white/[0.02] border-b border-white/[0.04]">
         <div className="max-w-6xl mx-auto px-6 py-8 text-center">
-          <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
+          <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
             Cumulative Rankings
           </p>
           <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
             All Time Rankings
           </h1>
-          <p className="text-white/50 mb-8">
+          <p className="text-[#888] mb-8">
             Average performance across all ranking periods
           </p>
 
@@ -287,8 +287,8 @@ export default function AllTimePage() {
                 className={cn(
                   "px-5 py-2.5 rounded-xl font-semibold transition-all",
                   category === cat
-                    ? "bg-amber-500 text-black shadow-xl"
-                    : "bg-white/10 text-white/70 hover:bg-white/20"
+                    ? "bg-white text-black"
+                    : "text-[#555] hover:text-white bg-white/[0.02] border border-white/[0.04]"
                 )}
               >
                 {categoryConfig[cat].label}
@@ -301,8 +301,8 @@ export default function AllTimePage() {
       {/* Player Ratings Modal */}
       {selectedPlayer && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-white/10">
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.04] max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-white/[0.04]">
               <div className="flex justify-between items-center">
                 <div>
                   <div className="flex items-center gap-3">
@@ -311,23 +311,23 @@ export default function AllTimePage() {
                       <h2 className="text-2xl font-display text-white">
                         {selectedPlayer.player.name}
                       </h2>
-                      <p className="text-white/50 text-sm mt-1">
+                      <p className="text-[#888] text-sm mt-1">
                         {selectedPlayer.player.category} · {selectedPlayer.player.clan || (selectedPlayerIsLegend ? "?" : "FA")}
                       </p>
                     </div>
                   </div>
                 </div>
                 <div className="text-right mr-4">
-                  <div className="text-3xl font-bold text-amber-400">
+                  <div className="text-3xl font-bold text-white">
                     {selectedPlayer.averageRating || "-"}
                   </div>
-                  <div className="text-white/50 text-xs">
+                  <div className="text-[#555] text-xs">
                     {selectedPlayer.totalRatings} rating{selectedPlayer.totalRatings !== 1 ? "s" : ""}
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedPlayer(null)}
-                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                  className="w-10 h-10 rounded-full bg-white/[0.03] hover:bg-white/[0.05] flex items-center justify-center text-white"
                 >
                   ✕
                 </button>
@@ -337,10 +337,10 @@ export default function AllTimePage() {
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {loadingPlayerRatings ? (
                 <div className="flex justify-center py-8">
-                  <div className="w-8 h-8 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
                 </div>
               ) : selectedPlayer.ratings.length === 0 ? (
-                <div className="text-center text-white/40 py-8">
+                <div className="text-center text-[#555] py-8">
                   No ratings yet from real users
                 </div>
               ) : (
@@ -348,20 +348,20 @@ export default function AllTimePage() {
                   {selectedPlayer.ratings.map((rating) => (
                     <div 
                       key={rating.id}
-                      className="flex items-center justify-between bg-black/20 rounded-lg p-3"
+                      className="flex items-center justify-between bg-white/[0.02] rounded-lg p-3"
                     >
                       <div>
                         <span className="text-white font-medium">
                           {rating.raterDiscordName || rating.raterName || "Anonymous"}
                         </span>
                         {rating.raterDiscordName && rating.raterName && rating.raterDiscordName !== rating.raterName && (
-                          <span className="text-white/40 text-sm ml-2">({rating.raterName})</span>
+                          <span className="text-[#555] text-sm ml-2">({rating.raterName})</span>
                         )}
-                        <span className="text-white/30 text-sm ml-2">
+                        <span className="text-[#555] text-sm ml-2">
                           Div {rating.raterDivision || "?"}
                         </span>
                       </div>
-                      <span className="text-amber-400 font-bold text-lg">{rating.score}</span>
+                      <span className="text-white font-bold text-lg">{rating.score}</span>
                     </div>
                   ))}
                 </div>
@@ -373,12 +373,12 @@ export default function AllTimePage() {
 
       {isLoading ? (
         <div className="flex justify-center py-20">
-          <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
         </div>
       ) : rankings.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-white/40 text-lg">No all-time rankings yet</p>
-          <p className="text-white/30 text-sm mt-2">
+          <p className="text-[#555] text-lg">No all-time rankings yet</p>
+          <p className="text-[#555] text-sm mt-2">
             All-time rankings include legends and historical data
           </p>
         </div>
@@ -387,10 +387,10 @@ export default function AllTimePage() {
           {/* THE CHOSEN THREE */}
           {top3.length > 0 && (
             <section className="mb-20">
-              <h2 className="text-center text-2xl font-display font-bold text-amber-400 mb-2 tracking-wider">
+              <h2 className="text-center text-2xl font-display font-bold text-white mb-2 tracking-wider">
                 THE CHOSEN THREE
               </h2>
-              <p className="text-center text-white/50 mb-12 text-sm">
+              <p className="text-center text-[#888] mb-12 text-sm">
                 The undisputed elite
               </p>
               
@@ -419,7 +419,7 @@ export default function AllTimePage() {
               <h2 className="text-xl font-display font-bold text-white mb-2">
                 Elite Warriors
               </h2>
-              <p className="text-white/50 mb-6 text-sm">
+              <p className="text-[#888] mb-6 text-sm">
                 Rank #4 - #15
               </p>
               
@@ -442,7 +442,7 @@ export default function AllTimePage() {
               <h2 className="text-xl font-display font-bold text-white/80 mb-2">
                 Rising Stars
               </h2>
-              <p className="text-white/40 mb-6 text-sm">
+              <p className="text-[#555] mb-6 text-sm">
                 Rank #16 - #30
               </p>
               
@@ -466,7 +466,7 @@ export default function AllTimePage() {
                 All {config.label}
               </h2>
               
-              <div className="bg-black/20 rounded-xl p-4">
+              <div className="bg-white/[0.02] rounded-xl p-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                   {rest.map((player) => {
                     const style = getCardStyle(player.averageRating, player.isLegend)
@@ -542,7 +542,8 @@ function FifaDisplayCard({
         isCenter ? "md:scale-110 z-10" : ""
       )}
     >
-      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} hover:scale-105 transition-transform cursor-pointer`}>
+      <Tilt3DCard maxTilt={14} scale={1.05}>
+      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} cursor-pointer`}>
         {/* Background */}
         <div className="absolute inset-0" style={{ background: style.bg }} />
         <div className="absolute inset-0 pointer-events-none" style={{ background: style.overlayGradient }} />
@@ -625,6 +626,7 @@ function FifaDisplayCard({
           </div>
         </div>
       </div>
+      </Tilt3DCard>
     </button>
   )
 }

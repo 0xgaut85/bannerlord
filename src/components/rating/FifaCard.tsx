@@ -1,7 +1,7 @@
 "use client"
 
 import { Player } from "@prisma/client"
-import { Button, Slider, Flag } from "@/components/ui"
+import { Button, Slider, Flag, Tilt3DCard } from "@/components/ui"
 import Image from "next/image"
 import { cleanPlayerName } from "@/lib/utils"
 
@@ -203,6 +203,7 @@ export function FifaCard({
       </div>
       
       {/* FIFA Card - AAA+ Premium Design */}
+      <Tilt3DCard maxTilt={8} scale={1.02}>
       <div className={`relative w-64 sm:w-72 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border}`}>
         {/* Background Base - Rich gradient */}
         <div 
@@ -344,6 +345,7 @@ export function FifaCard({
           </div>
         </div>
       </div>
+      </Tilt3DCard>
       
       {/* Rating Slider */}
       <div className="w-full max-w-xs bg-white/10 backdrop-blur-sm rounded-xl p-4 mt-2">

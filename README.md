@@ -62,6 +62,14 @@ npm run db:push
 npm run db:seed
 ```
 
+To restore a full backup (e.g. after adding Postgres on a new Railway project):
+
+```bash
+# Set DATABASE_URL to the target Postgres, then:
+node scripts/restore-backup.mjs
+# Or: node scripts/restore-backup.mjs "postgresql://..." [path/to/backup.sql]
+```
+
 ### 5. Run Development Server
 
 ```bash

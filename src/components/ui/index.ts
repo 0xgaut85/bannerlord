@@ -6,5 +6,6 @@ export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs"
 export { Slider } from "./Slider"
 export { Flag } from "./Flag"
 export { FifaDisplayCard } from "./FifaDisplayCard"
+export { Tilt3DCard } from "./Tilt3DCard"
 
 

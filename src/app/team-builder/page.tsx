@@ -528,30 +528,30 @@ export default function TeamBuilderPage() {
   const teamPlayers = team.filter((p): p is TeamPlayer => p !== null)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-[#050505] animate-fade-up">
       {/* Save Modal */}
       {showSaveModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl p-6 max-w-md w-full border border-white/10">
+          <div className="bg-[#0a0a0a] rounded-2xl p-6 max-w-md w-full border border-white/[0.04]">
             <h3 className="text-xl font-bold text-white mb-4">Save Dream Team</h3>
             <input
               type="text"
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               placeholder="Team name..."
-              className="w-full px-4 py-3 bg-black/30 rounded-lg border border-white/20 text-white mb-4"
+              className="w-full px-4 py-3 bg-white/[0.03] rounded-lg border border-white/[0.04] text-white placeholder:text-[#444] mb-4"
             />
             <div className="flex gap-3">
               <button
                 onClick={() => setShowSaveModal(false)}
-                className="flex-1 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20"
+                className="flex-1 px-4 py-2 bg-white/[0.03] text-white rounded-lg hover:bg-white/[0.05]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveTeam}
                 disabled={!teamName.trim() || isSaving}
-                className="flex-1 px-4 py-2 bg-amber-500 text-black rounded-lg hover:bg-amber-400 disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-white text-black rounded-lg hover:bg-white/90 disabled:bg-[#111] disabled:text-[#444]"
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
@@ -563,17 +563,17 @@ export default function TeamBuilderPage() {
       {/* Load Modal */}
       {showLoadModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl p-6 max-w-md w-full border border-white/10 max-h-[80vh] overflow-y-auto">
+          <div className="bg-[#0a0a0a] rounded-2xl p-6 max-w-md w-full border border-white/[0.04] max-h-[80vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-white mb-4">Load Dream Team</h3>
             {savedTeams.length === 0 ? (
-              <p className="text-white/50 text-center py-8">No saved teams yet</p>
+              <p className="text-[#888] text-center py-8">No saved teams yet</p>
             ) : (
               <div className="space-y-2 mb-4">
                 {savedTeams.map(t => (
-                  <div key={t.id} className="flex items-center gap-3 p-3 bg-black/30 rounded-lg">
+                  <div key={t.id} className="flex items-center gap-3 p-3 bg-white/[0.02] rounded-lg">
                     <button
                       onClick={() => handleLoadTeam(t)}
-                      className="flex-1 text-left text-white font-medium hover:text-amber-400"
+                      className="flex-1 text-left text-white font-medium hover:text-white/80"
                     >
                       {t.name}
                     </button>
@@ -589,7 +589,7 @@ export default function TeamBuilderPage() {
             )}
             <button
               onClick={() => setShowLoadModal(false)}
-              className="w-full px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20"
+              className="w-full px-4 py-2 bg-white/[0.03] text-white rounded-lg hover:bg-white/[0.05]"
             >
               Close
             </button>
@@ -598,14 +598,14 @@ export default function TeamBuilderPage() {
       )}
 
       {/* Header */}
-      <div className="bg-black/30 border-b border-white/10">
+      <div className="bg-white/[0.02] border-b border-white/[0.04]">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="font-display text-2xl sm:text-3xl font-bold text-white">
                 Team Builder
               </h1>
-              <p className="text-white/50 text-sm mt-1">
+              <p className="text-[#888] text-sm mt-1">
                 Drag cards to rearrange · Max 2 Cavalry, Max 2 Archers
               </p>
             </div>
@@ -616,7 +616,7 @@ export default function TeamBuilderPage() {
                 <>
                   <button
                     onClick={() => setShowLoadModal(true)}
-                    className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 text-sm"
+                    className="px-4 py-2 bg-white/[0.03] text-white rounded-lg hover:bg-white/[0.05] text-sm border border-white/[0.04]"
                   >
                     Load Team
                   </button>
@@ -638,14 +638,14 @@ export default function TeamBuilderPage() {
               </button>
               
               {/* Team Score */}
-              <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/10 rounded-xl px-6 py-3 border border-amber-500/30">
+              <div className="bg-white/[0.02] rounded-xl px-6 py-3 border border-white/[0.04]">
                 <div className="flex items-center gap-4">
                   <div>
-                    <p className="text-amber-400 text-xs uppercase tracking-wider">Team Rating</p>
+                    <p className="text-[#888] text-xs uppercase tracking-wider">Team Rating</p>
                     <p className="text-4xl font-black text-white">{totalScore}</p>
                   </div>
                   <div className="text-right text-sm">
-                    <div className="text-white/50">Avg: {baseScore}</div>
+                    <div className="text-[#888]">Avg: {baseScore}</div>
                     {linkBonus > 0 && <div className="text-green-400">+{linkBonus} links</div>}
                   </div>
                 </div>
@@ -661,14 +661,14 @@ export default function TeamBuilderPage() {
           {/* Left Panel: Search & Controls */}
           <div className="xl:w-80 flex-shrink-0 space-y-4">
             {/* Search */}
-            <div className="bg-white/5 rounded-xl border border-white/10 p-4">
-              <label className="block text-white/70 text-sm mb-2">Search Players</label>
+            <div className="bg-white/[0.02] rounded-xl border border-white/[0.04] p-4">
+              <label className="block text-[#888] text-sm mb-2">Search Players</label>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Type player name..."
-                className="w-full px-4 py-3 bg-black/30 rounded-lg border border-white/20 text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-4 py-3 bg-white/[0.03] rounded-lg border border-white/[0.04] text-white placeholder:text-[#444] focus:outline-none focus:border-white/20"
               />
               
               {searchResults.length > 0 && (
@@ -681,10 +681,10 @@ export default function TeamBuilderPage() {
                         onClick={() => canAdd && addPlayer(player)}
                         className={cn(
                           "flex items-center gap-3 p-2 rounded-lg transition-colors",
-                          canAdd ? "bg-black/20 hover:bg-black/40 cursor-pointer" : "opacity-40"
+                          canAdd ? "bg-white/[0.02] hover:bg-white/[0.05] cursor-pointer" : "opacity-40"
                         )}
                       >
-                        <div className="w-8 h-8 rounded-full overflow-hidden bg-black/30">
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-white/[0.02]">
                           <Image
                             src={player.avatar || getDefaultAvatar(player.category)}
                             alt="" width={32} height={32} className="object-cover"
@@ -692,65 +692,65 @@ export default function TeamBuilderPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-medium text-sm truncate">{player.name}</p>
-                          <p className="text-white/40 text-xs">{player.category}</p>
+                          <p className="text-[#555] text-xs">{player.category}</p>
                         </div>
-                        <span className="text-amber-400 font-bold text-sm">{Math.round(player.averageRating)}</span>
+                        <span className="text-white font-bold text-sm">{Math.round(player.averageRating)}</span>
                       </div>
                     )
                   })}
                 </div>
               )}
-              {isSearching && <p className="text-white/30 text-sm mt-2">Searching...</p>}
+              {isSearching && <p className="text-[#555] text-sm mt-2">Searching...</p>}
             </div>
 
             {/* Category Limits */}
-            <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+            <div className="bg-white/[0.02] rounded-xl border border-white/[0.04] p-4">
               <h3 className="text-white font-semibold mb-3 text-sm">Squad Composition</h3>
               <div className="grid grid-cols-3 gap-2 text-center">
-                <div className={cn("p-2 rounded-lg", categoryCounts.INFANTRY > 0 ? "bg-red-500/20" : "bg-white/5")}>
+                <div className={cn("p-2 rounded-lg", categoryCounts.INFANTRY > 0 ? "bg-red-500/20" : "bg-white/[0.02]")}>
                   <div className="text-lg font-bold text-white">{categoryCounts.INFANTRY}</div>
-                  <div className="text-xs text-white/50">INF</div>
+                  <div className="text-xs text-[#888]">INF</div>
                 </div>
-                <div className={cn("p-2 rounded-lg", categoryCounts.CAVALRY >= 2 ? "bg-blue-500/40" : categoryCounts.CAVALRY > 0 ? "bg-blue-500/20" : "bg-white/5")}>
+                <div className={cn("p-2 rounded-lg", categoryCounts.CAVALRY >= 2 ? "bg-blue-500/40" : categoryCounts.CAVALRY > 0 ? "bg-blue-500/20" : "bg-white/[0.02]")}>
                   <div className="text-lg font-bold text-white">{categoryCounts.CAVALRY}/2</div>
-                  <div className="text-xs text-white/50">CAV</div>
+                  <div className="text-xs text-[#888]">CAV</div>
                 </div>
-                <div className={cn("p-2 rounded-lg", categoryCounts.ARCHER >= 2 ? "bg-green-500/40" : categoryCounts.ARCHER > 0 ? "bg-green-500/20" : "bg-white/5")}>
+                <div className={cn("p-2 rounded-lg", categoryCounts.ARCHER >= 2 ? "bg-green-500/40" : categoryCounts.ARCHER > 0 ? "bg-green-500/20" : "bg-white/[0.02]")}>
                   <div className="text-lg font-bold text-white">{categoryCounts.ARCHER}/2</div>
-                  <div className="text-xs text-white/50">ARC</div>
+                  <div className="text-xs text-[#888]">ARC</div>
                 </div>
               </div>
             </div>
 
             {/* Link Legend */}
-            <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+            <div className="bg-white/[0.02] rounded-xl border border-white/[0.04] p-4">
               <h3 className="text-white font-semibold mb-3 text-sm">Link Bonuses</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-1 bg-green-500 rounded" />
-                  <span className="text-white/60 flex-1">Nation + Clan</span>
+                  <span className="text-[#888] flex-1">Nation + Clan</span>
                   <span className="text-green-400">+1.0</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-1 bg-yellow-500 rounded" />
-                  <span className="text-white/60 flex-1">Nation or Clan</span>
+                  <span className="text-[#888] flex-1">Nation or Clan</span>
                   <span className="text-yellow-400">+0.5</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-1 bg-red-500 rounded" />
-                  <span className="text-white/60 flex-1">No link</span>
+                  <span className="text-[#888] flex-1">No link</span>
                   <span className="text-red-400">+0</span>
                 </div>
               </div>
             </div>
 
             {/* Team List (for removing) */}
-            <div className="bg-white/5 rounded-xl border border-white/10 p-4">
+            <div className="bg-white/[0.02] rounded-xl border border-white/[0.04] p-4">
               <h3 className="text-white font-semibold mb-3 text-sm">Remove Players</h3>
               <div className="space-y-1">
                 {team.map((player, idx) => player && (
-                  <div key={idx} className="flex items-center gap-2 p-2 bg-black/20 rounded-lg">
-                    <span className="text-white/40 text-xs w-4">{idx + 1}</span>
+                  <div key={idx} className="flex items-center gap-2 p-2 bg-white/[0.02] rounded-lg">
+                    <span className="text-[#555] text-xs w-4">{idx + 1}</span>
                     <span className="text-white text-sm flex-1 truncate">{player.name}</span>
                     <button
                       onClick={() => removePlayer(idx)}
@@ -761,7 +761,7 @@ export default function TeamBuilderPage() {
                   </div>
                 ))}
                 {teamPlayers.length === 0 && (
-                  <p className="text-white/30 text-sm text-center py-2">No players yet</p>
+                  <p className="text-[#555] text-sm text-center py-2">No players yet</p>
                 )}
               </div>
             </div>
@@ -769,7 +769,7 @@ export default function TeamBuilderPage() {
 
           {/* Main Area: Team Grid */}
           <div className="flex-1 min-h-[600px] lg:min-h-[700px]">
-            <div ref={teamGridRef} className="relative w-full h-full bg-gradient-to-br from-slate-800/50 to-slate-900/80 rounded-2xl border border-white/10 p-4 sm:p-8">
+            <div ref={teamGridRef} className="relative w-full h-full bg-white/[0.02] rounded-2xl border border-white/[0.04] p-4 sm:p-8">
               
               {/* SVG for link lines */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
@@ -824,10 +824,10 @@ export default function TeamBuilderPage() {
                       />
                     ) : (
                       <div className="text-center p-4">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full border-2 border-dashed border-white/20 flex items-center justify-center mb-2">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full border-2 border-dashed border-white/[0.04] flex items-center justify-center mb-2">
                           <span className="text-2xl sm:text-3xl text-white/20">+</span>
                         </div>
-                        <span className="text-white/30 text-sm">Slot {idx + 1}</span>
+                        <span className="text-[#555] text-sm">Slot {idx + 1}</span>
                       </div>
                     )}
                   </div>

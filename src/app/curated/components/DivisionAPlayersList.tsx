@@ -30,7 +30,6 @@ export function DivisionAPlayersList({ onSelectPlayer, disabled }: DivisionAPlay
     async function fetchPlayers() {
       setLoading(true)
       try {
-        // Fetch all 3 categories and merge
         const categories = ["INFANTRY", "CAVALRY", "ARCHER"]
         const allPlayers: DivisionAPlayer[] = []
         
@@ -38,13 +37,11 @@ export function DivisionAPlayersList({ onSelectPlayer, disabled }: DivisionAPlay
           const res = await fetch(`/api/community?category=${cat}`)
           if (res.ok) {
             const data = await res.json()
-            // Filter only Division A players
             const divAPlayers = data.filter((p: any) => p.division === "A")
             allPlayers.push(...divAPlayers)
           }
         }
         
-        // Sort by rating descending
         allPlayers.sort((a, b) => b.averageRating - a.averageRating)
         setPlayers(allPlayers)
       } catch (error) {
@@ -61,9 +58,9 @@ export function DivisionAPlayersList({ onSelectPlayer, disabled }: DivisionAPlay
     : players.filter(p => p.category === categoryFilter)
 
   return (
-    <div className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-2xl p-5">
+    <div className="bg-white/[0.02] backdrop-blur-sm border border-white/[0.04] rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-white">📋 Division A Players ({filteredPlayers.length})</h2>
+        <h2 className="text-lg font-bold text-white">Division A Players ({filteredPlayers.length})</h2>
         <div className="flex gap-2">
           {(["ALL", "INFANTRY", "CAVALRY", "ARCHER"] as const).map(cat => (
             <button
@@ -72,8 +69,8 @@ export function DivisionAPlayersList({ onSelectPlayer, disabled }: DivisionAPlay
               className={cn(
                 "px-3 py-1.5 text-sm font-medium rounded-lg transition-all",
                 categoryFilter === cat 
-                  ? "bg-violet-500 text-white" 
-                  : "bg-white/5 text-white/60 hover:bg-white/10"
+                  ? "bg-white text-black" 
+                  : "bg-white/[0.02] text-[#555] hover:text-white border border-white/[0.04]"
               )}
             >
               {cat === "ALL" ? "All" : categoryShort[cat]}
@@ -83,9 +80,9 @@ export function DivisionAPlayersList({ onSelectPlayer, disabled }: DivisionAPlay
       </div>
       
       {loading ? (
-        <div className="text-center py-8 text-white/50">Loading players...</div>
+        <div className="text-center py-8 text-[#888]">Loading players...</div>
       ) : filteredPlayers.length === 0 ? (
-        <div className="text-center py-8 text-white/50">No Division A players found</div>
+        <div className="text-center py-8 text-[#888]">No Division A players found</div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 max-h-[400px] overflow-y-auto pr-2">
           {filteredPlayers.map(player => (
@@ -93,7 +90,7 @@ export function DivisionAPlayersList({ onSelectPlayer, disabled }: DivisionAPlay
               key={player.id}
               onClick={() => onSelectPlayer(player.id)}
               disabled={disabled}
-              className="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-violet-500/20 border border-white/10 hover:border-violet-500/50 rounded-xl transition-all disabled:opacity-50"
+              className="flex flex-col items-center gap-2 p-3 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.04] hover:border-white/10 rounded-xl transition-all disabled:opacity-50"
             >
               <Image
                 src={player.avatar || getDefaultAvatar(player.category)}
@@ -104,7 +101,7 @@ export function DivisionAPlayersList({ onSelectPlayer, disabled }: DivisionAPlay
               />
               <div className="text-center">
                 <div className="text-white font-medium text-sm truncate max-w-[100px]">{cleanPlayerName(player.name)}</div>
-                <div className="text-white/40 text-xs">
+                <div className="text-[#888] text-xs">
                   {categoryShort[player.category]} • {Math.round(player.averageRating)}
                 </div>
               </div>
@@ -118,4 +115,3 @@ export function DivisionAPlayersList({ onSelectPlayer, disabled }: DivisionAPlay
     </div>
   )
 }
-

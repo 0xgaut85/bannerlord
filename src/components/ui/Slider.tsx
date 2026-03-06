@@ -15,63 +15,40 @@ interface SliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onCha
 
 export const Slider = forwardRef<HTMLInputElement, SliderProps>(
   ({ className, label, min = 50, max = 99, value, onChange, showValue = true, dark = false, ...props }, ref) => {
-    const percentage = ((value - min) / (max - min)) * 100
-    
-    // Premium gold gradient
-    const getColor = (val: number) => {
-      const normalized = (val - 50) / 49
-      // From muted bronze to gold to bright gold
-      if (normalized < 0.5) {
-        return `hsl(35, ${50 + normalized * 40}%, ${35 + normalized * 20}%)`
-      } else {
-        return `hsl(43, ${70 + (normalized - 0.5) * 20}%, ${45 + (normalized - 0.5) * 20}%)`
-      }
-    }
-    
+    const pct = ((value - min) / (max - min)) * 100
+
     return (
       <div className={cn("w-full", className)}>
         {(label || showValue) && (
-          <div className="flex justify-between items-center mb-4">
-            {label && <span className={cn("text-sm font-medium", dark ? "text-white/70" : "text-[#5a5a5a]")}>{label}</span>}
+          <div className="flex justify-between items-center mb-3">
+            {label && <span className="text-[13px] font-medium text-[#888]">{label}</span>}
             {showValue && (
-              <span 
-                className="font-display text-4xl font-semibold transition-colors duration-300"
-                style={{ color: getColor(value) }}
-              >
-                {value}
-              </span>
+              <span className="font-display text-3xl font-bold text-white tabular-nums">{value}</span>
             )}
           </div>
         )}
-        <div className="relative">
-          <input
-            ref={ref}
-            type="range"
-            min={min}
-            max={max}
-            value={value}
-            onChange={(e) => onChange(parseInt(e.target.value))}
-            className={cn(
-              "w-full h-2 rounded-full appearance-none cursor-pointer",
-              dark ? "bg-white/20" : "bg-[#e5e5e5]",
-              "focus:outline-none",
-              "[&::-webkit-slider-thumb]:appearance-none",
-              "[&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6",
-              "[&::-webkit-slider-thumb]:rounded-full",
-              "[&::-webkit-slider-thumb]:bg-white",
-              "[&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#c9a962]",
-              "[&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-[#c9a962]/20",
-              "[&::-webkit-slider-thumb]:cursor-pointer",
-              "[&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:duration-200",
-              "[&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:hover:shadow-xl"
-            )}
-            style={{
-              background: `linear-gradient(to right, ${getColor(value)} 0%, ${getColor(value)} ${percentage}%, ${dark ? 'rgba(255,255,255,0.2)' : '#e5e5e5'} ${percentage}%, ${dark ? 'rgba(255,255,255,0.2)' : '#e5e5e5'} 100%)`
-            }}
-            {...props}
-          />
-        </div>
-        <div className={cn("flex justify-between text-xs mt-2", dark ? "text-white/50" : "text-[#8a8a8a]")}>
+        <input
+          ref={ref}
+          type="range"
+          min={min}
+          max={max}
+          value={value}
+          onChange={(e) => onChange(parseInt(e.target.value))}
+          className={cn(
+            "w-full h-1.5 rounded-full appearance-none cursor-pointer bg-white/10",
+            "focus:outline-none",
+            "[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5",
+            "[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white",
+            "[&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(255,255,255,0.3)]",
+            "[&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-150",
+            "[&::-webkit-slider-thumb]:hover:scale-110"
+          )}
+          style={{
+            background: `linear-gradient(to right, #fff 0%, #fff ${pct}%, rgba(255,255,255,0.1) ${pct}%, rgba(255,255,255,0.1) 100%)`
+          }}
+          {...props}
+        />
+        <div className="flex justify-between text-[11px] mt-1.5 text-[#444]">
           <span>{min}</span>
           <span>{max}</span>
         </div>

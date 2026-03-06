@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { PlayerWithRating } from "@/types"
-import { Flag } from "@/components/ui"
+import { Flag, Tilt3DCard } from "@/components/ui"
 import { cn, cleanPlayerName } from "@/lib/utils"
 
 type Category = "INFANTRY" | "CAVALRY" | "ARCHER"
@@ -328,38 +328,38 @@ export default function CommunityPage() {
   const config = categoryConfig[category]
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+    <div className="min-h-screen animate-fade-up">
       {/* Header */}
       <div className="text-center py-12 sm:py-16">
-        <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
+        <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
           Community Rankings
         </p>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-4">
+        <h1 className="font-display text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
           Current Rankings
         </h1>
         
         {/* Countdown Timer */}
         {timeLeft && periodName && (
           <div className="mb-8 px-4">
-            <p className="text-white/50 text-sm mb-3">
+            <p className="text-[#888] text-sm mb-3">
               {periodName} period closes in:
             </p>
             <div className="flex justify-center gap-2 sm:gap-3">
-              <div className="bg-black/40 rounded-lg px-2 sm:px-4 py-2 border border-amber-500/30">
-                <div className="text-xl sm:text-2xl font-bold text-amber-400">{timeLeft.days}</div>
-                <div className="text-[10px] sm:text-xs text-white/50 uppercase">Days</div>
+              <div className="bg-white/[0.03] rounded-lg px-2 sm:px-4 py-2 border border-white/[0.04]">
+                <div className="text-xl sm:text-2xl font-bold text-white">{timeLeft.days}</div>
+                <div className="text-[10px] sm:text-xs text-[#555] uppercase">Days</div>
               </div>
-              <div className="bg-black/40 rounded-lg px-2 sm:px-4 py-2 border border-amber-500/30">
-                <div className="text-xl sm:text-2xl font-bold text-amber-400">{String(timeLeft.hours).padStart(2, '0')}</div>
-                <div className="text-[10px] sm:text-xs text-white/50 uppercase">Hours</div>
+              <div className="bg-white/[0.03] rounded-lg px-2 sm:px-4 py-2 border border-white/[0.04]">
+                <div className="text-xl sm:text-2xl font-bold text-white">{String(timeLeft.hours).padStart(2, '0')}</div>
+                <div className="text-[10px] sm:text-xs text-[#555] uppercase">Hours</div>
               </div>
-              <div className="bg-black/40 rounded-lg px-2 sm:px-4 py-2 border border-amber-500/30">
-                <div className="text-xl sm:text-2xl font-bold text-amber-400">{String(timeLeft.minutes).padStart(2, '0')}</div>
-                <div className="text-[10px] sm:text-xs text-white/50 uppercase">Min</div>
+              <div className="bg-white/[0.03] rounded-lg px-2 sm:px-4 py-2 border border-white/[0.04]">
+                <div className="text-xl sm:text-2xl font-bold text-white">{String(timeLeft.minutes).padStart(2, '0')}</div>
+                <div className="text-[10px] sm:text-xs text-[#555] uppercase">Min</div>
               </div>
-              <div className="bg-black/40 rounded-lg px-2 sm:px-4 py-2 border border-amber-500/30">
-                <div className="text-xl sm:text-2xl font-bold text-amber-400">{String(timeLeft.seconds).padStart(2, '0')}</div>
-                <div className="text-[10px] sm:text-xs text-white/50 uppercase">Sec</div>
+              <div className="bg-white/[0.03] rounded-lg px-2 sm:px-4 py-2 border border-white/[0.04]">
+                <div className="text-xl sm:text-2xl font-bold text-white">{String(timeLeft.seconds).padStart(2, '0')}</div>
+                <div className="text-[10px] sm:text-xs text-[#555] uppercase">Sec</div>
               </div>
             </div>
       </div>
@@ -375,8 +375,8 @@ export default function CommunityPage() {
                 className={cn(
                   "px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap",
                   category === cat && !showVoters
-                    ? "bg-amber-500 text-black shadow-xl"
-                    : "bg-white/10 text-white/70 hover:bg-white/20"
+                    ? "bg-white text-black"
+                    : "bg-white/[0.03] text-[#555] hover:text-white hover:bg-white/[0.04] border border-white/[0.04]"
                 )}
               >
                 {categoryConfig[cat].label}
@@ -387,8 +387,8 @@ export default function CommunityPage() {
               className={cn(
                 "px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap",
                 showVoters
-                  ? "bg-amber-500 text-black shadow-xl"
-                  : "bg-white/10 text-white/70 hover:bg-white/20"
+                  ? "bg-white text-black"
+                  : "bg-white/[0.03] text-[#555] hover:text-white hover:bg-white/[0.04] border border-white/[0.04]"
               )}
             >
               Voters
@@ -400,20 +400,20 @@ export default function CommunityPage() {
       {/* Voter Details Modal */}
       {selectedVoter && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-white/10">
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.04] max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-white/[0.04]">
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-2xl font-display text-white">
+                  <h2 className="text-2xl font-display tracking-tight text-white">
                     {selectedVoter.discordName || selectedVoter.name}
                   </h2>
-                  <p className="text-white/50 text-sm mt-1">
+                  <p className="text-[#888] text-sm mt-1">
                     Division {selectedVoter.division || "N/A"} · {selectedVoter.ratings.length} ratings
                   </p>
                 </div>
                 <button
                   onClick={() => setSelectedVoter(null)}
-                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                  className="w-10 h-10 rounded-full bg-white/[0.03] hover:bg-white/[0.04] flex items-center justify-center text-white"
                 >
                   X
                 </button>
@@ -428,25 +428,25 @@ export default function CommunityPage() {
                 
                 return (
                   <div key={cat} className="mb-6">
-                    <h3 className="text-amber-400 font-semibold mb-3 text-sm uppercase tracking-wider">
+                    <h3 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-3">
                       {cat} ({catRatings.length})
                     </h3>
                     <div className="space-y-2">
                       {catRatings.map((rating) => (
                         <div 
                           key={rating.id}
-                          className="flex items-center justify-between bg-black/20 rounded-lg p-3"
+                          className="flex items-center justify-between bg-white/[0.02] rounded-lg p-3"
                         >
                           <div className="flex items-center gap-3">
                             <Flag code={rating.player.nationality} size="sm" />
                             <div>
                               <span className="text-white font-medium">{rating.player.name}</span>
                               {rating.player.clan && (
-                                <span className="text-white/40 text-sm ml-2">{rating.player.clan}</span>
+                                <span className="text-[#555] text-sm ml-2">{rating.player.clan}</span>
                               )}
                             </div>
                           </div>
-                          <span className="text-amber-400 font-bold text-lg">{rating.score}</span>
+                          <span className="text-white font-bold text-lg">{rating.score}</span>
                         </div>
                       ))}
                     </div>
@@ -461,33 +461,33 @@ export default function CommunityPage() {
       {/* Player Ratings Modal */}
       {selectedPlayer && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-white/10">
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.04] max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-white/[0.04]">
               <div className="flex justify-between items-center">
                 <div>
                   <div className="flex items-center gap-3">
                     <Flag code={selectedPlayer.player.nationality} size="md" />
                     <div>
-                      <h2 className="text-2xl font-display text-white">
+                      <h2 className="text-2xl font-display tracking-tight text-white">
                         {selectedPlayer.player.name}
                       </h2>
-                      <p className="text-white/50 text-sm mt-1">
+                      <p className="text-[#888] text-sm mt-1">
                         {selectedPlayer.player.category} · {selectedPlayer.player.clan || "FA"}
         </p>
       </div>
     </div>
                 </div>
                 <div className="text-right mr-4">
-                  <div className="text-3xl font-bold text-amber-400">
+                  <div className="text-3xl font-bold text-white">
                     {selectedPlayer.averageRating || "-"}
                   </div>
-                  <div className="text-white/50 text-xs">
+                  <div className="text-[#555] text-xs">
                     {selectedPlayer.totalRatings} rating{selectedPlayer.totalRatings !== 1 ? "s" : ""}
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedPlayer(null)}
-                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                  className="w-10 h-10 rounded-full bg-white/[0.03] hover:bg-white/[0.04] flex items-center justify-center text-white"
                 >
                   X
                 </button>
@@ -497,10 +497,10 @@ export default function CommunityPage() {
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {loadingPlayerRatings ? (
                 <div className="flex justify-center py-8">
-                  <div className="w-8 h-8 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
                 </div>
               ) : selectedPlayer.ratings.length === 0 ? (
-                <div className="text-center text-white/40 py-8">
+                <div className="text-center text-[#555] py-8">
                   No ratings yet from real users
                 </div>
               ) : (
@@ -508,20 +508,20 @@ export default function CommunityPage() {
                   {selectedPlayer.ratings.map((rating) => (
                     <div 
                       key={rating.id}
-                      className="flex items-center justify-between bg-black/20 rounded-lg p-3"
+                      className="flex items-center justify-between bg-white/[0.02] rounded-lg p-3"
                     >
                       <div>
                         <span className="text-white font-medium">
                           {rating.raterDiscordName || rating.raterName || "Anonymous"}
                         </span>
                         {rating.raterDiscordName && rating.raterName && rating.raterDiscordName !== rating.raterName && (
-                          <span className="text-white/40 text-sm ml-2">({rating.raterName})</span>
+                          <span className="text-[#555] text-sm ml-2">({rating.raterName})</span>
                         )}
-                        <span className="text-white/30 text-sm ml-2">
+                        <span className="text-[#555] text-sm ml-2">
                           Div {rating.raterDivision || "?"}
                         </span>
                       </div>
-                      <span className="text-amber-400 font-bold text-lg">{rating.score}</span>
+                      <span className="text-white font-bold text-lg">{rating.score}</span>
                     </div>
                   ))}
                 </div>
@@ -533,19 +533,19 @@ export default function CommunityPage() {
       
       {showVoters ? (
         <div className="max-w-4xl mx-auto px-6 pb-20">
-          <h2 className="text-2xl font-display font-bold text-white mb-2">
+          <h2 className="text-2xl font-display font-bold tracking-tight text-white mb-2">
             Community Voters
           </h2>
-          <p className="text-white/50 mb-8 text-sm">
+          <p className="text-[#888] mb-8 text-sm">
             All users who have submitted ratings. Eligible voters (10 INF, 5 CAV, 5 ARC) are marked with a badge.
           </p>
           
           {loadingVoters ? (
             <div className="flex justify-center py-12">
-              <div className="w-10 h-10 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+              <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
             </div>
           ) : voters.length === 0 ? (
-            <div className="text-center text-white/40 py-12">No voters yet</div>
+            <div className="text-center text-[#555] py-12">No voters yet</div>
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -557,7 +557,7 @@ export default function CommunityPage() {
                       "border rounded-xl p-4 text-left transition-all",
                       voter.isEligible 
                         ? "bg-green-500/10 hover:bg-green-500/20 border-green-500/30 hover:border-green-500/50" 
-                        : "bg-white/5 hover:bg-white/10 border-white/10 hover:border-amber-500/30"
+                        : "bg-white/[0.02] hover:bg-white/[0.04] border-white/[0.04] hover:border-white/10"
                     )}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -566,7 +566,7 @@ export default function CommunityPage() {
                           {voter.discordName || voter.name}
                         </h3>
                         {voter.discordName && voter.name !== voter.discordName && (
-                          <p className="text-white/40 text-xs truncate">{voter.name}</p>
+                          <p className="text-[#555] text-xs truncate">{voter.name}</p>
                         )}
                       </div>
                       {voter.isEligible && (
@@ -576,13 +576,13 @@ export default function CommunityPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-2 text-xs flex-wrap">
-                      <span className="text-white/50">
+                      <span className="text-[#888]">
                         Div {voter.division || "N/A"}
                       </span>
-                      <span className="text-amber-400">
+                      <span className="text-white">
                         {voter.totalRatings} total
                       </span>
-                      <span className="text-white/30">
+                      <span className="text-[#555]">
                         ({voter.infantryCount}I/{voter.cavalryCount}C/{voter.archerCount}A)
                       </span>
                     </div>
@@ -594,7 +594,7 @@ export default function CommunityPage() {
                 <div className="flex justify-center mt-8">
                   <button
                     onClick={() => setVotersDisplayCount(prev => prev + 12)}
-                    className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all"
+                    className="px-6 py-3 bg-white/[0.03] hover:bg-white/[0.04] text-white rounded-xl font-medium transition-all border border-white/[0.04]"
                   >
                     Show More ({voters.length - votersDisplayCount} remaining)
                   </button>
@@ -605,17 +605,17 @@ export default function CommunityPage() {
         </div>
       ) : isLoading ? (
         <div className="flex justify-center py-20">
-          <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
         </div>
       ) : (
         <div className="max-w-6xl mx-auto px-6 pb-20">
           {/* THE CHOSEN THREE */}
           {top3.length > 0 && (
             <section className="mb-20">
-              <h2 className="text-center text-2xl font-display font-bold text-amber-400 mb-2 tracking-wider">
+              <h2 className="text-center text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">
                 THE CHOSEN THREE
               </h2>
-              <p className="text-center text-white/50 mb-12 text-sm">
+              <p className="text-center text-[#888] mb-12 text-sm">
                 The undisputed elite
               </p>
               
@@ -640,10 +640,10 @@ export default function CommunityPage() {
           {/* ELITE WARRIORS */}
           {elite.length > 0 && (
             <section className="mb-16">
-              <h2 className="text-xl font-display font-bold text-white mb-2">
+              <h2 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">
                 Elite Warriors
               </h2>
-              <p className="text-white/50 mb-6 text-sm">
+              <p className="text-[#888] mb-6 text-sm">
                 Rank #4 - #15
               </p>
               
@@ -658,10 +658,10 @@ export default function CommunityPage() {
           {/* RISING STARS */}
           {promising.length > 0 && (
             <section className="mb-16">
-              <h2 className="text-xl font-display font-bold text-white/80 mb-2">
+              <h2 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">
                 Rising Stars
               </h2>
-              <p className="text-white/40 mb-6 text-sm">
+              <p className="text-[#888] mb-6 text-sm">
                 Rank #16 - #30
               </p>
               
@@ -676,11 +676,11 @@ export default function CommunityPage() {
           {/* REMAINING PLAYERS IN THIS CATEGORY */}
           {rest.length > 0 && (
             <section>
-              <h2 className="text-lg font-display font-bold text-white/60 mb-4">
+              <h2 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
                 All {config.label}
               </h2>
               
-              <div className="bg-black/20 rounded-xl p-4">
+              <div className="bg-white/[0.02] rounded-xl p-4 border border-white/[0.04]">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                   {rest.map((player) => {
                     const style = getCardStyle(player.averageRating)
@@ -690,11 +690,11 @@ export default function CommunityPage() {
                         key={player.id}
                         onClick={() => fetchPlayerRatings(player.id)}
                         className={cn(
-                          "w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left border border-white/10",
+                          "w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left border border-white/[0.06]",
                           style.boxBg
                         )}
                       >
-                        <span className="text-white/40 w-7 text-xs">#{player.rank}</span>
+                        <span className="text-[#5e5e72] w-7 text-xs">#{player.rank}</span>
                         <Flag code={player.nationality} size="sm" />
                         <span className="text-white/80 truncate flex-1">{player.name}</span>
                         <span className={cn("font-bold text-xs", style.tierColor)}>{tier}</span>
@@ -708,7 +708,7 @@ export default function CommunityPage() {
           )}
           
           {players.length === 0 && !isLoading && (
-            <div className="text-center py-20 text-white/40">
+            <div className="text-center py-20 text-[#555]">
               <p className="text-xl">No players in this category yet</p>
             </div>
           )}
@@ -745,8 +745,9 @@ function FifaDisplayCard({
         isCenter ? "md:scale-110 z-10" : ""
       )}
     >
-      {/* FIFA Card - AAA+ Premium Design */}
-      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border} hover:scale-105 transition-transform`}>
+      {/* FIFA Card - AAA+ Premium Design with 3D Tilt */}
+      <Tilt3DCard maxTilt={14} scale={1.05}>
+      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${style.border}`}>
         {/* Background Base - Rich gradient */}
         <div 
           className="absolute inset-0"
@@ -882,6 +883,7 @@ function FifaDisplayCard({
           </div>
         </div>
       </div>
+      </Tilt3DCard>
     </button>
   )
 }
@@ -1008,12 +1010,12 @@ function CompactPlayerCard({ player, onPlayerClick }: { player: PlayerWithRating
     <button 
       onClick={() => onPlayerClick?.(player.id)}
       className={cn(
-        "w-full rounded-lg p-3 border border-white/10 hover:brightness-125 text-left transition-all",
+        "w-full rounded-lg p-3 border border-white/[0.06] hover:brightness-125 text-left transition-all",
         style.boxBg
       )}
     >
       <div className="flex items-center gap-2">
-        <span className="text-white/40 text-sm w-6">#{player.rank}</span>
+        <span className="text-[#5e5e72] text-sm w-6">#{player.rank}</span>
         <Image 
           src={avatarSrc} 
           alt={player.name} 
@@ -1034,7 +1036,7 @@ function CompactPlayerCard({ player, onPlayerClick }: { player: PlayerWithRating
         <span className="text-white/80 text-sm truncate flex-1">{player.name}</span>
       </div>
       <div className="flex items-center justify-between mt-1">
-        {player.clan && !clanLogo && <span className="text-white/30 text-xs truncate">{player.clan}</span>}
+        {player.clan && !clanLogo && <span className="text-[#5e5e72] text-xs truncate">{player.clan}</span>}
         <div className="flex items-center gap-2 ml-auto">
           <span className={cn("font-bold text-sm", style.tierColor)}>{playerTier}</span>
           <span className="text-white/60 text-sm font-mono">{player.averageRating.toFixed(1)}</span>

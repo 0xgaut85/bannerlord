@@ -34,6 +34,12 @@ export default function AdminPage() {
   const [editingPlayer, setEditingPlayer] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
   
+  // New rating period
+  const [newPeriodCurrentName, setNewPeriodCurrentName] = useState("")
+  const [newPeriodNextName, setNewPeriodNextName] = useState("")
+  const [newPeriodEndDate, setNewPeriodEndDate] = useState("")
+  const [startingNewPeriod, setStartingNewPeriod] = useState(false)
+  
   // Curated rankings management
   const [curatedPeriodName, setCuratedPeriodName] = useState("")
   const [savingCurated, setSavingCurated] = useState(false)
@@ -479,32 +485,32 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800 px-4">
-        <div className="w-full max-w-md bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-white/10 p-8">
+      <div className="min-h-screen flex items-center justify-center bg-[#050505] px-4">
+        <div className="w-full max-w-md bg-[#0a0a0a] rounded-2xl border border-white/[0.04] p-8">
           <h1 className="text-2xl font-display text-center mb-2 text-white">Admin Login</h1>
-          <p className="text-white/50 text-center text-sm mb-8">Enter your credentials to access the admin panel</p>
+          <p className="text-[#888] text-center text-sm mb-8">Enter your credentials to access the admin panel</p>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm text-white/70 mb-2">Username</label>
+              <label className="block text-sm text-[#888] mb-2">Username</label>
               <input 
                 type="text" 
                 value={username} 
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-900 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.04] rounded-xl text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                 placeholder="Enter username"
               />
             </div>
             <div>
-              <label className="block text-sm text-white/70 mb-2">Password</label>
+              <label className="block text-sm text-[#888] mb-2">Password</label>
               <input 
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-900 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.04] rounded-xl text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                 placeholder="Enter password"
               />
             </div>
-            <Button type="submit" variant="primary" className="w-full !bg-amber-500 !text-black hover:!bg-amber-400 mt-6">
+            <Button type="submit" variant="primary" className="w-full !bg-white !text-black hover:!bg-white/90 mt-6">
               Login
             </Button>
           </form>
@@ -514,12 +520,12 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 p-4 sm:p-8">
+    <div className="min-h-screen bg-[#050505] p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
           <div className="flex justify-between items-center w-full sm:w-auto">
             <h1 className="text-2xl sm:text-3xl font-display text-white">Admin Panel</h1>
-            <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/10 !text-white hover:!bg-white/20 sm:hidden">
+            <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/[0.03] !text-white hover:!bg-white/[0.05] sm:hidden">
               Logout
             </Button>
           </div>
@@ -530,7 +536,7 @@ export default function AdminPage() {
                   size="sm"
                   variant={activeTab === "players" ? "primary" : "ghost"} 
                   onClick={() => setActiveTab("players")}
-                  className={`text-xs sm:text-sm ${activeTab === "players" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                  className={`text-xs sm:text-sm ${activeTab === "players" ? "!bg-white !text-black" : "!bg-transparent !text-[#555]"}`}
                 >
                   Players
                 </Button>
@@ -538,7 +544,7 @@ export default function AdminPage() {
                   size="sm"
                   variant={activeTab === "requests" ? "primary" : "ghost"} 
                   onClick={() => setActiveTab("requests")}
-                  className={`relative text-xs sm:text-sm ${activeTab === "requests" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                  className={`relative text-xs sm:text-sm ${activeTab === "requests" ? "!bg-white !text-black" : "!bg-transparent !text-[#555]"}`}
                 >
                   Req
                   {requests.length > 0 && (
@@ -551,7 +557,7 @@ export default function AdminPage() {
                   size="sm"
                   variant={activeTab === "clans" ? "primary" : "ghost"} 
                   onClick={() => setActiveTab("clans")}
-                  className={`relative text-xs sm:text-sm ${activeTab === "clans" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                  className={`relative text-xs sm:text-sm ${activeTab === "clans" ? "!bg-white !text-black" : "!bg-transparent !text-[#555]"}`}
                 >
                   Clans
                   {clanRequests.length > 0 && (
@@ -564,7 +570,7 @@ export default function AdminPage() {
                   size="sm"
                   variant={activeTab === "users" ? "primary" : "ghost"} 
                   onClick={() => setActiveTab("users")}
-                  className={`text-xs sm:text-sm ${activeTab === "users" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                  className={`text-xs sm:text-sm ${activeTab === "users" ? "!bg-white !text-black" : "!bg-transparent !text-[#555]"}`}
                 >
                   Users
                 </Button>
@@ -572,7 +578,7 @@ export default function AdminPage() {
                   size="sm"
                   variant={activeTab === "newplayers" ? "primary" : "ghost"} 
                   onClick={() => setActiveTab("newplayers")}
-                  className={`relative text-xs sm:text-sm ${activeTab === "newplayers" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                  className={`relative text-xs sm:text-sm ${activeTab === "newplayers" ? "!bg-white !text-black" : "!bg-transparent !text-[#555]"}`}
                 >
                   New
                   {playerRequests.length > 0 && (
@@ -585,7 +591,7 @@ export default function AdminPage() {
                   size="sm"
                   variant={activeTab === "anomalies" ? "primary" : "ghost"} 
                   onClick={() => { setActiveTab("anomalies"); fetchAnomalies(); }}
-                  className={`relative text-xs sm:text-sm ${activeTab === "anomalies" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                  className={`relative text-xs sm:text-sm ${activeTab === "anomalies" ? "!bg-white !text-black" : "!bg-transparent !text-[#555]"}`}
                 >
                   Anom
                   {anomalies.length > 0 && (
@@ -598,7 +604,7 @@ export default function AdminPage() {
                   size="sm"
                   variant={activeTab === "periods" ? "primary" : "ghost"} 
                   onClick={() => setActiveTab("periods")}
-                  className={`text-xs sm:text-sm ${activeTab === "periods" ? "!bg-amber-500 !text-black" : "!bg-white/10 !text-white"}`}
+                  className={`text-xs sm:text-sm ${activeTab === "periods" ? "!bg-white !text-black" : "!bg-transparent !text-[#555]"}`}
                 >
                   Timer
                 </Button>
@@ -606,13 +612,13 @@ export default function AdminPage() {
                   size="sm"
                   variant={activeTab === "curated" ? "primary" : "ghost"} 
                   onClick={() => setActiveTab("curated")}
-                  className={`text-xs sm:text-sm ${activeTab === "curated" ? "!bg-violet-500 !text-white" : "!bg-white/10 !text-white"}`}
+                  className={`text-xs sm:text-sm ${activeTab === "curated" ? "!bg-white !text-black" : "!bg-transparent !text-[#555]"}`}
                 >
                   Curated
                 </Button>
               </div>
             </div>
-            <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/10 !text-white hover:!bg-white/20 hidden sm:block">
+            <Button onClick={() => setIsAuthenticated(false)} className="!bg-white/[0.03] !text-white hover:!bg-white/[0.05] hidden sm:block">
               Logout
             </Button>
           </div>
@@ -621,24 +627,24 @@ export default function AdminPage() {
         {activeTab === "requests" && (
           <div className="grid gap-4">
             {requests.map((request) => (
-              <div key={request.id} className="bg-white/5 p-6 rounded-xl border border-white/10">
+              <div key={request.id} className="bg-white/[0.02] p-6 rounded-xl border border-white/[0.04]">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-medium text-white text-lg">
                       Edit for: {request.player.name}
                     </h3>
-                    <p className="text-sm text-white/50">
+                    <p className="text-sm text-[#888]">
                       Submitted by: {request.user.discordName || request.user.name}
                     </p>
                   </div>
-                  <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded text-xs font-medium">
+                  <span className="px-2 py-1 bg-white/[0.05] text-[#888] rounded text-xs font-medium">
                     PENDING
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                  <div className="bg-black/20 rounded-lg p-3">
-                    <span className="block text-white/50 mb-2 text-xs uppercase tracking-wide">Current</span>
+                  <div className="bg-white/[0.02] rounded-lg p-3">
+                    <span className="block text-[#888] mb-2 text-xs uppercase tracking-wide">Current</span>
                     <div className="text-white space-y-1">
                       <p>Name: {request.player.name}</p>
                       <p>Nationality: {request.player.nationality || "None"}</p>
@@ -651,7 +657,7 @@ export default function AdminPage() {
                     <span className="block text-green-400 mb-2 text-xs uppercase tracking-wide">Suggested</span>
                     <div className="text-white space-y-1">
                       {request.suggestedName && (
-                        <p className="text-amber-400 font-semibold">Name: {request.suggestedName}</p>
+                        <p className="text-white font-semibold">Name: {request.suggestedName}</p>
                       )}
                       <p>Nationality: {request.suggestedNationality || "No Change"}</p>
                       <p>Clan: {request.suggestedClan || "No Change"}</p>
@@ -681,7 +687,7 @@ export default function AdminPage() {
               </div>
             ))}
             {requests.length === 0 && (
-              <div className="text-center text-white/40 py-12">No pending requests</div>
+              <div className="text-center text-[#555] py-12">No pending requests</div>
             )}
           </div>
         )}
@@ -689,17 +695,17 @@ export default function AdminPage() {
         {activeTab === "clans" && (
           <div className="grid gap-4">
             {clanRequests.map((request) => (
-              <div key={request.id} className="bg-white/5 p-6 rounded-xl border border-white/10">
+              <div key={request.id} className="bg-white/[0.02] p-6 rounded-xl border border-white/[0.04]">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-medium text-white text-lg">
                       Clan Edit: {request.clanShortName}
                     </h3>
-                    <p className="text-sm text-white/50">
+                    <p className="text-sm text-[#888]">
                       Submitted by: {request.user?.discordName || request.user?.name || "Unknown"}
                     </p>
                   </div>
-                  <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded text-xs font-medium">
+                  <span className="px-2 py-1 bg-white/[0.05] text-[#888] rounded text-xs font-medium">
                     PENDING
                   </span>
                 </div>
@@ -715,12 +721,12 @@ export default function AdminPage() {
                         <img 
                           src={request.suggestedLogo} 
                           alt="Suggested logo" 
-                          className="w-16 h-16 object-cover rounded-lg border border-white/20"
+                          className="w-16 h-16 object-cover rounded-lg border border-white/[0.04]"
                         />
                       </div>
                     )}
                     {!request.suggestedName && !request.suggestedShortName && !request.suggestedLogo && (
-                      <p className="text-white/50">No changes specified</p>
+                      <p className="text-[#888]">No changes specified</p>
                     )}
                   </div>
                 </div>
@@ -744,14 +750,14 @@ export default function AdminPage() {
               </div>
             ))}
             {clanRequests.length === 0 && (
-              <div className="text-center text-white/40 py-12">No pending clan requests</div>
+              <div className="text-center text-[#555] py-12">No pending clan requests</div>
             )}
           </div>
         )}
 
         {activeTab === "players" && (
           <>
-            <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
+            <div className="mb-6 p-4 bg-white/[0.02] rounded-xl border border-white/[0.04]">
               <h3 className="text-white font-medium mb-3">Adjust Player Ratings</h3>
               <div className="flex gap-2">
                 <input
@@ -759,14 +765,14 @@ export default function AdminPage() {
                   placeholder="Player name (e.g., Obelix)"
                   id="adjust-player-name"
                   defaultValue="Obelix"
-                  className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="flex-1 px-4 py-2 bg-white/[0.03] border border-white/[0.04] rounded-lg text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                 />
                 <input
                   type="number"
                   placeholder="Adjustment (+/-)"
                   id="adjust-amount"
                   defaultValue="2"
-                  className="w-32 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="w-32 px-4 py-2 bg-white/[0.03] border border-white/[0.04] rounded-lg text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                 />
                 <Button
                   onClick={async () => {
@@ -808,25 +814,25 @@ export default function AdminPage() {
                 placeholder="Search players..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full max-w-md px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                className="w-full max-w-md px-4 py-3 bg-white/[0.03] border border-white/[0.04] rounded-xl text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
               />
             </div>
 
             {editingPlayer && (
               <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-                <div className="w-full max-w-lg bg-slate-800 rounded-2xl border border-white/10 p-6">
+                <div className="w-full max-w-lg bg-[#0a0a0a] rounded-2xl border border-white/[0.04] p-6">
                   <h2 className="text-xl font-display text-white mb-6">Edit Player: {editingPlayer.name}</h2>
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div>
-                      <label className="block text-sm text-white/70 mb-2">Clan</label>
+                      <label className="block text-sm text-[#888] mb-2">Clan</label>
                       <input
                         value={editingPlayer.clan || ""}
                         onChange={(e) => setEditingPlayer({...editingPlayer, clan: e.target.value})}
-                        className="w-full px-4 py-3 bg-slate-900 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.04] rounded-xl text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                       />
                     </div>
                     <div className="relative">
-                      <label className="block text-sm text-white/70 mb-2">Nationality</label>
+                      <label className="block text-sm text-[#888] mb-2">Nationality</label>
                       <div className="flex gap-2 items-center">
                         <input
                           value={countrySearch}
@@ -836,10 +842,10 @@ export default function AdminPage() {
                           }}
                           onFocus={() => setShowCountryDropdown(true)}
                           placeholder="Type country name..."
-                          className="flex-1 px-4 py-3 bg-slate-900 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                          className="flex-1 px-4 py-3 bg-white/[0.03] border border-white/[0.04] rounded-xl text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                         />
                         {editingPlayer.nationality && (
-                          <div className="flex items-center gap-2 bg-slate-900 border border-white/20 rounded-xl px-4 py-2">
+                          <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.04] rounded-xl px-4 py-2">
                             <Flag code={editingPlayer.nationality} size="md" />
                             <span className="text-white text-sm">{editingPlayer.nationality.toUpperCase()}</span>
                           </div>
@@ -847,29 +853,29 @@ export default function AdminPage() {
                       </div>
                       
                       {showCountryDropdown && countrySearch && (
-                        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-slate-900 rounded-xl border border-white/20 p-2 max-h-60 overflow-y-auto">
+                        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0a0a0a] rounded-xl border border-white/[0.04] p-2 max-h-60 overflow-y-auto">
                           {filteredCountries.map((country) => (
                             <button
                               key={country.code}
                               type="button"
                               onClick={() => selectCountry(country.code)}
-                              className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                              className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.03] transition-colors text-left"
                             >
                               <Flag code={country.code} size="md" />
                               <span className="text-white">{country.name}</span>
-                              <span className="text-white/40 text-sm ml-auto">{country.code.toUpperCase()}</span>
+                              <span className="text-[#555] text-sm ml-auto">{country.code.toUpperCase()}</span>
                             </button>
                           ))}
                           {filteredCountries.length === 0 && (
-                            <div className="text-white/40 text-center py-2">No countries found</div>
+                            <div className="text-[#555] text-center py-2">No countries found</div>
                           )}
                         </div>
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm text-white/70 mb-2">Category</label>
+                      <label className="block text-sm text-[#888] mb-2">Category</label>
                       <select
-                        className="w-full bg-slate-900 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-900 [&>option]:text-white"
+                        className="w-full bg-white/[0.03] border border-white/[0.04] rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-white/20 [&>option]:bg-[#0a0a0a] [&>option]:text-white"
                         value={editingPlayer.category}
                         onChange={(e) => setEditingPlayer({...editingPlayer, category: e.target.value})}
                       >
@@ -879,9 +885,9 @@ export default function AdminPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm text-white/70 mb-2">Division</label>
+                      <label className="block text-sm text-[#888] mb-2">Division</label>
                       <select
-                        className="w-full bg-slate-900 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-900 [&>option]:text-white"
+                        className="w-full bg-white/[0.03] border border-white/[0.04] rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-white/20 [&>option]:bg-[#0a0a0a] [&>option]:text-white"
                         value={editingPlayer.division || ""}
                         onChange={(e) => setEditingPlayer({...editingPlayer, division: e.target.value || null})}
                       >
@@ -898,11 +904,11 @@ export default function AdminPage() {
                         <option value="J">Division J</option>
                       </select>
                     </div>
-                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/10">
-                      <Button type="button" onClick={() => { setEditingPlayer(null); setCountrySearch("") }} className="!bg-white/10 !text-white hover:!bg-white/20">
+                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/[0.04]">
+                      <Button type="button" onClick={() => { setEditingPlayer(null); setCountrySearch("") }} className="!bg-white/[0.03] !text-white hover:!bg-white/[0.05]">
                         Cancel
                       </Button>
-                      <Button type="submit" variant="primary" className="!bg-amber-500 !text-black hover:!bg-amber-400">
+                      <Button type="submit" variant="primary" className="!bg-white !text-black hover:!bg-white/90">
                         Save Changes
                       </Button>
                     </div>
@@ -913,20 +919,20 @@ export default function AdminPage() {
 
             <div className="grid gap-3">
               {players.map((player) => (
-                <div key={player.id} className="bg-white/5 p-4 rounded-xl flex items-center justify-between border border-white/10">
+                <div key={player.id} className="bg-white/[0.02] p-4 rounded-xl flex items-center justify-between border border-white/[0.04]">
                   <div className="flex items-center gap-3">
                     <Flag code={player.nationality} size="md" />
                     <div>
                       <h3 className="font-medium text-white">{player.name}</h3>
                       <div className="flex gap-2 mt-1 flex-wrap">
-                        <span className="px-2 py-0.5 bg-white/10 text-white/70 rounded text-xs">{player.category}</span>
+                        <span className="px-2 py-0.5 bg-white/[0.03] text-[#888] rounded text-xs">{player.category}</span>
                         {player.division && <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded text-xs">Div {player.division}</span>}
-                        {player.clan && <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded text-xs">{player.clan}</span>}
+                        {player.clan && <span className="px-2 py-0.5 bg-white/[0.05] text-[#888] rounded text-xs">{player.clan}</span>}
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" className="!bg-white/10 !text-white hover:!bg-white/20" onClick={() => setEditingPlayer(player)}>
+                    <Button size="sm" className="!bg-white/[0.03] !text-white hover:!bg-white/[0.05]" onClick={() => setEditingPlayer(player)}>
                       Edit
                     </Button>
                     <Button size="sm" className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30" onClick={() => handleDelete(player.id)}>
@@ -936,7 +942,7 @@ export default function AdminPage() {
                 </div>
               ))}
               {players.length === 0 && !loading && (
-                <div className="text-center text-white/40 py-12">No players found</div>
+                <div className="text-center text-[#555] py-12">No players found</div>
               )}
             </div>
           </>
@@ -945,7 +951,7 @@ export default function AdminPage() {
         {activeTab === "users" && (
           <>
             {selectedUser ? (
-              <div className={`bg-white/5 p-6 rounded-xl border ${selectedUser.isBanned ? 'border-red-500/50' : 'border-white/10'}`}>
+              <div className={`bg-white/[0.02] p-6 rounded-xl border ${selectedUser.isBanned ? 'border-red-500/50' : 'border-white/[0.04]'}`}>
                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
                   <div>
                     <div className="flex items-center gap-3 flex-wrap">
@@ -958,7 +964,7 @@ export default function AdminPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-white/50 mt-1">
+                    <p className="text-[#888] mt-1">
                       Division: {selectedUser.division || "N/A"} | Total Ratings: {selectedUser.ratings.length}
                     </p>
                     {selectedUser.isBanned && selectedUser.banReason && (
@@ -996,7 +1002,7 @@ export default function AdminPage() {
                       Delete Ratings
                     </Button>
                     <Button 
-                      className="!bg-white/10 !text-white hover:!bg-white/20"
+                      className="!bg-white/[0.03] !text-white hover:!bg-white/[0.05]"
                       onClick={() => setSelectedUser(null)}
                     >
                       Back
@@ -1006,18 +1012,18 @@ export default function AdminPage() {
 
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">
                   {selectedUser.ratings.map((rating: any) => (
-                    <div key={rating.id} className="bg-black/20 p-4 rounded-lg flex items-center justify-between">
+                    <div key={rating.id} className="bg-white/[0.02] p-4 rounded-lg flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <Flag code={rating.player.nationality} size="md" />
                         <div>
                           <h3 className="text-white font-medium">{rating.player.name}</h3>
-                          <p className="text-white/40 text-sm">
+                          <p className="text-[#555] text-sm">
                             {rating.player.category} {rating.player.clan && `• ${rating.player.clan}`}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-2xl font-bold text-amber-500">
+                        <span className="text-2xl font-bold text-white">
                           {rating.score}
                         </span>
                         <Button
@@ -1058,13 +1064,13 @@ export default function AdminPage() {
                       setUserPage(1)
                       fetchUsers(1, e.target.value, false)
                     }}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    className="w-full px-4 py-2 bg-white/[0.03] border border-white/[0.04] rounded-lg text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                   />
                 </div>
                 
                 <div className="grid gap-4">
                   {users.map((user) => (
-                  <div key={user.id} className={`bg-white/5 p-4 sm:p-6 rounded-xl border ${user.isBanned ? 'border-red-500/50 bg-red-500/5' : 'border-white/10'} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4`}>
+                  <div key={user.id} className={`bg-white/[0.02] p-4 sm:p-6 rounded-xl border ${user.isBanned ? 'border-red-500/50 bg-red-500/5' : 'border-white/[0.04]'} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4`}>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-white font-medium text-lg truncate">
@@ -1076,7 +1082,7 @@ export default function AdminPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-white/50 text-sm">
+                      <p className="text-[#888] text-sm">
                         Division: {user.division || "N/A"} | Ratings: {user._count.ratings}
                       </p>
                       {user.isBanned && user.banReason && (
@@ -1086,7 +1092,7 @@ export default function AdminPage() {
                     <div className="flex gap-2 w-full sm:w-auto">
                       <Button 
                         size="sm"
-                        className="flex-1 sm:flex-none !bg-amber-500/20 !text-amber-400 hover:!bg-amber-500/30"
+                        className="flex-1 sm:flex-none !bg-white/[0.03] !text-white hover:!bg-white/[0.05]"
                         onClick={() => fetchUserRatings(user.id)}
                       >
                         View
@@ -1112,7 +1118,7 @@ export default function AdminPage() {
                   </div>
                   ))}
                   {users.length === 0 && (
-                    <div className="text-center text-white/40 py-12">No users found</div>
+                    <div className="text-center text-[#555] py-12">No users found</div>
                   )}
                 </div>
                 
@@ -1120,7 +1126,7 @@ export default function AdminPage() {
                 {hasMoreUsers && (
                   <div className="mt-6 text-center">
                     <Button
-                      className="!bg-amber-500/20 !text-amber-400 hover:!bg-amber-500/30"
+                      className="!bg-white/[0.03] !text-white hover:!bg-white/[0.05]"
                       onClick={() => {
                         const nextPage = userPage + 1
                         setUserPage(nextPage)
@@ -1139,17 +1145,17 @@ export default function AdminPage() {
         {activeTab === "newplayers" && (
           <div className="grid gap-4">
             {playerRequests.map((request) => (
-              <div key={request.id} className="bg-white/5 p-6 rounded-xl border border-white/10">
+              <div key={request.id} className="bg-white/[0.02] p-6 rounded-xl border border-white/[0.04]">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-medium text-white text-lg">
                       New Player: {request.playerName}
                     </h3>
-                    <p className="text-sm text-white/50">
+                    <p className="text-sm text-[#888]">
                       Submitted by: {request.user?.discordName || request.user?.name || "Unknown"}
                     </p>
                   </div>
-                  <span className="px-2 py-1 bg-amber-500/20 text-amber-400 rounded text-xs font-medium">
+                  <span className="px-2 py-1 bg-white/[0.05] text-[#888] rounded text-xs font-medium">
                     PENDING
                   </span>
                 </div>
@@ -1158,29 +1164,29 @@ export default function AdminPage() {
                   <span className="block text-green-400 mb-3 text-xs uppercase tracking-wide">Player Details</span>
                   <div className="grid grid-cols-2 gap-4 text-sm text-white">
                     <div>
-                      <span className="text-white/50">Category:</span> {request.category}
+                      <span className="text-[#888]">Category:</span> {request.category}
                     </div>
                     <div>
-                      <span className="text-white/50">Division:</span> {request.division || "Not set"}
+                      <span className="text-[#888]">Division:</span> {request.division || "Not set"}
                     </div>
                     <div>
-                      <span className="text-white/50">Clan:</span> {request.clan || "None"}
+                      <span className="text-[#888]">Clan:</span> {request.clan || "None"}
                     </div>
                     <div>
-                      <span className="text-white/50">Nationality:</span> {request.nationality || "Not set"}
+                      <span className="text-[#888]">Nationality:</span> {request.nationality || "Not set"}
                     </div>
                     {request.bio && (
                       <div className="col-span-2">
-                        <span className="text-white/50">Bio:</span> {request.bio}
+                        <span className="text-[#888]">Bio:</span> {request.bio}
                       </div>
                     )}
                     {request.avatar && (
                       <div className="col-span-2">
-                        <span className="text-white/50 block mb-2">Avatar:</span>
+                        <span className="text-[#888] block mb-2">Avatar:</span>
                         <img 
                           src={request.avatar} 
                           alt="Avatar" 
-                          className="w-16 h-16 object-cover rounded-lg border border-white/20"
+                          className="w-16 h-16 object-cover rounded-lg border border-white/[0.04]"
                         />
                       </div>
                     )}
@@ -1206,7 +1212,7 @@ export default function AdminPage() {
               </div>
             ))}
             {playerRequests.length === 0 && (
-              <div className="text-center text-white/40 py-12">No pending player requests</div>
+              <div className="text-center text-[#555] py-12">No pending player requests</div>
             )}
           </div>
         )}
@@ -1215,7 +1221,7 @@ export default function AdminPage() {
           <div className="space-y-4">
             <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 mb-6">
               <h3 className="text-orange-400 font-semibold mb-2">Anomaly Detection</h3>
-              <p className="text-white/60 text-sm mb-4">
+              <p className="text-[#888] text-sm mb-4">
                 <span className="text-orange-400">Deviation:</span> Ratings that deviate 10+ points from average.
                 <br />
                 <span className="text-purple-400">Boost:</span> Players with less than 3 ratings and average above 90.
@@ -1259,7 +1265,7 @@ export default function AdminPage() {
             {anomalies.map((anomaly) => (
               <div 
                 key={anomaly.id} 
-                className={`bg-white/5 p-4 rounded-xl border ${
+                className={`bg-white/[0.03] p-4 rounded-xl border ${
                   anomaly.type === "suspicious_boost" 
                     ? "border-purple-500/50" 
                     : "border-orange-500/30"
@@ -1277,7 +1283,7 @@ export default function AdminPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-white/50">
+                    <p className="text-sm text-[#888]">
                       Rated by: {anomaly.raterName} (Div {anomaly.raterDivision || "?"})
                     </p>
                   </div>
@@ -1288,7 +1294,7 @@ export default function AdminPage() {
                       }`}>
                         {anomaly.score}
                       </div>
-                      <div className="text-xs text-white/50">
+                      <div className="text-xs text-[#888]">
                         {anomaly.type === "suspicious_boost" 
                           ? "only 1 rating" 
                           : `vs avg ${anomaly.averageScore}`
@@ -1323,9 +1329,9 @@ export default function AdminPage() {
                   </div>
                 </div>
                 
-                <div className="bg-black/30 rounded-lg p-3 mb-3">
+                <div className="bg-white/[0.02] rounded-lg p-3 mb-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-white/50 text-xs uppercase">
+                    <span className="text-[#888] text-xs uppercase">
                       {anomaly.type === "suspicious_boost" ? "Suspicious" : "Deviation"}
                     </span>
                     <span className={`font-bold ${
@@ -1341,7 +1347,7 @@ export default function AdminPage() {
                       }
                     </span>
                   </div>
-                  <div className="text-xs text-white/40">
+                  <div className="text-xs text-[#555]">
                     {anomaly.type === "suspicious_boost" 
                       ? `Player has <3 ratings with avg above 90${anomaly.otherRatings.length > 0 ? ` (other: ${anomaly.otherRatings.join(", ")})` : ''}`
                       : `Other ratings: ${anomaly.otherRatings.join(", ") || "none"}`
@@ -1362,7 +1368,7 @@ export default function AdminPage() {
             ))}
             
             {anomalies.length === 0 && (
-              <div className="text-center text-white/40 py-12">No anomalies detected</div>
+              <div className="text-center text-[#555] py-12">No anomalies detected</div>
             )}
           </div>
         )}
@@ -1370,26 +1376,26 @@ export default function AdminPage() {
         {activeTab === "periods" && (
           <div className="space-y-6">
             {/* Set Timer */}
-            <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+            <div className="bg-white/[0.02] p-6 rounded-xl border border-white/[0.04]">
               <h3 className="text-white font-semibold mb-4">Set Ranking Period Timer</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Period Name</label>
+                  <label className="block text-[#888] text-sm mb-2">Period Name</label>
                   <input
                     type="text"
                     value={periodName}
                     onChange={(e) => setPeriodName(e.target.value)}
                     placeholder="e.g., December 2025"
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/30"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder:text-[#444]"
                   />
                 </div>
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">End Date & Time</label>
+                  <label className="block text-[#888] text-sm mb-2">End Date & Time</label>
                   <input
                     type="datetime-local"
                     value={periodEndDate}
                     onChange={(e) => setPeriodEndDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white"
                   />
                 </div>
               </div>
@@ -1417,7 +1423,7 @@ export default function AdminPage() {
                     alert("Error updating timer")
                   }
                 }}
-                className="!bg-amber-500 !text-black"
+                className="!bg-white !text-black"
               >
                 Update Timer
               </Button>
@@ -1426,18 +1432,18 @@ export default function AdminPage() {
             {/* Save Rankings Snapshot */}
             <div className="bg-green-500/10 p-6 rounded-xl border border-green-500/30">
               <h3 className="text-green-400 font-semibold mb-4">Save Rankings Snapshot</h3>
-              <p className="text-white/60 text-sm mb-4">
+              <p className="text-[#888] text-sm mb-4">
                 This will save the current rankings to history. Use this when a period ends.
               </p>
               <div className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <label className="block text-white/70 text-sm mb-2">Snapshot Name</label>
+                  <label className="block text-[#888] text-sm mb-2">Snapshot Name</label>
                   <input
                     type="text"
                     value={periodName}
                     onChange={(e) => setPeriodName(e.target.value)}
                     placeholder="e.g., December 2025"
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/30"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder:text-[#444]"
                   />
                 </div>
                 <Button
@@ -1476,6 +1482,86 @@ export default function AdminPage() {
                 </Button>
               </div>
             </div>
+
+            {/* Start New Rating Period */}
+            <div className="bg-[#c9a962]/10 p-6 rounded-xl border border-[#c9a962]/30">
+              <h3 className="text-[#c9a962] font-semibold mb-2 text-lg">Start New Rating Period</h3>
+              <p className="text-[#888] text-sm mb-5">
+                This will snapshot current rankings (excluding legends) to history, <span className="text-red-400 font-medium">delete all non-legend ratings</span>, reset anomalies, and start a fresh period. Legend players and their ratings are preserved forever.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                <div>
+                  <label className="block text-[#888] text-sm mb-2">Current Period Name (for snapshot)</label>
+                  <input
+                    type="text"
+                    value={newPeriodCurrentName}
+                    onChange={(e) => setNewPeriodCurrentName(e.target.value)}
+                    placeholder="e.g., January 2026"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-[#c9a962]/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#888] text-sm mb-2">New Period Name</label>
+                  <input
+                    type="text"
+                    value={newPeriodNextName}
+                    onChange={(e) => setNewPeriodNextName(e.target.value)}
+                    placeholder="e.g., February 2026"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-[#c9a962]/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#888] text-sm mb-2">New Period End Date</label>
+                  <input
+                    type="datetime-local"
+                    value={newPeriodEndDate}
+                    onChange={(e) => setNewPeriodEndDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white focus:outline-none focus:ring-2 focus:ring-[#c9a962]/40"
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={async () => {
+                  if (!newPeriodCurrentName || !newPeriodNextName) {
+                    alert("Please fill in both period names")
+                    return
+                  }
+                  const msg = `This will:\n\n1. Save current rankings as "${newPeriodCurrentName}" (excluding legends)\n2. DELETE all non-legend player ratings\n3. Reset anomalies\n4. Start new period "${newPeriodNextName}"\n\nLegend players and their ratings will be preserved. This cannot be undone. Continue?`
+                  if (!confirm(msg)) return
+                  if (!confirm("Are you absolutely sure? All non-legend ratings will be permanently deleted.")) return
+
+                  setStartingNewPeriod(true)
+                  try {
+                    const res = await fetch("/api/admin/new-period", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        periodName: newPeriodCurrentName,
+                        newPeriodName: newPeriodNextName,
+                        newPeriodEnd: newPeriodEndDate ? new Date(newPeriodEndDate).toISOString() : null,
+                      })
+                    })
+                    const data = await res.json()
+                    if (res.ok) {
+                      alert(`New period started!\n\nSnapshot: "${data.snapshot}"\nRatings deleted: ${data.ratingsDeleted}\nLegends preserved: ${data.legendsPreserved || 0}\nNew period: "${data.newPeriod}"`)
+                      setNewPeriodCurrentName("")
+                      setNewPeriodNextName("")
+                      setNewPeriodEndDate("")
+                    } else {
+                      alert(data.error || "Failed to start new period")
+                    }
+                  } catch (error) {
+                    alert("Error starting new period")
+                  } finally {
+                    setStartingNewPeriod(false)
+                  }
+                }}
+                disabled={startingNewPeriod}
+                className="!bg-[#c9a962] !text-black font-semibold"
+              >
+                {startingNewPeriod ? "Starting New Period..." : "Start New Rating Period"}
+              </Button>
+            </div>
           </div>
         )}
 
@@ -1485,17 +1571,17 @@ export default function AdminPage() {
             <div className="bg-violet-500/10 p-6 rounded-xl border border-violet-500/30">
               <h3 className="text-violet-400 font-semibold mb-4">📊 Curated Rankings Overview</h3>
               <div className="grid grid-cols-3 gap-4 mb-4">
-                <div className="bg-black/20 rounded-xl p-4 text-center">
+                <div className="bg-white/[0.02] rounded-xl p-4 text-center">
                   <div className="text-3xl font-bold text-violet-400">{curatedStats.rankings}</div>
-                  <div className="text-white/50 text-sm">Rankings</div>
+                  <div className="text-[#888] text-sm">Rankings</div>
                 </div>
-                <div className="bg-black/20 rounded-xl p-4 text-center">
+                <div className="bg-white/[0.02] rounded-xl p-4 text-center">
                   <div className="text-3xl font-bold text-violet-400">{curatedStats.sessions}</div>
-                  <div className="text-white/50 text-sm">Sessions</div>
+                  <div className="text-[#888] text-sm">Sessions</div>
                 </div>
-                <div className="bg-black/20 rounded-xl p-4 text-center">
+                <div className="bg-white/[0.02] rounded-xl p-4 text-center">
                   <div className="text-3xl font-bold text-violet-400">{curatedStats.raters}</div>
-                  <div className="text-white/50 text-sm">Rater Entries</div>
+                  <div className="text-[#888] text-sm">Rater Entries</div>
                 </div>
               </div>
               <Button
@@ -1530,18 +1616,18 @@ export default function AdminPage() {
             {/* Save to History */}
             <div className="bg-green-500/10 p-6 rounded-xl border border-green-500/30">
               <h3 className="text-green-400 font-semibold mb-4">💾 Save Current Curated Rankings</h3>
-              <p className="text-white/60 text-sm mb-4">
+              <p className="text-[#888] text-sm mb-4">
                 Save the current curated rankings to history. This creates a snapshot that will appear in the History page.
               </p>
               <div className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <label className="block text-white/70 text-sm mb-2">Period Name</label>
+                  <label className="block text-[#888] text-sm mb-2">Period Name</label>
                   <input
                     type="text"
                     value={curatedPeriodName}
                     onChange={(e) => setCuratedPeriodName(e.target.value)}
                     placeholder="e.g., Stream December 2025"
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/30"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder:text-[#444]"
                   />
                 </div>
                 <Button
@@ -1588,18 +1674,18 @@ export default function AdminPage() {
 
             {/* Saved Curated Periods */}
             {curatedPeriods.length > 0 && (
-              <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+              <div className="bg-white/[0.02] p-6 rounded-xl border border-white/[0.04]">
                 <h3 className="text-white font-semibold mb-4">📜 Saved Curated Periods</h3>
                 <div className="space-y-2">
                   {curatedPeriods.map((period: any) => (
-                    <div key={period.id} className="flex justify-between items-center bg-black/20 rounded-lg p-3">
+                    <div key={period.id} className="flex justify-between items-center bg-white/[0.02] rounded-lg p-3">
                       <div>
                         <span className="text-white font-medium">{period.name}</span>
-                        <span className="text-white/50 text-sm ml-3">
+                        <span className="text-[#888] text-sm ml-3">
                           {period._count?.rankings || 0} players
                         </span>
                       </div>
-                      <span className="text-white/40 text-sm">
+                      <span className="text-[#555] text-sm">
                         {new Date(period.savedAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -1611,7 +1697,7 @@ export default function AdminPage() {
             {/* Reset Actions */}
             <div className="bg-red-500/10 p-6 rounded-xl border border-red-500/30">
               <h3 className="text-red-400 font-semibold mb-4">⚠️ Reset Actions</h3>
-              <p className="text-white/60 text-sm mb-4">
+              <p className="text-[#888] text-sm mb-4">
                 These actions are destructive and cannot be undone. Use with caution.
               </p>
               <div className="flex flex-wrap gap-4">

@@ -4,139 +4,138 @@ import { Card } from "@/components/ui"
 
 export default function QAPage() {
   return (
-    <div className="page-transition max-w-3xl mx-auto px-6 lg:px-8 py-12 sm:py-16">
+    <div className="page-transition max-w-3xl mx-auto px-6 lg:px-8 py-12 sm:py-16 animate-fade-up">
       {/* Header */}
       <div className="text-center mb-12">
-        <p className="text-xs font-medium tracking-[0.2em] uppercase text-[#c9a962] mb-4">
+        <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
           Information
         </p>
-        <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[#1a1a1a] mb-3">
+        <h1 className="font-display text-4xl sm:text-5xl font-bold text-white mb-3">
           How Rankings Work
         </h1>
-        <p className="text-[#5a5a5a]">
+        <p className="text-[#888]">
           Everything you need to know about the voting system
         </p>
       </div>
 
       <div className="space-y-6">
         <Card className="p-6">
-          <h2 className="text-xl font-display font-medium text-[#1a1a1a] mb-3">
+          <h2 className="text-xl font-display font-medium text-white mb-3">
             How is the score calculated?
           </h2>
-          <p className="text-[#5a5a5a] leading-relaxed">
-            Each player&apos;s score is calculated from the <span className="text-[#1a1a1a] font-medium">weighted average</span> of all eligible votes they have received. This ensures that votes from more experienced players (in higher divisions) carry more weight in the final ranking.
+          <p className="text-[#888] leading-relaxed">
+            Each player&apos;s score is calculated from the <span className="text-white font-medium">weighted average</span> of all eligible votes they have received. This ensures that votes from more experienced players (in higher divisions) carry more weight in the final ranking.
           </p>
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-display font-medium text-[#1a1a1a] mb-3">
+          <h2 className="text-xl font-display font-medium text-white mb-3">
             What are the vote weights?
           </h2>
-          <div className="space-y-2 text-[#5a5a5a]">
+          <div className="space-y-2 text-[#888]">
             <p>The weight of a vote depends on the division of the voter:</p>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-              <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
+              <li className="flex items-center justify-between bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
                 <span>Division A</span>
-                <span className="font-semibold text-[#c9a962]">100% weight</span>
+                <span className="font-semibold text-white">100% weight</span>
               </li>
-              <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
+              <li className="flex items-center justify-between bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
                 <span>Division B</span>
-                <span className="font-semibold text-[#c9a962]">80% weight</span>
+                <span className="font-semibold text-white">80% weight</span>
               </li>
-              <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
+              <li className="flex items-center justify-between bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
                 <span>Division C</span>
-                <span className="font-semibold text-[#c9a962]">50% weight</span>
+                <span className="font-semibold text-white">50% weight</span>
               </li>
-              <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
+              <li className="flex items-center justify-between bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
                 <span>Division D</span>
-                <span className="font-semibold text-[#c9a962]">30% weight</span>
+                <span className="font-semibold text-white">30% weight</span>
               </li>
-              <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
+              <li className="flex items-center justify-between bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
                 <span>Division E</span>
-                <span className="font-semibold text-[#c9a962]">15% weight</span>
+                <span className="font-semibold text-white">15% weight</span>
               </li>
-              <li className="flex items-center justify-between bg-white/50 p-3 rounded-lg border border-[#e5e5e5]">
+              <li className="flex items-center justify-between bg-white/[0.02] p-3 rounded-lg border border-white/[0.04]">
                 <span>Division F & lower</span>
-                <span className="font-semibold text-[#c9a962]">7.5% weight</span>
+                <span className="font-semibold text-white">7.5% weight</span>
               </li>
             </ul>
           </div>
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-display font-medium text-[#1a1a1a] mb-3">
+          <h2 className="text-xl font-display font-medium text-white mb-3">
             Who is eligible to vote?
           </h2>
-          <p className="text-[#5a5a5a] leading-relaxed mb-4">
+          <p className="text-[#888] leading-relaxed mb-4">
             To prevent manipulation and ensure quality rankings, a user&apos;s votes are only counted in the global ranking once they have rated a minimum number of players across all classes.
           </p>
-          <div className="bg-[#1a1a1a] text-white p-4 rounded-lg">
-            <p className="text-sm uppercase tracking-wider text-[#8a8a8a] mb-2">Requirements</p>
+          <div className="bg-[#0a0a0a] text-white p-4 rounded-lg">
+            <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-2">Requirements</p>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-2xl font-display font-semibold text-[#c9a962]">10</div>
-                <div className="text-xs text-[#8a8a8a]">Infantry</div>
+                <div className="text-2xl font-display font-semibold text-white">10</div>
+                <div className="text-xs text-[#555]">Infantry</div>
               </div>
               <div>
-                <div className="text-2xl font-display font-semibold text-[#c9a962]">5</div>
-                <div className="text-xs text-[#8a8a8a]">Cavalry</div>
+                <div className="text-2xl font-display font-semibold text-white">5</div>
+                <div className="text-xs text-[#555]">Cavalry</div>
               </div>
               <div>
-                <div className="text-2xl font-display font-semibold text-[#c9a962]">5</div>
-                <div className="text-xs text-[#8a8a8a]">Archers</div>
+                <div className="text-2xl font-display font-semibold text-white">5</div>
+                <div className="text-xs text-[#555]">Archers</div>
               </div>
             </div>
           </div>
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-display font-medium text-[#1a1a1a] mb-3">
+          <h2 className="text-xl font-display font-medium text-white mb-3">
             Can I rate myself?
           </h2>
-          <p className="text-[#5a5a5a] leading-relaxed">
+          <p className="text-[#888] leading-relaxed">
             No. The system automatically detects if a player&apos;s name exactly matches your in-game name (the name you set in your profile, case-insensitive) and will require you to skip that player. This prevents self-promotion and ensures fair rankings.
           </p>
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-display font-medium text-[#1a1a1a] mb-3">
+          <h2 className="text-xl font-display font-medium text-white mb-3">
             How do you prevent troll ratings?
           </h2>
-          <div className="text-[#5a5a5a] leading-relaxed space-y-4">
+          <div className="text-[#888] leading-relaxed space-y-4">
             <p>
-              We use an <span className="text-[#1a1a1a] font-medium">Anomaly Detection System</span> to identify and remove ratings that appear to be trolling or manipulation attempts. Our system automatically flags:
+              We use an <span className="text-white font-medium">Anomaly Detection System</span> to identify and remove ratings that appear to be trolling or manipulation attempts. Our system automatically flags:
             </p>
             <ul className="space-y-2 ml-4">
               <li className="flex items-start gap-2">
-                <span className="text-[#c9a962] font-bold">•</span>
-                <span><span className="font-medium text-[#1a1a1a]">Deviation Anomalies:</span> Ratings that deviate more than 10 points from a player&apos;s average. For example, if a player has ratings of 81, 82, 84, 82, 83, and someone rates them 94, this is flagged as suspicious.</span>
+                <span className="text-white font-bold">•</span>
+                <span><span className="font-medium text-white">Deviation Anomalies:</span> Ratings that deviate more than 10 points from a player&apos;s average. For example, if a player has ratings of 81, 82, 84, 82, 83, and someone rates them 94, this is flagged as suspicious.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#c9a962] font-bold">•</span>
-                <span><span className="font-medium text-[#1a1a1a]">Suspicious Boosts:</span> Players with fewer than 3 ratings and an average above 90 are flagged, as this may indicate self-promotion or friend-boosting.</span>
+                <span className="text-white font-bold">•</span>
+                <span><span className="font-medium text-white">Suspicious Boosts:</span> Players with fewer than 3 ratings and an average above 90 are flagged, as this may indicate self-promotion or friend-boosting.</span>
               </li>
             </ul>
             <p>
               Flagged ratings are reviewed by our admin team and removed if they appear to be illegitimate. This ensures that rankings remain fair and accurately reflect the community&apos;s genuine opinion of each player&apos;s skill.
             </p>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-4">
-              <p className="text-amber-800 text-sm">
-                <span className="font-semibold">Note:</span> Only real user ratings are analyzed. System-generated default ratings are excluded from anomaly detection.
+            <div className="bg-white/[0.02] border border-white/[0.04] rounded-lg p-4 mt-4">
+              <p className="text-[#888] text-sm">
+                <span className="font-semibold text-white">Note:</span> Only real user ratings are analyzed. System-generated default ratings are excluded from anomaly detection.
               </p>
             </div>
           </div>
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-display font-medium text-[#1a1a1a] mb-3">
+          <h2 className="text-xl font-display font-medium text-white mb-3">
             What are the rating limits?
           </h2>
-          <p className="text-[#5a5a5a] leading-relaxed">
-            To prevent extreme manipulation, once a player has received at least 5 ratings, new ratings must be within <span className="text-[#1a1a1a] font-medium">±20 points</span> of their current average. This means you cannot give a 50 to a player who averages 85, or a 99 to a player who averages 60.
+          <p className="text-[#888] leading-relaxed">
+            To prevent extreme manipulation, once a player has received at least 5 ratings, new ratings must be within <span className="text-white font-medium">±20 points</span> of their current average. This means you cannot give a 50 to a player who averages 85, or a 99 to a player who averages 60.
           </p>
         </Card>
       </div>
     </div>
   )
 }
-

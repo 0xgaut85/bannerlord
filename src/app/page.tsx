@@ -1,143 +1,186 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui"
+import { FifaDisplayCard } from "@/components/ui/FifaDisplayCard"
 import { signIn } from "next-auth/react"
-import Image from "next/image"
 
-const features = [
-  {
-    title: "Global Ranking",
-    href: "/community",
-    description: "The official community ranking, aggregated from all player votes to determine the best warriors.",
-  },
-  {
-    title: "Users Ranking",
-    href: "/players",
-    description: "Browse individual player lists and see how each member of the community ranks the competition.",
-  },
-  {
-    title: "Make your Ranking",
-    href: "/rate",
-    description: "Create your own rankings by scoring players from 50-99 and contribute to the consensus.",
-  },
-  {
-    title: "Edit Player",
-    href: "/edit-player",
-    description: "Update player information including nationality and clan affiliation.",
-  },
+interface RankedPlayer {
+  id: string
+  name: string
+  category: string
+  nationality: string | null
+  clan: string | null
+  avatar: string | null
+  clanLogo: string | null
+  averageRating: number
+  rank: number
+}
+
+const links = [
+  { title: "Rankings", href: "/community", desc: "Community-voted competitive rankings" },
+  { title: "Rate Players", href: "/rate", desc: "Score players and shape the meta" },
+  { title: "Team Builder", href: "/team-builder", desc: "Draft your dream roster" },
+  { title: "Stats", href: "/stats", desc: "Analytics and leaderboard data" },
 ]
 
 export default function HomePage() {
   const { data: session } = useSession()
-  
+  const [infantry, setInfantry] = useState<RankedPlayer[]>([])
+  const [cavalry, setCavalry] = useState<RankedPlayer[]>([])
+  const [archers, setArchers] = useState<RankedPlayer[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchTopPlayers() {
+      try {
+        const [infRes, cavRes, arcRes] = await Promise.all([
+          fetch("/api/community?category=INFANTRY"),
+          fetch("/api/community?category=CAVALRY"),
+          fetch("/api/community?category=ARCHER"),
+        ])
+        if (infRes.ok) setInfantry((await infRes.json()).slice(0, 10))
+        if (cavRes.ok) setCavalry((await cavRes.json()).slice(0, 5))
+        if (arcRes.ok) setArchers((await arcRes.json()).slice(0, 5))
+      } catch (error) {
+        console.error("Error fetching top players:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTopPlayers()
+  }, [])
+
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Background - Full black on mobile, split on desktop */}
-      <div className="absolute inset-0 bg-[#0a0a0a]" />
-      
-      {/* Right Section - White Background with angled edge (desktop only) */}
-      <div 
-        className="absolute inset-0 bg-white hidden lg:block"
-        style={{
-          clipPath: 'polygon(46% 0, 100% 0, 100% 100%, 54% 100%)',
-        }}
-      />
-      
-      {/* Content Container */}
-      <div className="relative z-10 h-full flex flex-col lg:flex-row">
-        
-        {/* Left Content */}
-        <div className="w-full lg:w-[42%] flex flex-col justify-center px-6 sm:px-8 lg:px-16 py-8 sm:py-12 lg:py-0">
-          <div className="mb-6 sm:mb-8">
-            <p className="text-sm sm:text-base font-medium tracking-[0.2em] sm:tracking-[0.3em] uppercase text-[#c9a962] mb-3 sm:mb-4">
+    <div className="relative min-h-[calc(100vh-3.5rem)] flex flex-col bg-black overflow-hidden">
+      {/* Subtle ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-white/[0.015] rounded-full blur-[150px] pointer-events-none" />
+
+      <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-stretch w-full">
+        {/* ─── LEFT: Cards ─── */}
+        <div className="lg:w-1/2 relative overflow-y-auto lg:max-h-[calc(100vh-3.5rem)] px-4 py-8 lg:py-12">
+          {/* Top fade */}
+          <div className="sticky top-0 left-0 right-0 h-8 bg-gradient-to-b from-black to-transparent z-10 pointer-events-none -mt-8" />
+
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {/* Infantry */}
+              <CardSection label="Infantry" players={infantry} />
+
+              {/* Cavalry */}
+              <CardSection label="Cavalry" players={cavalry} />
+
+              {/* Archer */}
+              <CardSection label="Archer" players={archers} />
+            </div>
+          )}
+
+          {/* Bottom fade */}
+          <div className="sticky bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none" />
+        </div>
+
+        {/* ─── RIGHT: Titles & CTAs ─── */}
+        <div className="lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 lg:py-0">
+          <div className="w-full max-w-lg text-center">
+            {/* Label */}
+            <p className="text-[11px] font-semibold tracking-[0.35em] uppercase text-[#444] mb-6 animate-fade-up">
               Mount & Blade II
             </p>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold text-white mb-3 sm:mb-4 tracking-tight leading-[1.1]">
-              Bannerlord<br />
-              <span className="text-[#c9a962]">Ranking</span>
+
+            {/* Title */}
+            <h1 className="font-display text-6xl sm:text-8xl lg:text-9xl font-bold text-white leading-[0.9] tracking-tight mb-6 animate-fade-up stagger-1">
+              Bannerlord
             </h1>
-            <p className="text-[#8a8a8a] text-base sm:text-lg lg:text-xl xl:text-2xl leading-relaxed max-w-lg">
-              The definitive ranking system for competitive Bannerlord players.
+            <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-[#555] leading-[0.95] tracking-tight mb-8 animate-fade-up stagger-2">
+              Ranking
+            </h2>
+
+            {/* Subtitle */}
+            <p className="text-[#444] text-base sm:text-lg leading-relaxed max-w-md mx-auto mb-12 animate-fade-up stagger-3">
+              The definitive ranking system for competitive players.
             </p>
-          </div>
-          
-          {/* Feature List */}
-          <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-            {features.map((feature) => (
-              <Link
-                key={feature.title}
-                href={feature.href}
-                className="block group"
-              >
-                <h3 className="text-white text-base sm:text-lg lg:text-xl font-medium mb-0.5 group-hover:text-[#c9a962] transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-[#6a6a6a] text-sm sm:text-base leading-relaxed max-w-md">
-                  {feature.description}
-                </p>
+
+            {/* Links grid */}
+            <div className="grid grid-cols-2 gap-3 mb-10 max-w-md mx-auto animate-fade-up stagger-4">
+              {links.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="group p-4 rounded-lg border border-white/[0.04] hover:border-white/[0.1] bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-200"
+                >
+                  <h3 className="text-white text-[13px] font-semibold mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-[#333] text-[11px] leading-relaxed">
+                    {item.desc}
+                  </p>
+                </Link>
+              ))}
+            </div>
+
+            {/* CTAs */}
+            <div className="flex items-center justify-center gap-4 animate-fade-up stagger-5">
+              <Link href="/community">
+                <Button size="lg" variant="primary">
+                  View Rankings
+                </Button>
               </Link>
-            ))}
-          </div>
-          
-          {/* CTA */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-            <Link href="/community">
-              <Button size="lg" variant="primary" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto">
-                View Rankings
-              </Button>
-            </Link>
-            {!session && (
-              <button 
-                onClick={() => signIn("discord")}
-                className="text-[#8a8a8a] hover:text-white text-base sm:text-lg font-medium transition-colors"
-              >
-                Sign in to Rate
-              </button>
-            )}
-          </div>
-        </div>
-        
-        {/* Right Content - Image (hidden on mobile, visible on lg+) */}
-        <div className="hidden lg:block w-[58%] relative">
-          <div className="absolute inset-0 flex items-end justify-center overflow-hidden">
-            <div className="relative w-[160%] h-full translate-x-[8%]">
-              <Image
-                src="/asset1.png"
-                alt="Bannerlord"
-                fill
-                className="object-contain object-bottom"
-                priority
-                quality={85}
-                sizes="(min-width: 1024px) 58vw, 0vw"
-              />
+              {!session && (
+                <button
+                  onClick={() => signIn("discord")}
+                  className="text-[#444] hover:text-white text-[14px] font-medium transition-colors duration-200"
+                >
+                  Sign in to Rate
+                </button>
+              )}
             </div>
           </div>
         </div>
-        
-        {/* Mobile Image - Shows at bottom on mobile/tablet */}
-        <div className="lg:hidden relative w-full h-64 sm:h-80 md:h-96 mt-auto">
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-10" />
-          <Image
-            src="/asset1.png"
-            alt="Bannerlord"
-            fill
-            className="object-contain object-bottom"
-            priority
-            quality={75}
-            sizes="100vw"
-          />
+      </div>
+
+      {/* Bottom credit */}
+      <div className="relative z-10">
+        <div className="text-center py-5">
+          <p className="text-[11px] text-[#282828]">
+            Crafted by <span className="text-[#555]">Obelix</span>
+          </p>
         </div>
       </div>
-      
-      {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 z-20">
-        <div className="flex justify-end px-6 sm:px-8 lg:px-16 py-3 sm:py-4">
-          <div className="text-sm sm:text-base text-[#6a6a6a]">
-            Crafted by <span className="font-medium text-[#c9a962]">Obelix</span>
-          </div>
-        </div>
+    </div>
+  )
+}
+
+function CardSection({ label, players }: { label: string; players: RankedPlayer[] }) {
+  if (players.length === 0) return null
+
+  return (
+    <div>
+      <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4 text-center">
+        {label}
+      </p>
+      <div className="flex flex-wrap justify-center gap-3">
+        {players.map((p) => (
+          <FifaDisplayCard
+            key={p.id}
+            player={{
+              id: p.id,
+              name: p.name,
+              category: p.category,
+              nationality: p.nationality,
+              clan: p.clan,
+              avatar: p.avatar,
+              clanLogo: p.clanLogo,
+            }}
+            rating={p.averageRating}
+            size="md"
+          />
+        ))}
       </div>
     </div>
   )

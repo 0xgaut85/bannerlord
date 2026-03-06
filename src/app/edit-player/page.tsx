@@ -678,18 +678,18 @@ export default function EditPlayerPage() {
   // Not logged in
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center">
-          <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
+          <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
           Authentication Required
         </p>
           <h1 className="font-display text-4xl font-bold text-white mb-4">
             Sign in to Continue
         </h1>
-          <p className="text-white/60 mb-10">
+          <p className="text-[#888] mb-10">
             Connect your Discord account to edit player and clan information
         </p>
-          <Button onClick={() => signIn("discord")} size="lg" className="!bg-amber-500 !text-black hover:!bg-amber-400">
+          <Button onClick={() => signIn("discord")} size="lg" className="!bg-white !text-black hover:!bg-white/90">
           Sign in with Discord
         </Button>
         </div>
@@ -700,23 +700,23 @@ export default function EditPlayerPage() {
   // Loading
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
       </div>
     )
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+    <div className="min-h-screen bg-[#050505] animate-fade-up">
       {/* Header */}
       <div className="text-center py-12">
-        <p className="text-xs font-medium tracking-[0.3em] uppercase text-amber-500 mb-4">
+        <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#555] mb-4">
           Management
         </p>
         <h1 className="font-display text-4xl font-bold text-white mb-3">
           Edit Player & Clan
         </h1>
-        <p className="text-white/60 mb-6">
+        <p className="text-[#888] mb-6">
           Update player info, register yourself, or add your clan
         </p>
         
@@ -727,8 +727,8 @@ export default function EditPlayerPage() {
             className={cn(
               "px-6 py-2 rounded-lg font-medium transition-all",
               activeTab === "player"
-                ? "bg-amber-500 text-black"
-                : "bg-white/10 text-white/70 hover:bg-white/20"
+                ? "bg-white text-black font-semibold"
+                : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
             )}
           >
             Players
@@ -738,8 +738,8 @@ export default function EditPlayerPage() {
             className={cn(
               "px-6 py-2 rounded-lg font-medium transition-all",
               activeTab === "clan"
-                ? "bg-amber-500 text-black"
-                : "bg-white/10 text-white/70 hover:bg-white/20"
+                ? "bg-white text-black font-semibold"
+                : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
             )}
           >
             Clans
@@ -749,8 +749,8 @@ export default function EditPlayerPage() {
             className={cn(
               "px-6 py-2 rounded-lg font-medium transition-all",
               activeTab === "create"
-                ? "bg-amber-500 text-black"
-                : "bg-white/10 text-white/70 hover:bg-white/20"
+                ? "bg-white text-black font-semibold"
+                : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
             )}
           >
             Add Player
@@ -761,30 +761,30 @@ export default function EditPlayerPage() {
       {activeTab === "create" ? (
         /* CREATE PLAYER TAB */
         <div className="max-w-2xl mx-auto px-6 pb-20">
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+          <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl p-6 border border-white/[0.04]">
             <h2 className="text-xl font-display font-bold text-white mb-2">
               Add New Player
             </h2>
-            <p className="text-white/50 text-sm mb-6">
+            <p className="text-[#888] text-sm mb-6">
               Submit a player to be added to the database. Requires admin approval.
             </p>
             
             <div className="space-y-4">
               {/* Player Name */}
               <div>
-                <label className="block text-white/70 text-sm mb-2">Player Name *</label>
+                <label className="block text-[#888] text-sm mb-2">Player Name *</label>
                 <input
                   type="text"
                   placeholder="Enter player name..."
                   value={createPlayerName}
                   onChange={(e) => setCreatePlayerName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                 />
               </div>
               
               {/* Category */}
               <div>
-                <label className="block text-white/70 text-sm mb-2">Category *</label>
+                <label className="block text-[#888] text-sm mb-2">Category *</label>
                 <div className="grid grid-cols-3 gap-2">
                   {categories.map((cat) => (
                     <button
@@ -794,8 +794,8 @@ export default function EditPlayerPage() {
                       className={cn(
                         "px-4 py-3 rounded-xl font-medium transition-all",
                         createPlayerCategory === cat.value
-                          ? "bg-amber-500 text-black"
-                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                          ? "bg-white text-black font-semibold"
+                          : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
                       )}
                     >
                       {cat.label}
@@ -806,7 +806,7 @@ export default function EditPlayerPage() {
               
               {/* Division */}
               <div>
-                <label className="block text-white/70 text-sm mb-2">Division</label>
+                <label className="block text-[#888] text-sm mb-2">Division</label>
                 <div className="grid grid-cols-10 gap-2">
                   {divisions.map((div) => (
                     <button
@@ -816,8 +816,8 @@ export default function EditPlayerPage() {
                       className={cn(
                         "px-3 py-2 rounded-lg font-medium transition-all text-sm",
                         createPlayerDivision === div
-                          ? "bg-amber-500 text-black"
-                          : "bg-white/10 text-white/70 hover:bg-white/20"
+                          ? "bg-white text-black font-semibold"
+                          : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
                       )}
                     >
                       {div}
@@ -827,23 +827,23 @@ export default function EditPlayerPage() {
               </div>
               
               {/* Legend Checkbox */}
-              <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-white/5 to-white/10 rounded-xl border border-white/20">
+              <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-white/5 to-white/10 rounded-xl border border-white/[0.04]">
                 <input
                   type="checkbox"
                   id="createPlayerIsLegend"
                   checked={createPlayerIsLegend}
                   onChange={(e) => setCreatePlayerIsLegend(e.target.checked)}
-                  className="w-5 h-5 rounded border-white/30 bg-white/10 text-amber-500 focus:ring-amber-500/50"
+                  className="w-5 h-5 rounded border-white/[0.04] bg-white/[0.03] text-white focus:ring-white/20"
                 />
                 <label htmlFor="createPlayerIsLegend" className="flex-1">
                   <span className="text-white font-medium">Legend Player</span>
-                  <p className="text-white/50 text-sm">Mark this player as a legend (retired/iconic player from the past)</p>
+                  <p className="text-[#888] text-sm">Mark this player as a legend (retired/iconic player from the past)</p>
                 </label>
               </div>
               
               {/* Clan */}
               <div className="relative">
-                <label className="block text-white/70 text-sm mb-2">Clan</label>
+                <label className="block text-[#888] text-sm mb-2">Clan</label>
                 <input
                   type="text"
                   placeholder="Search clan or type FA for Free Agent..."
@@ -853,10 +853,10 @@ export default function EditPlayerPage() {
                     setShowCreatePlayerClanDropdown(true)
                   }}
                   onFocus={() => setShowCreatePlayerClanDropdown(true)}
-                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                 />
                 {showCreatePlayerClanDropdown && createPlayerClanOptions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-40 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0a0a0a] rounded-xl border border-white/[0.04] p-2 max-h-40 overflow-y-auto">
                     {createPlayerClanOptions.map((c) => (
                       <button
                         key={c.id}
@@ -865,7 +865,7 @@ export default function EditPlayerPage() {
                           setCreatePlayerClan(c.shortName)
                           setShowCreatePlayerClanDropdown(false)
                         }}
-                        className="w-full text-left px-3 py-2 rounded-lg text-white hover:bg-white/10"
+                        className="w-full text-left px-3 py-2 rounded-lg text-white hover:bg-white/[0.03]"
                       >
                         {c.shortName} - {c.name}
                       </button>
@@ -876,11 +876,11 @@ export default function EditPlayerPage() {
               
               {/* Nationality */}
               <div>
-                <label className="block text-white/70 text-sm mb-2">Nationality</label>
+                <label className="block text-[#888] text-sm mb-2">Nationality</label>
                 <select
                   value={createPlayerNationality}
                   onChange={(e) => setCreatePlayerNationality(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-800 [&>option]:text-white"
+                  className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white focus:outline-none focus:ring-2 focus:ring-white/20 [&>option]:bg-[#0a0a0a] [&>option]:text-white"
                 >
                   <option value="">Select nationality...</option>
                   {countries.map((c) => (
@@ -891,20 +891,20 @@ export default function EditPlayerPage() {
               
               {/* Bio */}
               <div>
-                <label className="block text-white/70 text-sm mb-2">Bio <span className="text-white/40">({createPlayerBio.length}/50)</span></label>
+                <label className="block text-[#888] text-sm mb-2">Bio <span className="text-[#555]">({createPlayerBio.length}/50)</span></label>
                 <input
                   type="text"
                   placeholder="Short bio..."
                   value={createPlayerBio}
                   onChange={(e) => setCreatePlayerBio(e.target.value.slice(0, 50))}
                   maxLength={50}
-                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                 />
               </div>
               
               {/* Avatar */}
               <div>
-                <label className="block text-white/70 text-sm mb-2">Avatar</label>
+                <label className="block text-[#888] text-sm mb-2">Avatar</label>
                 <div className="flex items-center gap-4">
                   <input
                     ref={createPlayerAvatarInputRef}
@@ -917,17 +917,17 @@ export default function EditPlayerPage() {
                     type="button"
                     onClick={() => createPlayerAvatarInputRef.current?.click()}
                     disabled={isUploadingCreateAvatar}
-                    className="w-20 h-20 rounded-xl bg-white/10 border-2 border-dashed border-white/30 flex items-center justify-center hover:bg-white/20 overflow-hidden"
+                    className="w-20 h-20 rounded-xl bg-white/[0.03] border-2 border-dashed border-white/[0.04] flex items-center justify-center hover:bg-white/20 overflow-hidden"
                   >
                     {createPlayerAvatar ? (
                       <Image src={createPlayerAvatar} alt="Avatar" width={80} height={80} className="w-full h-full object-cover" />
                     ) : isUploadingCreateAvatar ? (
-                      <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-6 h-6 border-2 border-white/[0.04] border-t-white rounded-full animate-spin" />
                     ) : (
-                      <span className="text-white/40 text-2xl">+</span>
+                      <span className="text-[#555] text-2xl">+</span>
                     )}
                   </button>
-                  <span className="text-white/40 text-xs">PNG or JPEG, square</span>
+                  <span className="text-[#555] text-xs">PNG or JPEG, square</span>
                 </div>
               </div>
               
@@ -949,7 +949,7 @@ export default function EditPlayerPage() {
                 onClick={handleSubmitCreatePlayer}
                 isLoading={isSubmittingCreate}
                 disabled={!createPlayerName.trim()}
-                className="w-full !bg-amber-500 !text-black hover:!bg-amber-400 disabled:opacity-50"
+                className="w-full !bg-white !text-black hover:!bg-white/90 disabled:opacity-50"
               >
                 Submit for Review
               </Button>
@@ -960,7 +960,7 @@ export default function EditPlayerPage() {
         /* PLAYER TAB */
         <div className="max-w-7xl mx-auto px-6 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* LEFT SIDE - Edit Players */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+          <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl p-6 border border-white/[0.04]">
             <h2 className="text-xl font-display font-bold text-white mb-6">
               Edit Player
             </h2>
@@ -972,25 +972,25 @@ export default function EditPlayerPage() {
           placeholder="Search for a player..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
         />
         
         {(searchResults.length > 0 || isSearching) && (
-                <div className="absolute top-full left-0 right-0 mt-2 z-10 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-60 overflow-y-auto shadow-xl">
+                <div className="absolute top-full left-0 right-0 mt-2 z-10 bg-[#0a0a0a] rounded-xl border border-white/[0.04] p-2 max-h-60 overflow-y-auto shadow-xl">
             {isSearching ? (
-                    <div className="py-4 text-center text-white/40">Searching...</div>
+                    <div className="py-4 text-center text-[#555]">Searching...</div>
             ) : (
               <div className="space-y-1">
                 {searchResults.map((player) => (
                   <button
                     key={player.id}
                     onClick={() => handleSelectPlayer(player)}
-                          className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-colors text-left"
+                          className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/[0.03] transition-colors text-left"
                   >
                           <Flag code={player.nationality} size="md" className="rounded" />
                     <div className="flex-1 min-w-0">
                             <div className="text-white font-medium truncate">{player.name}</div>
-                            <div className="text-white/40 text-sm">{player.category} {player.clan && `- ${player.clan}`}</div>
+                            <div className="text-[#555] text-sm">{player.category} {player.clan && `- ${player.clan}`}</div>
                     </div>
                   </button>
                 ))}
@@ -1003,7 +1003,7 @@ export default function EditPlayerPage() {
             {/* Selected Player Form */}
       {selectedPlayer ? (
               <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4 mb-4">
+                <div className="bg-white/[0.02] rounded-xl p-4 mb-4">
                   <div className="flex items-center gap-3">
                     {avatar ? (
                       <Image src={avatar} alt={selectedPlayer.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
@@ -1012,14 +1012,14 @@ export default function EditPlayerPage() {
                     )}
                     <div>
                       <h3 className="text-white font-semibold text-lg">{selectedPlayer.name}</h3>
-                      <p className="text-white/40 text-sm">{selectedPlayer.category}</p>
+                      <p className="text-[#555] text-sm">{selectedPlayer.category}</p>
                     </div>
                   </div>
                 </div>
                 
                 {/* Avatar Upload */}
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Avatar</label>
+                  <label className="block text-[#888] text-sm mb-2">Avatar</label>
                   <div className="flex items-center gap-4">
                     <input
                       ref={editAvatarInputRef}
@@ -1031,38 +1031,38 @@ export default function EditPlayerPage() {
                     <button
                       onClick={() => editAvatarInputRef.current?.click()}
                       disabled={isUploadingEditAvatar}
-                      className="w-16 h-16 rounded-lg bg-white/10 border-2 border-dashed border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors overflow-hidden"
+                      className="w-16 h-16 rounded-lg bg-white/[0.03] border-2 border-dashed border-white/[0.04] flex items-center justify-center hover:bg-white/20 transition-colors overflow-hidden"
                     >
                       {avatar ? (
                         <Image src={avatar} alt="Avatar" width={64} height={64} className="w-full h-full object-cover" />
                       ) : isUploadingEditAvatar ? (
-                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-white/[0.04] border-t-white rounded-full animate-spin" />
                       ) : (
-                        <span className="text-white/40 text-2xl">+</span>
+                        <span className="text-[#555] text-2xl">+</span>
                       )}
                     </button>
-                    <span className="text-white/40 text-xs">PNG or JPEG, square format</span>
+                    <span className="text-[#555] text-xs">PNG or JPEG, square format</span>
                   </div>
                 </div>
                 
                 {/* Player Name */}
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Player Name</label>
+                  <label className="block text-[#888] text-sm mb-2">Player Name</label>
                   <input
                     type="text"
                     value={playerName}
                     onChange={(e) => setPlayerName(e.target.value)}
                     placeholder="Player name"
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
                   />
                   {playerName !== selectedPlayer.name && playerName.trim() !== "" && (
-                    <p className="text-amber-400 text-xs mt-1">Name change requires admin approval</p>
+                    <p className="text-[#888] text-xs mt-1">Name change requires admin approval</p>
                   )}
                 </div>
                 
                 {/* Category */}
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Class</label>
+                  <label className="block text-[#888] text-sm mb-2">Class</label>
                   <div className="grid grid-cols-3 gap-2">
                     {categories.map((cat) => (
                       <button
@@ -1071,8 +1071,8 @@ export default function EditPlayerPage() {
                         className={cn(
                           "px-3 py-2 rounded-lg font-bold transition-all text-sm",
                           category === cat.value
-                            ? "bg-amber-500 text-black"
-                            : "bg-white/10 text-white/70 hover:bg-white/20"
+                            ? "bg-white text-black font-semibold"
+                            : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
                         )}
                       >
                         {cat.label}
@@ -1083,7 +1083,7 @@ export default function EditPlayerPage() {
                 
                 {/* Division */}
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Division</label>
+                  <label className="block text-[#888] text-sm mb-2">Division</label>
                   <div className="grid grid-cols-5 gap-2">
                     {divisions.map((div) => (
                       <button
@@ -1092,8 +1092,8 @@ export default function EditPlayerPage() {
                         className={cn(
                           "px-2 py-1.5 rounded-lg font-bold transition-all text-sm",
                           division === div
-                            ? "bg-amber-500 text-black"
-                            : "bg-white/10 text-white/70 hover:bg-white/20"
+                            ? "bg-white text-black font-semibold"
+                            : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
                         )}
                       >
                         {div}
@@ -1103,11 +1103,11 @@ export default function EditPlayerPage() {
                 </div>
           
             <div>
-                  <label className="block text-white/70 text-sm mb-2">Nationality</label>
+                  <label className="block text-[#888] text-sm mb-2">Nationality</label>
               <select
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-800 [&>option]:text-white"
+                    className="w-full px-4 py-3 bg-[#0a0a0a] rounded-xl border border-white/[0.04] text-white focus:outline-none focus:ring-2 focus:ring-white/20 [&>option]:bg-[#0a0a0a] [&>option]:text-white"
               >
                 <option value="">Select nationality</option>
                 {countries.map((country) => (
@@ -1120,7 +1120,7 @@ export default function EditPlayerPage() {
             
                 {/* Clan with autocomplete */}
                 <div className="relative">
-                  <label className="block text-white/70 text-sm mb-2">Clan (type to search, or use &quot;FA&quot; for Free Agent)</label>
+                  <label className="block text-[#888] text-sm mb-2">Clan (type to search, or use &quot;FA&quot; for Free Agent)</label>
                   <input
                     type="text"
                     placeholder="Search clan or type FA..."
@@ -1130,22 +1130,22 @@ export default function EditPlayerPage() {
                       setShowClanDropdown(true)
                     }}
                     onFocus={() => setShowClanDropdown(true)}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 uppercase"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20 uppercase"
                   />
                   
                   {showClanDropdown && (clanOptions.length > 0 || clan.length >= 1) && (
-                    <div className="absolute top-full left-0 right-0 mt-2 z-20 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-40 overflow-y-auto shadow-xl">
+                    <div className="absolute top-full left-0 right-0 mt-2 z-20 bg-[#0a0a0a] rounded-xl border border-white/[0.04] p-2 max-h-40 overflow-y-auto shadow-xl">
                       {/* FA option always available */}
                       <button
                         onClick={() => handleSelectClan("FA")}
-                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.03] transition-colors text-left"
                       >
                         <div className="w-8 h-8 rounded bg-gray-600 flex items-center justify-center">
                           <span className="text-white text-xs font-bold">FA</span>
                         </div>
                         <div>
                           <div className="text-white font-medium">Free Agent</div>
-                          <div className="text-white/40 text-xs">No clan</div>
+                          <div className="text-[#555] text-xs">No clan</div>
                         </div>
                       </button>
                       
@@ -1153,18 +1153,18 @@ export default function EditPlayerPage() {
                         <button
                           key={c.id}
                           onClick={() => handleSelectClan(c.shortName)}
-                          className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                          className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.03] transition-colors text-left"
                         >
                           {c.logo ? (
                             <Image src={c.logo} alt={c.name} width={32} height={32} className="w-8 h-8 rounded object-cover" />
                           ) : (
-                            <div className="w-8 h-8 rounded bg-amber-500/20 flex items-center justify-center">
-                              <span className="text-amber-400 text-xs font-bold">{c.shortName.slice(0, 2)}</span>
+                            <div className="w-8 h-8 rounded bg-white/[0.05] flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">{c.shortName.slice(0, 2)}</span>
                             </div>
                           )}
                           <div>
                             <div className="text-white font-medium">{c.name}</div>
-                            <div className="text-white/40 text-xs">{c.shortName}</div>
+                            <div className="text-[#555] text-xs">{c.shortName}</div>
                           </div>
                         </button>
                       ))}
@@ -1173,14 +1173,14 @@ export default function EditPlayerPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Bio <span className="text-white/40">({bio.length}/50)</span></label>
+                  <label className="block text-[#888] text-sm mb-2">Bio <span className="text-[#555]">({bio.length}/50)</span></label>
                   <input
                     type="text"
                     placeholder="Write a short bio..."
                     value={bio}
                     onChange={(e) => setBio(e.target.value.slice(0, 50))}
                     maxLength={50}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                   />
                 </div>
                 
@@ -1199,13 +1199,13 @@ export default function EditPlayerPage() {
             <Button
               onClick={handleSave}
               isLoading={isSaving}
-                  className="w-full !bg-amber-500 !text-black hover:!bg-amber-400"
+                  className="w-full !bg-white !text-black hover:!bg-white/90"
             >
                   Submit Edit Request
             </Button>
           </div>
             ) : (
-              <div className="text-center py-12 text-white/40">
+              <div className="text-center py-12 text-[#555]">
                 <p className="text-lg mb-2">Search for a player above</p>
                 <p className="text-sm">Enter at least 2 characters</p>
               </div>
@@ -1213,15 +1213,15 @@ export default function EditPlayerPage() {
           </div>
           
           {/* RIGHT SIDE - User Dashboard */}
-          <div className="bg-gradient-to-b from-amber-900/30 to-amber-950/30 backdrop-blur-sm rounded-2xl p-6 border border-amber-500/20">
-            <h2 className="text-xl font-display font-bold text-amber-400 mb-6">
+          <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl p-6 border border-white/[0.04]">
+            <h2 className="text-xl font-display font-bold text-white mb-6">
               Your Profile
             </h2>
             
             {myPlayer ? (
               // User is already a player
               <div className="space-y-6">
-                <div className="bg-black/20 rounded-xl p-6 text-center">
+                <div className="bg-white/[0.02] rounded-xl p-6 text-center">
                   <div className="flex justify-center mb-4">
                     {(myPlayer as any).avatar ? (
                       <Image 
@@ -1236,16 +1236,16 @@ export default function EditPlayerPage() {
                     )}
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-1">{myPlayer.name}</h3>
-                  <p className="text-amber-400 font-medium">{myPlayer.category}</p>
-                  {myPlayer.clan && <p className="text-white/60 mt-1">{myPlayer.clan}</p>}
-                  {(myPlayer as any).division && <p className="text-white/40 text-sm mt-1">Division {(myPlayer as any).division}</p>}
+                  <p className="text-[#888] font-medium">{myPlayer.category}</p>
+                  {myPlayer.clan && <p className="text-[#888] mt-1">{myPlayer.clan}</p>}
+                  {(myPlayer as any).division && <p className="text-[#555] text-sm mt-1">Division {(myPlayer as any).division}</p>}
                   {myPlayer.bio && (
-                    <p className="text-white/40 text-sm mt-4 italic">&ldquo;{myPlayer.bio}&rdquo;</p>
+                    <p className="text-[#555] text-sm mt-4 italic">&ldquo;{myPlayer.bio}&rdquo;</p>
                   )}
                 </div>
                 
-                <div className="bg-white/5 rounded-xl p-4">
-                  <p className="text-white/60 text-sm">
+                <div className="bg-white/[0.02] rounded-xl p-4">
+                  <p className="text-[#888] text-sm">
                     You&apos;re registered! To update your info (avatar, division, clan, bio), search for yourself on the left and submit an edit request.
                   </p>
                 </div>
@@ -1253,13 +1253,13 @@ export default function EditPlayerPage() {
             ) : (
               // User is not a player yet - registration form
               <div className="space-y-4">
-                <p className="text-white/60 text-sm mb-4">
+                <p className="text-[#888] text-sm mb-4">
                   Not listed yet? Register yourself to appear in the rankings!
                 </p>
                 
                 {/* Avatar Upload */}
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Avatar (optional)</label>
+                  <label className="block text-[#888] text-sm mb-2">Avatar (optional)</label>
                   <div className="flex items-center gap-4">
                     <input
                       ref={avatarInputRef}
@@ -1271,33 +1271,33 @@ export default function EditPlayerPage() {
                     <button
                       onClick={() => avatarInputRef.current?.click()}
                       disabled={isUploadingAvatar}
-                      className="w-16 h-16 rounded-lg bg-white/10 border-2 border-dashed border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors overflow-hidden"
+                      className="w-16 h-16 rounded-lg bg-white/[0.03] border-2 border-dashed border-white/[0.04] flex items-center justify-center hover:bg-white/20 transition-colors overflow-hidden"
                     >
                       {newPlayerAvatar ? (
                         <Image src={newPlayerAvatar} alt="Avatar" width={64} height={64} className="w-full h-full object-cover" />
                       ) : isUploadingAvatar ? (
-                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-white/[0.04] border-t-white rounded-full animate-spin" />
                       ) : (
-                        <span className="text-white/40 text-2xl">+</span>
+                        <span className="text-[#555] text-2xl">+</span>
                       )}
                     </button>
-                    <span className="text-white/40 text-xs">PNG or JPEG, square</span>
+                    <span className="text-[#555] text-xs">PNG or JPEG, square</span>
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Your In-Game Name *</label>
+                  <label className="block text-[#888] text-sm mb-2">Your In-Game Name *</label>
                   <input
                     type="text"
                     placeholder="Enter your name"
                     value={newPlayerName}
                     onChange={(e) => setNewPlayerName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Class *</label>
+                  <label className="block text-[#888] text-sm mb-2">Class *</label>
                   <div className="grid grid-cols-3 gap-2">
                     {categories.map((cat) => (
                       <button
@@ -1306,8 +1306,8 @@ export default function EditPlayerPage() {
                         className={cn(
                           "px-4 py-3 rounded-xl font-medium transition-all text-sm",
                           newPlayerCategory === cat.value
-                            ? "bg-amber-500 text-black"
-                            : "bg-white/10 text-white/70 hover:bg-white/20"
+                            ? "bg-white text-black font-semibold"
+                            : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
                         )}
                       >
                         {cat.label}
@@ -1317,7 +1317,7 @@ export default function EditPlayerPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Division * (Default rating: {DIVISION_DEFAULT_RATINGS[newPlayerDivision]})</label>
+                  <label className="block text-[#888] text-sm mb-2">Division * (Default rating: {DIVISION_DEFAULT_RATINGS[newPlayerDivision]})</label>
                   <div className="grid grid-cols-5 gap-2">
                     {divisions.map((div) => (
                       <button
@@ -1326,8 +1326,8 @@ export default function EditPlayerPage() {
                         className={cn(
                           "px-2 py-1.5 rounded-lg font-bold transition-all text-sm",
                           newPlayerDivision === div
-                            ? "bg-amber-500 text-black"
-                            : "bg-white/10 text-white/70 hover:bg-white/20"
+                            ? "bg-white text-black font-semibold"
+                            : "bg-white/[0.02] text-[#555] border border-white/[0.04] hover:text-white"
                         )}
                       >
                         {div}
@@ -1337,11 +1337,11 @@ export default function EditPlayerPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Nationality</label>
+                  <label className="block text-[#888] text-sm mb-2">Nationality</label>
                   <select
                     value={newPlayerNationality}
                     onChange={(e) => setNewPlayerNationality(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-800 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 [&>option]:bg-slate-800 [&>option]:text-white"
+                    className="w-full px-4 py-3 bg-[#0a0a0a] rounded-xl border border-white/[0.04] text-white focus:outline-none focus:ring-2 focus:ring-white/20 [&>option]:bg-[#0a0a0a] [&>option]:text-white"
                   >
                     <option value="">Select nationality</option>
                     {countries.map((country) => (
@@ -1354,7 +1354,7 @@ export default function EditPlayerPage() {
                 
                 {/* Clan with autocomplete */}
                 <div className="relative">
-                  <label className="block text-white/70 text-sm mb-2">Clan (type to search, or use &quot;FA&quot; for Free Agent)</label>
+                  <label className="block text-[#888] text-sm mb-2">Clan (type to search, or use &quot;FA&quot; for Free Agent)</label>
                   <input
                     type="text"
                     placeholder="Search clan or type FA..."
@@ -1364,22 +1364,22 @@ export default function EditPlayerPage() {
                       setShowNewPlayerClanDropdown(true)
                     }}
                     onFocus={() => setShowNewPlayerClanDropdown(true)}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 uppercase"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20 uppercase"
                   />
                   
                   {showNewPlayerClanDropdown && (newPlayerClanOptions.length > 0 || newPlayerClan.length >= 1) && (
-                    <div className="absolute top-full left-0 right-0 mt-2 z-20 bg-slate-800 rounded-xl border border-white/20 p-2 max-h-40 overflow-y-auto shadow-xl">
+                    <div className="absolute top-full left-0 right-0 mt-2 z-20 bg-[#0a0a0a] rounded-xl border border-white/[0.04] p-2 max-h-40 overflow-y-auto shadow-xl">
                       {/* FA option always available */}
                       <button
                         onClick={() => handleSelectNewPlayerClan("FA")}
-                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.03] transition-colors text-left"
                       >
                         <div className="w-8 h-8 rounded bg-gray-600 flex items-center justify-center">
                           <span className="text-white text-xs font-bold">FA</span>
                         </div>
                         <div>
                           <div className="text-white font-medium">Free Agent</div>
-                          <div className="text-white/40 text-xs">No clan</div>
+                          <div className="text-[#555] text-xs">No clan</div>
                         </div>
                       </button>
                       
@@ -1387,18 +1387,18 @@ export default function EditPlayerPage() {
                         <button
                           key={c.id}
                           onClick={() => handleSelectNewPlayerClan(c.shortName)}
-                          className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors text-left"
+                          className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.03] transition-colors text-left"
                         >
                           {c.logo ? (
                             <Image src={c.logo} alt={c.name} width={32} height={32} className="w-8 h-8 rounded object-cover" />
                           ) : (
-                            <div className="w-8 h-8 rounded bg-amber-500/20 flex items-center justify-center">
-                              <span className="text-amber-400 text-xs font-bold">{c.shortName.slice(0, 2)}</span>
+                            <div className="w-8 h-8 rounded bg-white/[0.05] flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">{c.shortName.slice(0, 2)}</span>
                             </div>
                           )}
                           <div>
                             <div className="text-white font-medium">{c.name}</div>
-                            <div className="text-white/40 text-xs">{c.shortName}</div>
+                            <div className="text-[#555] text-xs">{c.shortName}</div>
                           </div>
                         </button>
                       ))}
@@ -1407,14 +1407,14 @@ export default function EditPlayerPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Bio <span className="text-white/40">({newPlayerBio.length}/50)</span></label>
+                  <label className="block text-[#888] text-sm mb-2">Bio <span className="text-[#555]">({newPlayerBio.length}/50)</span></label>
                   <input
                     type="text"
                     placeholder="Tell us about yourself..."
                     value={newPlayerBio}
                     onChange={(e) => setNewPlayerBio(e.target.value.slice(0, 50))}
                     maxLength={50}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                   />
                 </div>
                 
@@ -1433,7 +1433,7 @@ export default function EditPlayerPage() {
                 <Button
                   onClick={handleCreatePlayer}
                   isLoading={isCreating}
-                  className="w-full !bg-amber-500 !text-black hover:!bg-amber-400"
+                  className="w-full !bg-white !text-black hover:!bg-white/90"
                 >
                   Register Myself
                 </Button>
@@ -1447,18 +1447,18 @@ export default function EditPlayerPage() {
           {/* Clan Edit Modal */}
           {editingClan && (
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-800 rounded-2xl p-6 border border-white/20 max-w-md w-full">
+              <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-white/[0.04] max-w-md w-full">
                 <h3 className="text-xl font-display font-bold text-white mb-4">
                   Suggest Edit for {editingClan.shortName}
                 </h3>
-                <p className="text-white/50 text-sm mb-6">
+                <p className="text-[#888] text-sm mb-6">
                   Your suggestions will be reviewed by admins before being applied.
                 </p>
                 
                 <div className="space-y-4">
                   {/* Logo Upload */}
                   <div>
-                    <label className="block text-white/70 text-sm mb-2">Clan Logo</label>
+                    <label className="block text-[#888] text-sm mb-2">Clan Logo</label>
                     <div className="flex items-center gap-4">
                       <input
                         ref={editClanLogoInputRef}
@@ -1470,38 +1470,38 @@ export default function EditPlayerPage() {
                       <button
                         onClick={() => editClanLogoInputRef.current?.click()}
                         disabled={isUploadingEditClanLogo}
-                        className="w-16 h-16 rounded-lg bg-white/10 border-2 border-dashed border-white/30 flex items-center justify-center hover:bg-white/20 overflow-hidden"
+                        className="w-16 h-16 rounded-lg bg-white/[0.03] border-2 border-dashed border-white/[0.04] flex items-center justify-center hover:bg-white/20 overflow-hidden"
                       >
                         {editClanLogo ? (
                           <Image src={editClanLogo} alt="Logo" width={64} height={64} className="w-full h-full object-cover" />
                         ) : isUploadingEditClanLogo ? (
-                          <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="w-6 h-6 border-2 border-white/[0.04] border-t-white rounded-full animate-spin" />
                         ) : (
-                          <span className="text-white/40 text-2xl">+</span>
+                          <span className="text-[#555] text-2xl">+</span>
                         )}
                       </button>
-                      <span className="text-white/40 text-xs">PNG or JPEG, square</span>
+                      <span className="text-[#555] text-xs">PNG or JPEG, square</span>
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-white/70 text-sm mb-2">Clan Name</label>
+                    <label className="block text-[#888] text-sm mb-2">Clan Name</label>
                     <input
                       type="text"
                       value={editClanName}
                       onChange={(e) => setEditClanName(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white focus:outline-none focus:ring-2 focus:ring-white/20"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-white/70 text-sm mb-2">Short Name</label>
+                    <label className="block text-[#888] text-sm mb-2">Short Name</label>
                     <input
                       type="text"
                       value={editClanShortName}
                       onChange={(e) => setEditClanShortName(e.target.value.toUpperCase())}
                       maxLength={10}
-                      className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white uppercase focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white uppercase focus:outline-none focus:ring-2 focus:ring-white/20"
                     />
                   </div>
                   
@@ -1520,14 +1520,14 @@ export default function EditPlayerPage() {
                   <div className="flex gap-3 pt-2">
                     <Button
                       onClick={() => setEditingClan(null)}
-                      className="flex-1 !bg-white/10 !text-white hover:!bg-white/20"
+                      className="flex-1 !bg-white/[0.03] !text-white hover:!bg-white/[0.05]"
                     >
                       Cancel
                     </Button>
                     <Button
                       onClick={handleSubmitClanEdit}
                       isLoading={isSubmittingClanEdit}
-                      className="flex-1 !bg-amber-500 !text-black hover:!bg-amber-400"
+                      className="flex-1 !bg-white !text-black hover:!bg-white/90"
                     >
                       Submit
                     </Button>
@@ -1539,11 +1539,11 @@ export default function EditPlayerPage() {
         
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left - View Clans */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+            <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl p-6 border border-white/[0.04]">
               <h2 className="text-xl font-display font-bold text-white mb-2">
                 Search Clans
               </h2>
-              <p className="text-white/50 text-sm mb-6">
+              <p className="text-[#888] text-sm mb-6">
                 Click on a clan to suggest edits
               </p>
               
@@ -1553,7 +1553,7 @@ export default function EditPlayerPage() {
                   placeholder="Search by name or short name..."
                   value={clanSearch}
                   onChange={(e) => setClanSearch(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                 />
               </div>
               
@@ -1563,44 +1563,44 @@ export default function EditPlayerPage() {
                     <button 
                       key={c.id}
                       onClick={() => openClanEditModal(c)}
-                      className="w-full flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-amber-500/30 text-left"
+                      className="w-full flex items-center gap-4 p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:bg-white/[0.03] hover:border-white/[0.08] text-left"
                     >
                       {c.logo ? (
                         <Image src={c.logo} alt={c.name} width={48} height={48} className="w-12 h-12 rounded-lg object-cover" />
                       ) : (
-                        <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                          <span className="text-amber-400 font-bold">{c.shortName.slice(0, 2)}</span>
+                        <div className="w-12 h-12 rounded-lg bg-white/[0.05] flex items-center justify-center">
+                          <span className="text-white font-bold">{c.shortName.slice(0, 2)}</span>
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-white font-semibold truncate">{c.name}</h3>
-                        <p className="text-white/40 text-sm">{c.shortName}</p>
+                        <p className="text-[#555] text-sm">{c.shortName}</p>
                       </div>
-                      <span className="text-white/30 text-sm">Edit</span>
+                      <span className="text-[#555] text-sm">Edit</span>
                     </button>
                   ))}
                 </div>
               ) : clanSearch.length >= 2 ? (
-                <div className="text-center py-8 text-white/40">
+                <div className="text-center py-8 text-[#555]">
                   No clans found
                 </div>
               ) : (
-                <div className="text-center py-8 text-white/40">
+                <div className="text-center py-8 text-[#555]">
                   Enter at least 2 characters to search
                 </div>
               )}
             </div>
             
             {/* Right - Add Clan */}
-            <div className="bg-gradient-to-b from-amber-900/30 to-amber-950/30 backdrop-blur-sm rounded-2xl p-6 border border-amber-500/20">
-              <h2 className="text-xl font-display font-bold text-amber-400 mb-6">
+            <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl p-6 border border-white/[0.04]">
+              <h2 className="text-xl font-display font-bold text-white mb-6">
                 Add New Clan
               </h2>
               
               <div className="space-y-4">
                 {/* Logo Upload */}
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Clan Logo (optional)</label>
+                  <label className="block text-[#888] text-sm mb-2">Clan Logo (optional)</label>
                   <div className="flex items-center gap-4">
                     <input
                       ref={logoInputRef}
@@ -1612,40 +1612,40 @@ export default function EditPlayerPage() {
                     <button
                       onClick={() => logoInputRef.current?.click()}
                       disabled={isUploadingLogo}
-                      className="w-16 h-16 rounded-lg bg-white/10 border-2 border-dashed border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors overflow-hidden"
+                      className="w-16 h-16 rounded-lg bg-white/[0.03] border-2 border-dashed border-white/[0.04] flex items-center justify-center hover:bg-white/20 transition-colors overflow-hidden"
                     >
                       {newClanLogo ? (
                         <Image src={newClanLogo} alt="Logo" width={64} height={64} className="w-full h-full object-cover" />
                       ) : isUploadingLogo ? (
-                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-white/[0.04] border-t-white rounded-full animate-spin" />
                       ) : (
-                        <span className="text-white/40 text-2xl">+</span>
+                        <span className="text-[#555] text-2xl">+</span>
                       )}
                     </button>
-                    <span className="text-white/40 text-xs">PNG or JPEG, square</span>
+                    <span className="text-[#555] text-xs">PNG or JPEG, square</span>
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Clan Name *</label>
+                  <label className="block text-[#888] text-sm mb-2">Clan Name *</label>
                   <input
                     type="text"
                     placeholder="e.g. Vineyard Workers"
                     value={newClanName}
                     onChange={(e) => setNewClanName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">Short Name * (used in rankings)</label>
+                  <label className="block text-[#888] text-sm mb-2">Short Name * (used in rankings)</label>
                   <input
                     type="text"
                     placeholder="e.g. VW"
                     value={newClanShortName}
                     onChange={(e) => setNewClanShortName(e.target.value.toUpperCase())}
                     maxLength={10}
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-500/50 uppercase"
+                    className="w-full px-4 py-3 bg-white/[0.03] rounded-xl border border-white/[0.04] text-white placeholder-[#444] focus:outline-none focus:ring-2 focus:ring-white/20 uppercase"
                   />
                 </div>
                 
@@ -1664,7 +1664,7 @@ export default function EditPlayerPage() {
                 <Button
                   onClick={handleCreateClan}
                   isLoading={isCreatingClan}
-                  className="w-full !bg-amber-500 !text-black hover:!bg-amber-400"
+                  className="w-full !bg-white !text-black hover:!bg-white/90"
                 >
                   Create Clan
                 </Button>

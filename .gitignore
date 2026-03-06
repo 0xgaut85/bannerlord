@@ -33,6 +33,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# DB backups (contain data)
+bannerlord_backup.sql
+bannerlord_backup.dump
+
 # vercel
 .vercel
 
