@@ -233,9 +233,8 @@ export default function AllTimePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [clanLogos, setClanLogos] = useState<Record<string, string | null>>({})
 
-  // Legend modal state (simple ratings view)
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerRatingsDetails | null>(null)
-  const [loadingPlayerRatings, setLoadingPlayerRatings] = useState(false)
+  // Legend modal state
+  const [legendModal, setLegendModal] = useState<{ open: boolean; loading: boolean; data: PlayerRatingsDetails | null }>({ open: false, loading: false, data: null })
 
   // Non-legend modal state (period selector + graph)
   const [selectedNonLegend, setSelectedNonLegend] = useState<AllTimeRanking | null>(null)
@@ -245,18 +244,23 @@ export default function AllTimePage() {
 
   const handlePlayerClick = async (playerId: string, isLegend: boolean = false) => {
     if (isLegend) {
-      setLoadingPlayerRatings(true)
+      setSelectedNonLegend(null)
+      setLegendModal({ open: true, loading: true, data: null })
       try {
         const res = await fetch(`/api/players/${playerId}/ratings`)
         if (res.ok) {
-          setSelectedPlayer(await res.json())
+          const data = await res.json()
+          setLegendModal({ open: true, loading: false, data })
+        } else {
+          console.error(`Legend ratings API error ${res.status}`)
+          setLegendModal({ open: true, loading: false, data: null })
         }
       } catch (error) {
         console.error("Error fetching player ratings:", error)
-      } finally {
-        setLoadingPlayerRatings(false)
+        setLegendModal({ open: true, loading: false, data: null })
       }
     } else {
+      setLegendModal({ open: false, loading: false, data: null })
       const player = rankings.find(r => r.playerId === playerId)
       if (player) {
         setSelectedNonLegend(player)
@@ -354,40 +358,40 @@ export default function AllTimePage() {
       </div>
 
       {/* ─── LEGEND RATINGS MODAL ─── */}
-      {(selectedPlayer || loadingPlayerRatings) && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setSelectedPlayer(null); setLoadingPlayerRatings(false) }}>
-          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.04] max-w-2xl w-full max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
-            {loadingPlayerRatings ? (
-              <div className="p-8 flex justify-center">
+      {legendModal.open && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setLegendModal({ open: false, loading: false, data: null })}>
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+            {legendModal.loading ? (
+              <div className="p-12 flex justify-center">
                 <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
               </div>
-            ) : selectedPlayer && (
+            ) : legendModal.data ? (
               <>
-                <div className="p-6 border-b border-white/[0.04]">
+                <div className="p-6 border-b border-white/10">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                      <Flag code={selectedPlayer.player.nationality} size="md" />
+                      <Flag code={legendModal.data.player.nationality} size="md" />
                       <div>
-                        <h2 className="text-2xl font-display text-white">{selectedPlayer.player.name}</h2>
-                        <p className="text-[#888] text-sm mt-1">{selectedPlayer.player.category} · {selectedPlayer.player.clan || "?"} <span className="text-yellow-400 text-xs ml-2">LEGEND</span></p>
+                        <h2 className="text-2xl font-display text-white">{legendModal.data.player.name}</h2>
+                        <p className="text-[#888] text-sm mt-1">{legendModal.data.player.category} · {legendModal.data.player.clan || "?"} <span className="text-yellow-400 text-xs ml-2">LEGEND</span></p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <div className="text-3xl font-bold text-white">{selectedPlayer.averageRating?.toFixed(1) || "-"}</div>
-                        <div className="text-[#555] text-xs">{selectedPlayer.totalRatings} rating{selectedPlayer.totalRatings !== 1 ? "s" : ""}</div>
+                        <div className="text-3xl font-bold text-white">{legendModal.data.averageRating?.toFixed(1) || "-"}</div>
+                        <div className="text-[#555] text-xs">{legendModal.data.totalRatings} rating{legendModal.data.totalRatings !== 1 ? "s" : ""}</div>
                       </div>
-                      <button onClick={() => setSelectedPlayer(null)} className="w-10 h-10 rounded-full bg-white/[0.03] hover:bg-white/[0.05] flex items-center justify-center text-white">✕</button>
+                      <button onClick={() => setLegendModal({ open: false, loading: false, data: null })} className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-white/[0.08] flex items-center justify-center text-white text-lg">✕</button>
                     </div>
                   </div>
                 </div>
                 <div className="p-6 overflow-y-auto max-h-[60vh]">
-                  {selectedPlayer.ratings.length === 0 ? (
+                  {legendModal.data.ratings.length === 0 ? (
                     <div className="text-center text-[#555] py-8">No ratings yet</div>
                   ) : (
                     <div className="space-y-2">
-                      {selectedPlayer.ratings.map((rating, idx) => (
-                        <div key={rating.id || idx} className="flex items-center justify-between bg-white/[0.02] rounded-lg p-3">
+                      {legendModal.data.ratings.map((rating, idx) => (
+                        <div key={rating.id || idx} className="flex items-center justify-between bg-white/[0.03] rounded-lg p-3 border border-white/[0.04]">
                           <div>
                             <span className="text-white font-medium">{rating.raterDiscordName || rating.raterName || "Anonymous"}</span>
                             {rating.raterDivision && <span className="text-[#555] text-sm ml-2">Div {rating.raterDivision}</span>}
@@ -399,6 +403,11 @@ export default function AllTimePage() {
                   )}
                 </div>
               </>
+            ) : (
+              <div className="p-12 text-center">
+                <p className="text-[#888]">Could not load ratings</p>
+                <button onClick={() => setLegendModal({ open: false, loading: false, data: null })} className="mt-4 px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] rounded-lg text-white text-sm">Close</button>
+              </div>
             )}
           </div>
         </div>
@@ -406,8 +415,8 @@ export default function AllTimePage() {
 
       {/* ─── NON-LEGEND PERIOD SELECTOR MODAL ─── */}
       {selectedNonLegend && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedNonLegend(null)}>
-          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.04] max-w-4xl w-full max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4" onClick={() => setSelectedNonLegend(null)}>
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div className="p-6 border-b border-white/[0.04]">
               <div className="flex justify-between items-center">
