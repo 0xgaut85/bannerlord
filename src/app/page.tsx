@@ -76,15 +76,15 @@ export default function HomePage() {
 
         {/* ─── RIGHT: Titles & CTAs ─── */}
         <div className="lg:w-1/2 flex flex-col items-center justify-center px-6 py-6 lg:py-0">
-          <div className="w-full max-w-lg text-center">
+          <div className="w-full text-center">
             <p className="text-[11px] font-semibold tracking-[0.35em] uppercase text-[#444] mb-4 lg:mb-6 animate-fade-up">
               Mount & Blade II
             </p>
 
-            <h1 className="font-display text-5xl sm:text-7xl lg:text-9xl font-bold text-white leading-[0.9] tracking-tight mb-4 lg:mb-6 animate-fade-up stagger-1">
+            <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl font-bold text-white leading-[0.9] tracking-tight mb-4 lg:mb-6 animate-fade-up stagger-1">
               Bannerlord
             </h1>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-6xl font-bold text-[#555] leading-[0.95] tracking-tight mb-5 lg:mb-8 animate-fade-up stagger-2">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-[#555] leading-[0.95] tracking-tight mb-5 lg:mb-8 animate-fade-up stagger-2">
               Ranking
             </h2>
 

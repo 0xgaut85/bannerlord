@@ -208,6 +208,26 @@ export async function GET(request: NextRequest) {
       }
     }
     
+    // Fetch avatars for all players in the map that don't have one yet
+    const playerIdsNeedingAvatar = Array.from(playerMap.entries())
+      .filter(([, p]) => !p.avatar)
+      .map(([id]) => id)
+
+    if (playerIdsNeedingAvatar.length > 0) {
+      const playersWithAvatars = await prisma.player.findMany({
+        where: { id: { in: playerIdsNeedingAvatar } },
+        select: { id: true, avatar: true, clan: true, nationality: true, name: true },
+      })
+      for (const p of playersWithAvatars) {
+        const existing = playerMap.get(p.id)
+        if (existing) {
+          existing.avatar = p.avatar
+          if (!existing.clan && p.clan) existing.clan = p.clan
+          if (!existing.nationality && p.nationality) existing.nationality = p.nationality
+        }
+      }
+    }
+
     // Calculate averages and create final list
     const allTimeRankings = Array.from(playerMap.values()).map(player => ({
       playerId: player.playerId,
