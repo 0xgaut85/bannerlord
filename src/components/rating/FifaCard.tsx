@@ -3,7 +3,7 @@
 import { Player } from "@prisma/client"
 import { Button, Slider, Flag, Tilt3DCard, HolographicOverlay } from "@/components/ui"
 import Image from "next/image"
-import { cleanPlayerName } from "@/lib/utils"
+import { cleanPlayerName, cn } from "@/lib/utils"
 
 interface FifaCardProps {
   player: Player & { avatar?: string | null; division?: string | null; clanLogo?: string | null; bio?: string | null; isLegend?: boolean }
@@ -38,14 +38,16 @@ function getCardStyle(rating: number, isLegend?: boolean) {
   if (isLegend) return LEGEND_STYLE
   
   if (rating >= 95) return {
-    bg: "linear-gradient(145deg, #0a0a0a 0%, #111118 25%, #0d0d14 50%, #111118 75%, #0a0a0a 100%)",
+    bg: "linear-gradient(145deg, #1a0505 0%, #2a0a0a 25%, #1f0808 50%, #2a0a0a 75%, #1a0505 100%)",
     border: "",
-    accent: "from-white via-purple-200 to-white",
+    accent: "from-red-200 via-white to-red-200",
     text: "text-white",
-    subtext: "text-purple-200",
+    subtext: "text-red-200",
     noiseOpacity: 0.25,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 40%, rgba(255,255,255,0.03) 100%)",
-    shimmer: "linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 60%, transparent 80%)",
+    overlayGradient: "linear-gradient(180deg, rgba(255,100,100,0.08) 0%, transparent 40%, rgba(139,0,0,0.06) 100%)",
+    boxBg: "bg-red-500/20",
+    tierColor: "text-red-300",
+    shimmer: "linear-gradient(110deg, transparent 20%, rgba(255,100,100,0.08) 40%, rgba(255,150,150,0.12) 50%, rgba(255,100,100,0.08) 60%, transparent 80%)",
     isHolo: true,
   }
   if (rating >= 90) return {
@@ -202,7 +204,7 @@ export function FifaCard({
       
       {/* FIFA Card - AAA+ Premium Design */}
       <Tilt3DCard maxTilt={8} scale={1.02}>
-      <div className={`relative w-64 sm:w-72 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? 'holo-card' : style.border}`}>
+      <div className={cn(`relative w-64 sm:w-72 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? 'holo-card' : style.border}`, player.isLegend && "legend-card-anim")}>
         {/* Background Base - Rich gradient */}
         <div 
           className="absolute inset-0"

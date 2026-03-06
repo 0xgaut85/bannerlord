@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 @property --holo-angle {
   syntax: '<angle>';
@@ -35,17 +35,18 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--text);
-  letter-spacing: -0.011em;
+  letter-spacing: 0.01em;
   line-height: 1.6;
   overflow-x: hidden;
+  font-weight: 500;
 }
 
 .font-display {
-  font-family: 'Playfair Display', Georgia, serif;
-  letter-spacing: -0.02em;
+  font-family: 'Orbitron', 'Rajdhani', sans-serif;
+  letter-spacing: 0.04em;
 }
 
 /* Scrollbar */
@@ -203,90 +204,60 @@ body {
   mix-blend-mode: overlay;
 }
 
-/* ──── Holographic card effect (premium metallic prismatic) ──── */
-@keyframes holoRotate {
+/* ──── Ruby card effect (95+ tier) ──── */
+@keyframes rubyRotate {
   0%   { --holo-angle: 0deg; }
   100% { --holo-angle: 360deg; }
 }
 
-@keyframes holoShimmer {
+@keyframes rubyShimmer {
   0%   { transform: translateX(-150%) rotate(25deg); opacity: 0; }
-  45%  { opacity: 1; }
-  55%  { opacity: 1; }
+  40%  { opacity: 1; }
+  60%  { opacity: 1; }
   100% { transform: translateX(150%) rotate(25deg); opacity: 0; }
 }
 
-@keyframes holoPulse {
-  0%, 100% { opacity: 0.6; }
-  50%      { opacity: 0.85; }
+@keyframes rubyPulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.55; }
 }
 
-@keyframes holoBorder {
-  0%   { border-color: rgba(200,180,255,0.7); box-shadow: 0 0 12px rgba(200,180,255,0.3); }
-  16%  { border-color: rgba(180,255,200,0.7); box-shadow: 0 0 12px rgba(180,255,200,0.3); }
-  33%  { border-color: rgba(255,220,150,0.7); box-shadow: 0 0 12px rgba(255,220,150,0.3); }
-  50%  { border-color: rgba(150,200,255,0.7); box-shadow: 0 0 12px rgba(150,200,255,0.3); }
-  66%  { border-color: rgba(255,150,200,0.7); box-shadow: 0 0 12px rgba(255,150,200,0.3); }
-  83%  { border-color: rgba(200,255,180,0.7); box-shadow: 0 0 12px rgba(200,255,180,0.3); }
-  100% { border-color: rgba(200,180,255,0.7); box-shadow: 0 0 12px rgba(200,180,255,0.3); }
+@keyframes rubyBorder {
+  0%   { border-color: rgba(220,40,60,0.8); box-shadow: 0 0 15px rgba(220,40,60,0.4), inset 0 0 8px rgba(220,40,60,0.1); }
+  33%  { border-color: rgba(180,20,40,0.7); box-shadow: 0 0 12px rgba(180,20,40,0.3), inset 0 0 8px rgba(180,20,40,0.08); }
+  66%  { border-color: rgba(255,60,80,0.8); box-shadow: 0 0 18px rgba(255,60,80,0.35), inset 0 0 8px rgba(255,60,80,0.1); }
+  100% { border-color: rgba(220,40,60,0.8); box-shadow: 0 0 15px rgba(220,40,60,0.4), inset 0 0 8px rgba(220,40,60,0.1); }
 }
 
 .holo-card {
-  animation: holoBorder 5s linear infinite;
+  animation: rubyBorder 4s ease-in-out infinite;
   border-width: 1.5px;
 }
 
-/* Metallic conic base — the core prismatic refraction */
-.holo-conic {
+.ruby-conic {
   background: conic-gradient(
     from var(--holo-angle, 0deg) at 50% 50%,
-    #ff6b9d, #c084fc, #818cf8, #60a5fa,
-    #34d399, #a3e635, #fbbf24, #f97316,
-    #ef4444, #ec4899, #a78bfa, #7dd3fc,
-    #5eead4, #bef264, #fcd34d, #fb923c,
-    #ff6b9d
+    #8b0000, #b91c1c, #dc2626, #ef4444,
+    #f87171, #fca5a5, #f87171, #ef4444,
+    #dc2626, #b91c1c, #991b1b, #7f1d1d,
+    #8b0000
   );
-  animation: holoRotate 8s linear infinite;
+  animation: rubyRotate 10s linear infinite;
 }
 
-/* Metallic radial light refraction */
-.holo-radial {
+.ruby-radial {
   background: radial-gradient(
-    ellipse at 30% 20%,
-    rgba(255,255,255,0.5) 0%,
-    rgba(255,255,255,0.15) 25%,
-    transparent 60%
+    ellipse at 35% 25%,
+    rgba(255,200,200,0.45) 0%,
+    rgba(255,150,150,0.15) 30%,
+    transparent 65%
   );
 }
 
-/* Shimmer sweep — bright specular highlight */
-.holo-shimmer {
+.ruby-shimmer {
   overflow: hidden;
 }
-.holo-shimmer::after {
-  content: '';
-  position: absolute;
-  inset: -80%;
-  width: 40%;
-  height: 300%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255,255,255,0.05) 30%,
-    rgba(255,255,255,0.35) 45%,
-    rgba(255,255,255,0.6) 50%,
-    rgba(255,255,255,0.35) 55%,
-    rgba(255,255,255,0.05) 70%,
-    transparent 100%
-  );
-  transform: translateX(-150%) rotate(25deg);
-  animation: holoShimmer 4s ease-in-out infinite;
-  animation-delay: 1s;
-  pointer-events: none;
-}
-
-/* Secondary diagonal shimmer for extra depth */
-.holo-shimmer-2::before {
+.ruby-shimmer::after {
   content: '';
   position: absolute;
   inset: -80%;
@@ -295,20 +266,59 @@ body {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(200,180,255,0.03) 30%,
-    rgba(200,180,255,0.2) 50%,
-    rgba(200,180,255,0.03) 70%,
+    rgba(255,200,200,0.03) 30%,
+    rgba(255,220,220,0.25) 45%,
+    rgba(255,240,240,0.45) 50%,
+    rgba(255,220,220,0.25) 55%,
+    rgba(255,200,200,0.03) 70%,
     transparent 100%
   );
-  transform: translateX(-150%) rotate(-15deg);
-  animation: holoShimmer 5.5s ease-in-out infinite;
-  animation-delay: 2.5s;
+  transform: translateX(-150%) rotate(25deg);
+  animation: rubyShimmer 5s ease-in-out infinite;
+  animation-delay: 0.5s;
   pointer-events: none;
 }
 
-/* Grain/noise texture for metallic feel */
-.holo-noise {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+.ruby-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 128px 128px;
+}
+
+/* ──── Legend card animation ──── */
+@keyframes legendShimmer {
+  0%   { transform: translateX(-200%) rotate(20deg); opacity: 0; }
+  40%  { opacity: 0.8; }
+  60%  { opacity: 0.8; }
+  100% { transform: translateX(200%) rotate(20deg); opacity: 0; }
+}
+
+@keyframes legendGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(192,168,120,0.15); }
+  50%      { box-shadow: 0 0 16px rgba(192,168,120,0.3); }
+}
+
+.legend-card-anim {
+  animation: legendGlow 4s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+.legend-card-anim::after {
+  content: '';
+  position: absolute;
+  inset: -80%;
+  width: 30%;
+  height: 300%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(210,190,140,0.04) 30%,
+    rgba(230,210,160,0.18) 50%,
+    rgba(210,190,140,0.04) 70%,
+    transparent 100%
+  );
+  transform: translateX(-200%) rotate(20deg);
+  animation: legendShimmer 7s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 5;
 }

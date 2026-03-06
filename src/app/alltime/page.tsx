@@ -119,15 +119,15 @@ function getCardStyle(rating: number, isLegend?: boolean) {
   }
   
   if (rating >= 95) return {
-    bg: "linear-gradient(145deg, #0a0a0a 0%, #111118 25%, #0d0d14 50%, #111118 75%, #0a0a0a 100%)",
+    bg: "linear-gradient(145deg, #1a0505 0%, #2a0a0a 25%, #1f0808 50%, #2a0a0a 75%, #1a0505 100%)",
     border: "",
-    accent: "from-white via-purple-200 to-white",
+    accent: "from-red-200 via-white to-red-200",
     text: "text-white",
-    subtext: "text-purple-200",
+    subtext: "text-red-200",
     noiseOpacity: 0.25,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 40%, rgba(255,255,255,0.03) 100%)",
-    boxBg: "bg-purple-500/20",
-    tierColor: "text-purple-300",
+    overlayGradient: "linear-gradient(180deg, rgba(255,100,100,0.08) 0%, transparent 40%, rgba(139,0,0,0.06) 100%)",
+    boxBg: "bg-red-500/20",
+    tierColor: "text-red-300",
     isHolo: true,
   }
   if (rating >= 90) return {
@@ -647,7 +647,7 @@ export default function AllTimePage() {
               </h2>
               
               <div className="bg-white/[0.02] rounded-xl p-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                <div className="flex flex-col gap-1.5">
                   {rest.map((player) => {
                     const style = getCardStyle(player.averageRating, player.isLegend)
                     const tier = getTierFromRating(player.averageRating)
@@ -656,8 +656,9 @@ export default function AllTimePage() {
                         key={player.playerId}
                         onClick={() => handlePlayerClick(player.playerId, player.isLegend || false)}
                         className={cn(
-                          "relative w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer overflow-hidden",
-                          player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
+                          "relative w-full flex items-center gap-3 p-2.5 rounded-lg text-sm hover:brightness-125 transition-all text-left cursor-pointer overflow-hidden",
+                          player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg),
+                          player.isLegend && "legend-card-anim"
                         )}
                       >
                         {/* Grain overlay for legends */}
@@ -725,7 +726,7 @@ function FifaDisplayCard({
       )}
     >
       <Tilt3DCard maxTilt={14} scale={1.05}>
-      <div className={`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? 'holo-card' : style.border} cursor-pointer`}>
+      <div className={cn(`relative w-48 sm:w-56 aspect-[2/3.2] rounded-3xl overflow-hidden shadow-2xl border-4 ${(style as any).isHolo ? 'holo-card' : style.border} cursor-pointer`, player.isLegend && "legend-card-anim")}>
         {/* Background */}
         <div className="absolute inset-0" style={{ background: style.bg }} />
         {/* Holographic overlay for 95+ */}
@@ -824,7 +825,7 @@ function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeR
   return (
     <button onClick={() => onPlayerClick?.(player.playerId, player.isLegend || false)} className="flex justify-center w-full">
       {/* Small FIFA Card */}
-      <div className={`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${(style as any).isHolo ? 'holo-card' : style.border} hover:scale-105 transition-transform`}>
+      <div className={cn(`relative w-44 aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border-3 ${(style as any).isHolo ? 'holo-card' : style.border} hover:scale-105 transition-transform`, player.isLegend && "legend-card-anim")}>
         {/* Background Base */}
         <div className="absolute inset-0" style={{ background: style.bg }} />
         {(style as any).isHolo && <HolographicOverlay />}
@@ -926,7 +927,8 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
       onClick={() => onPlayerClick?.(player.playerId, player.isLegend || false)}
       className={cn(
         "relative w-full rounded-lg p-3 hover:brightness-125 text-left transition-all overflow-hidden",
-        player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg)
+        player.isLegend ? style.boxBg : cn("border border-white/10", style.boxBg),
+        player.isLegend && "legend-card-anim"
       )}
     >
       {/* Grain overlay for legends */}

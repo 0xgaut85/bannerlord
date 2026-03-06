@@ -3,39 +3,36 @@
 export function HolographicOverlay() {
   return (
     <>
-      {/* Metallic conic prismatic base — rotating rainbow refraction */}
+      {/* Ruby conic gradient — deep red rotation */}
       <div
-        className="absolute inset-0 holo-conic pointer-events-none z-[5] rounded-[inherit]"
-        style={{ mixBlendMode: "color-dodge", opacity: 0.45 }}
+        className="absolute inset-0 ruby-conic pointer-events-none z-[5] rounded-[inherit]"
+        style={{ mixBlendMode: "color-dodge", opacity: 0.35 }}
       />
 
-      {/* Radial metallic light catch */}
+      {/* Radial ruby light catch */}
       <div
-        className="absolute inset-0 holo-radial pointer-events-none z-[6] rounded-[inherit]"
+        className="absolute inset-0 ruby-radial pointer-events-none z-[6] rounded-[inherit]"
         style={{ mixBlendMode: "overlay" }}
       />
 
-      {/* Secondary conic for depth — offset rotation */}
+      {/* Secondary deeper red layer */}
       <div
         className="absolute inset-0 pointer-events-none z-[7] rounded-[inherit]"
         style={{
-          background: "conic-gradient(from 180deg at 40% 60%, rgba(120,200,255,0.3), rgba(200,120,255,0.2), rgba(255,200,120,0.3), rgba(120,255,200,0.2), rgba(120,200,255,0.3))",
+          background: "radial-gradient(ellipse at 60% 70%, rgba(220,40,60,0.2) 0%, rgba(139,0,0,0.1) 40%, transparent 70%)",
           mixBlendMode: "screen",
-          animation: "holoRotate 12s linear infinite reverse",
+          animation: "rubyPulse 3s ease-in-out infinite",
         }}
       />
 
-      {/* Noise grain for metallic texture */}
+      {/* Noise grain */}
       <div
-        className="absolute inset-0 holo-noise pointer-events-none z-[8] rounded-[inherit]"
+        className="absolute inset-0 ruby-noise pointer-events-none z-[8] rounded-[inherit]"
         style={{ mixBlendMode: "overlay" }}
       />
 
-      {/* Primary shimmer sweep */}
-      <div className="absolute inset-0 holo-shimmer pointer-events-none z-[9] rounded-[inherit]" />
-
-      {/* Secondary shimmer for extra sparkle */}
-      <div className="absolute inset-0 holo-shimmer-2 pointer-events-none z-[10] rounded-[inherit]" style={{ overflow: "hidden" }} />
+      {/* Shimmer sweep */}
+      <div className="absolute inset-0 ruby-shimmer pointer-events-none z-[9] rounded-[inherit]" />
     </>
   )
 }

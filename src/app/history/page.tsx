@@ -96,10 +96,10 @@ type ViewMode = "periods" | "players"
 // AAA+ Premium card styles (matching community page)
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
-    bg: "bg-purple-500/20",
-    border: "border-purple-300/60",
+    bg: "bg-red-500/20",
+    border: "border-red-300/60",
     text: "text-white",
-    tierColor: "text-purple-300",
+    tierColor: "text-red-300",
     isHolo: true,
   }
   if (rating >= 90) return {

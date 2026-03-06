@@ -40,10 +40,15 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     noiseOpacity: 0.65,
   }
   if (rating >= 95) return {
-    bg: "linear-gradient(145deg, #0a0a0a 0%, #111118 25%, #0d0d14 50%, #111118 75%, #0a0a0a 100%)",
+    bg: "linear-gradient(145deg, #1a0505 0%, #2a0a0a 25%, #1f0808 50%, #2a0a0a 75%, #1a0505 100%)",
     border: "",
+    accent: "from-red-200 via-white to-red-200",
     text: "text-white",
-    subtext: "text-purple-200",
+    subtext: "text-red-200",
+    noiseOpacity: 0.25,
+    overlayGradient: "linear-gradient(180deg, rgba(255,100,100,0.08) 0%, transparent 40%, rgba(139,0,0,0.06) 100%)",
+    boxBg: "bg-red-500/20",
+    tierColor: "text-red-300",
     isHolo: true,
   }
   if (rating >= 90) return {
@@ -169,7 +174,8 @@ function FifaCard({
       className={cn(
         `relative ${sizeClasses} aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 cursor-grab active:cursor-grabbing`,
         (style as any).isHolo ? 'holo-card' : style.border,
-        isDragging ? "opacity-30 scale-95" : ""
+        isDragging ? "opacity-30 scale-95" : "",
+        player.isLegend && "legend-card-anim"
       )}
     >
       {/* Background */}

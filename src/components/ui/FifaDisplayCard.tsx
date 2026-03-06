@@ -23,12 +23,15 @@ interface FifaDisplayCardProps {
 // AAA+ Premium card styles
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
-    bg: "linear-gradient(145deg, #0a0a0a 0%, #111118 25%, #0d0d14 50%, #111118 75%, #0a0a0a 100%)",
+    bg: "linear-gradient(145deg, #1a0505 0%, #2a0a0a 25%, #1f0808 50%, #2a0a0a 75%, #1a0505 100%)",
     border: "",
-    accent: "from-white via-purple-200 to-white",
+    accent: "from-red-200 via-white to-red-200",
     text: "text-white",
-    subtext: "text-purple-200",
+    subtext: "text-red-200",
     noiseOpacity: 0.25,
+    overlayGradient: "linear-gradient(180deg, rgba(255,100,100,0.08) 0%, transparent 40%, rgba(139,0,0,0.06) 100%)",
+    boxBg: "bg-red-500/20",
+    tierColor: "text-red-300",
     isHolo: true,
   }
   if (rating >= 90) return {

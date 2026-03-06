@@ -5,10 +5,12 @@ import { motion } from "framer-motion"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-gsap.registerPlugin(ScrollTrigger)
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
-const CINEMATIC_EASE = "power3.out"
-const DRAMATIC_EASE = "power4.out"
+const SMOOTH_EASE = "power2.out"
+const DRAMATIC_EASE = "power3.out"
 
 interface AnimatedCardProps {
   children: ReactNode
@@ -20,7 +22,7 @@ interface AnimatedCardProps {
 export function AnimatedCard({
   children,
   delay = 0,
-  initialScale = 1.6,
+  initialScale = 1.4,
   className,
 }: AnimatedCardProps) {
   const ref = useRef<HTMLDivElement>(null)
@@ -31,14 +33,13 @@ export function AnimatedCard({
     gsap.set(ref.current, {
       opacity: 0,
       scale: initialScale,
-      y: 60,
-      filter: "blur(8px)",
+      y: 40,
     })
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: ref.current,
-        start: "top 85%",
+        start: "top 80%",
         once: true,
       },
       delay,
@@ -48,8 +49,7 @@ export function AnimatedCard({
       opacity: 1,
       scale: 1,
       y: 0,
-      filter: "blur(0px)",
-      duration: 1.4,
+      duration: 1.2,
       ease: DRAMATIC_EASE,
     })
 
@@ -73,7 +73,7 @@ interface StaggerItemProps {
 export function StaggerItem({
   children,
   index,
-  staggerDelay = 0.12,
+  staggerDelay = 0.1,
   className,
 }: StaggerItemProps) {
   const ref = useRef<HTMLDivElement>(null)
@@ -83,20 +83,20 @@ export function StaggerItem({
 
     gsap.set(ref.current, {
       opacity: 0,
-      x: -30,
-      scale: 0.92,
+      y: 20,
+      scale: 0.95,
     })
 
     const tween = gsap.to(ref.current, {
       opacity: 1,
-      x: 0,
+      y: 0,
       scale: 1,
-      duration: 0.9,
-      ease: CINEMATIC_EASE,
+      duration: 0.7,
+      ease: SMOOTH_EASE,
       delay: index * staggerDelay,
       scrollTrigger: {
         trigger: ref.current,
-        start: "top 90%",
+        start: "top 85%",
         once: true,
       },
     })
@@ -131,22 +131,22 @@ export function RowRevealItem({
 
     gsap.set(ref.current, {
       opacity: 0,
-      y: 25,
-      scale: 0.9,
+      y: 15,
     })
 
-    const itemDelay = index * 0.5
+    const row = Math.floor(index / columnsPerRow)
+    const col = index % columnsPerRow
+    const itemDelay = row * 0.3 + col * 0.08
 
     const tween = gsap.to(ref.current, {
       opacity: 1,
       y: 0,
-      scale: 1,
-      duration: 0.8,
-      ease: CINEMATIC_EASE,
+      duration: 0.6,
+      ease: SMOOTH_EASE,
       delay: itemDelay,
       scrollTrigger: {
         trigger: ref.current,
-        start: "top 92%",
+        start: "top 88%",
         once: true,
       },
     })
@@ -168,7 +168,7 @@ interface FadeUpProps {
   y?: number
 }
 
-export function FadeUp({ children, delay = 0, className, y = 30 }: FadeUpProps) {
+export function FadeUp({ children, delay = 0, className, y = 25 }: FadeUpProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -179,12 +179,12 @@ export function FadeUp({ children, delay = 0, className, y = 30 }: FadeUpProps) 
     const tween = gsap.to(ref.current, {
       opacity: 1,
       y: 0,
-      duration: 1.0,
-      ease: CINEMATIC_EASE,
+      duration: 0.8,
+      ease: SMOOTH_EASE,
       delay,
       scrollTrigger: {
         trigger: ref.current,
-        start: "top 88%",
+        start: "top 85%",
         once: true,
       },
     })
@@ -211,17 +211,17 @@ export function FadeIn({ children, delay = 0, className }: FadeInProps) {
   useEffect(() => {
     if (!ref.current) return
 
-    gsap.set(ref.current, { opacity: 0, y: 20 })
+    gsap.set(ref.current, { opacity: 0, y: 15 })
 
     const tween = gsap.to(ref.current, {
       opacity: 1,
       y: 0,
-      duration: 1.2,
-      ease: CINEMATIC_EASE,
+      duration: 0.8,
+      ease: SMOOTH_EASE,
       delay,
       scrollTrigger: {
         trigger: ref.current,
-        start: "top 90%",
+        start: "top 88%",
         once: true,
       },
     })

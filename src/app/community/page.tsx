@@ -42,15 +42,15 @@ function getTierFromRating(rating: number): string {
 // AAA+ Premium card styles with heavy textures
 function getCardStyle(rating: number) {
   if (rating >= 95) return {
-    bg: "linear-gradient(145deg, #0a0a0a 0%, #111118 25%, #0d0d14 50%, #111118 75%, #0a0a0a 100%)",
+    bg: "linear-gradient(145deg, #1a0505 0%, #2a0a0a 25%, #1f0808 50%, #2a0a0a 75%, #1a0505 100%)",
     border: "",
-    accent: "from-white via-purple-200 to-white",
+    accent: "from-red-200 via-white to-red-200",
     text: "text-white",
-    subtext: "text-purple-200",
+    subtext: "text-red-200",
     noiseOpacity: 0.25,
-    overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 40%, rgba(255,255,255,0.03) 100%)",
-    boxBg: "bg-purple-500/20",
-    tierColor: "text-purple-300",
+    overlayGradient: "linear-gradient(180deg, rgba(255,100,100,0.08) 0%, transparent 40%, rgba(139,0,0,0.06) 100%)",
+    boxBg: "bg-red-500/20",
+    tierColor: "text-red-300",
     isHolo: true,
   }
   if (rating >= 90) return {
@@ -452,74 +452,52 @@ export default function CommunityPage() {
       )}
       
       {/* Player Ratings Modal */}
-      {selectedPlayer && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.04] max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-white/[0.04]">
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <Flag code={selectedPlayer.player.nationality} size="md" />
-                    <div>
-                      <h2 className="text-2xl font-display tracking-tight text-white">
-                        {selectedPlayer.player.name}
-                      </h2>
-                      <p className="text-[#888] text-sm mt-1">
-                        {selectedPlayer.player.category} · {selectedPlayer.player.clan || "FA"}
-        </p>
-      </div>
-    </div>
-                </div>
-                <div className="text-right mr-4">
-                  <div className="text-3xl font-bold text-white">
-                    {selectedPlayer.averageRating || "-"}
-                  </div>
-                  <div className="text-[#555] text-xs">
-                    {selectedPlayer.totalRatings} rating{selectedPlayer.totalRatings !== 1 ? "s" : ""}
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedPlayer(null)}
-                  className="w-10 h-10 rounded-full bg-white/[0.03] hover:bg-white/[0.04] flex items-center justify-center text-white"
-                >
-                  X
-                </button>
+      {(selectedPlayer || loadingPlayerRatings) && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setSelectedPlayer(null); setLoadingPlayerRatings(false) }}>
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.04] max-w-2xl w-full max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+            {loadingPlayerRatings && !selectedPlayer ? (
+              <div className="p-8 flex justify-center">
+                <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
               </div>
-            </div>
-            
-            <div className="p-6 overflow-y-auto max-h-[60vh]">
-              {loadingPlayerRatings ? (
-                <div className="flex justify-center py-8">
-                  <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
-                </div>
-              ) : selectedPlayer.ratings.length === 0 ? (
-                <div className="text-center text-[#555] py-8">
-                  No ratings yet from real users
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {selectedPlayer.ratings.map((rating) => (
-                    <div 
-                      key={rating.id}
-                      className="flex items-center justify-between bg-white/[0.02] rounded-lg p-3"
-                    >
+            ) : selectedPlayer && (
+              <>
+                <div className="p-6 border-b border-white/[0.04]">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <Flag code={selectedPlayer.player.nationality} size="md" />
                       <div>
-                        <span className="text-white font-medium">
-                          {rating.raterDiscordName || rating.raterName || "Anonymous"}
-                        </span>
-                        {rating.raterDiscordName && rating.raterName && rating.raterDiscordName !== rating.raterName && (
-                          <span className="text-[#555] text-sm ml-2">({rating.raterName})</span>
-                        )}
-                        <span className="text-[#555] text-sm ml-2">
-                          Div {rating.raterDivision || "?"}
-                        </span>
+                        <h2 className="text-2xl font-display text-white">{selectedPlayer.player.name}</h2>
+                        <p className="text-[#888] text-sm mt-1">{selectedPlayer.player.category} · {selectedPlayer.player.clan || "FA"}</p>
                       </div>
-                      <span className="text-white font-bold text-lg">{rating.score}</span>
                     </div>
-                  ))}
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <div className="text-3xl font-bold text-white">{selectedPlayer.averageRating?.toFixed(1) || "-"}</div>
+                        <div className="text-[#555] text-xs">{selectedPlayer.totalRatings} rating{selectedPlayer.totalRatings !== 1 ? "s" : ""}</div>
+                      </div>
+                      <button onClick={() => setSelectedPlayer(null)} className="w-10 h-10 rounded-full bg-white/[0.03] hover:bg-white/[0.05] flex items-center justify-center text-white">✕</button>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
+                <div className="p-6 overflow-y-auto max-h-[60vh]">
+                  {selectedPlayer.ratings.length === 0 ? (
+                    <div className="text-center text-[#555] py-8">No ratings yet</div>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedPlayer.ratings.map((rating) => (
+                        <div key={rating.id} className="flex items-center justify-between bg-white/[0.02] rounded-lg p-3">
+                          <div>
+                            <span className="text-white font-medium">{rating.raterDiscordName || rating.raterName || "Anonymous"}</span>
+                            {rating.raterDivision && <span className="text-[#555] text-sm ml-2">Div {rating.raterDivision}</span>}
+                          </div>
+                          <span className="text-white font-bold text-lg">{rating.score}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -700,7 +678,7 @@ export default function CommunityPage() {
               </h2>
               
               <div className="bg-white/[0.02] rounded-xl p-4 border border-white/[0.04]">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                <div className="flex flex-col gap-1.5">
                   {rest.map((player) => {
                     const style = getCardStyle(player.averageRating)
                     const tier = getTierFromRating(player.averageRating)
@@ -709,15 +687,15 @@ export default function CommunityPage() {
                         key={player.id}
                         onClick={() => fetchPlayerRatings(player.id)}
                         className={cn(
-                          "w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:brightness-125 transition-all text-left border border-white/[0.06]",
+                          "w-full flex items-center gap-3 p-2.5 rounded-lg text-sm hover:brightness-125 transition-all text-left border border-white/[0.06]",
                           style.boxBg
                         )}
                       >
-                        <span className="text-[#5e5e72] w-7 text-xs">#{player.rank}</span>
+                        <span className="text-[#5e5e72] w-8 text-xs font-medium">#{player.rank}</span>
                         <Flag code={player.nationality} size="sm" />
                         <span className="text-white/80 truncate flex-1">{player.name}</span>
                         <span className={cn("font-bold text-xs", style.tierColor)}>{tier}</span>
-                        <span className="text-white/60 font-mono text-xs">{player.averageRating.toFixed(1)}</span>
+                        <span className="text-white/60 font-mono text-xs w-10 text-right">{player.averageRating.toFixed(1)}</span>
                       </button>
                     )
                   })}
