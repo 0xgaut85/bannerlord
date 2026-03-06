@@ -49,23 +49,21 @@ function getCardStyle(rating: number, isLegend?: boolean) {
     shimmer: "linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 60%, transparent 80%)",
   }
   if (rating >= 90) return {
-    // LEGEND - Deep molten gold with ember core
-    bg: "linear-gradient(145deg, #1a0f00 0%, #3d2200 20%, #5c3a00 40%, #4a2c00 60%, #2d1800 80%, #1a0f00 100%)",
-    border: "border-amber-400/60",
-    accent: "from-amber-300 via-yellow-200 to-amber-300",
-    text: "text-amber-50",
-    subtext: "text-amber-200",
+    bg: "linear-gradient(145deg, #f0e68c 0%, #f5eea0 25%, #faf5c0 50%, #f5eea0 75%, #f0e68c 100%)",
+    border: "border-yellow-200/70",
+    accent: "from-yellow-100 via-white to-yellow-100",
+    text: "text-yellow-950",
+    subtext: "text-yellow-800",
     noiseOpacity: 0.30,
     overlayGradient: "linear-gradient(180deg, rgba(255,193,7,0.15) 0%, transparent 50%, rgba(255,152,0,0.1) 100%)",
     shimmer: "linear-gradient(110deg, transparent 20%, rgba(255,215,0,0.1) 40%, rgba(255,215,0,0.2) 50%, rgba(255,215,0,0.1) 60%, transparent 80%)",
   }
   if (rating >= 85) return {
-    // GOLD - Burnished gold with depth
-    bg: "linear-gradient(145deg, #5c4a00 0%, #8b7500 25%, #b8960a 50%, #8b7500 75%, #5c4a00 100%)",
-    border: "border-yellow-400/50",
-    accent: "from-yellow-200 via-white to-yellow-200",
-    text: "text-white",
-    subtext: "text-yellow-100",
+    bg: "linear-gradient(145deg, #c9b840 0%, #dbc950 25%, #e8d660 50%, #dbc950 75%, #c9b840 100%)",
+    border: "border-yellow-300/60",
+    accent: "from-yellow-200 via-yellow-50 to-yellow-200",
+    text: "text-yellow-950",
+    subtext: "text-yellow-900",
     noiseOpacity: 0.25,
     overlayGradient: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,215,0,0.1) 100%)",
     shimmer: "linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 60%, transparent 80%)",

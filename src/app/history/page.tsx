@@ -102,16 +102,16 @@ function getCardStyle(rating: number) {
     tierColor: "text-cyan-400",
   }
   if (rating >= 90) return {
-    bg: "bg-yellow-500/25",
-    border: "border-yellow-300/60",
+    bg: "bg-[#faf5c0]/30",
+    border: "border-yellow-200/60",
     text: "text-yellow-950",
-    tierColor: "text-yellow-400",
+    tierColor: "text-yellow-300",
   }
   if (rating >= 85) return {
-    bg: "bg-yellow-600/20",
-    border: "border-yellow-500/50",
-    text: "text-white",
-    tierColor: "text-yellow-500",
+    bg: "bg-[#e8d660]/25",
+    border: "border-yellow-300/50",
+    text: "text-yellow-950",
+    tierColor: "text-yellow-400",
   }
   if (rating >= 80) return {
     bg: "bg-white/30",

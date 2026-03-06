@@ -9,17 +9,12 @@ export async function GET() {
       where: { id: "settings" }
     })
     
-    // Create default settings if not exists
     if (!settings) {
-      // Set default: 48 hours from now, December 2025
-      const endDate = new Date()
-      endDate.setHours(endDate.getHours() + 48)
-      
       settings = await prisma.siteSettings.create({
         data: {
           id: "settings",
-          currentPeriodEnd: endDate,
-          currentPeriodName: "December 2025"
+          currentPeriodEnd: null,
+          currentPeriodName: null,
         }
       })
     }
@@ -34,8 +29,14 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { currentPeriodEnd, currentPeriodName } = body
-    
+    const { currentPeriodEnd, currentPeriodName, adminUsername, adminPassword } = body
+
+    const envUser = process.env.ADMIN_USERNAME
+    const envPass = process.env.ADMIN_PASSWORD
+    if (!envUser || !envPass || adminUsername !== envUser || adminPassword !== envPass) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const settings = await prisma.siteSettings.upsert({
       where: { id: "settings" },
       create: {

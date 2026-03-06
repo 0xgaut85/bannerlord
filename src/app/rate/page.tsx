@@ -52,6 +52,11 @@ export default function RatePage() {
   // User profile for self-rating check
   const [userProfile, setUserProfile] = useState<{ name: string | null; discordName: string | null } | null>(null)
   
+  // Period state from SiteSettings
+  const [periodEnd, setPeriodEnd] = useState<Date | null>(null)
+  const [periodName, setPeriodName] = useState("")
+  const [periodLoaded, setPeriodLoaded] = useState(false)
+  
   // Eligibility calculation
   const eligibility = {
     isEligible: false,
@@ -75,12 +80,26 @@ export default function RatePage() {
     eligibility.cavalry.current >= eligibility.cavalry.required &&
     eligibility.archer.current >= eligibility.archer.required
   
-  // Fetch players and existing ratings
+  // Fetch players, existing ratings, and period settings
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true)
       try {
-        const playersRes = await fetch("/api/players")
+        const [playersRes, settingsRes] = await Promise.all([
+          fetch("/api/players"),
+          fetch("/api/settings"),
+        ])
+        
+        // Load period settings
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json()
+          if (settingsData.currentPeriodEnd) {
+            setPeriodEnd(new Date(settingsData.currentPeriodEnd))
+          }
+          setPeriodName(settingsData.currentPeriodName || "")
+        }
+        setPeriodLoaded(true)
+
         let playersData: ExtendedPlayer[] = []
         if (playersRes.ok) {
           playersData = await playersRes.json()
@@ -88,14 +107,16 @@ export default function RatePage() {
         
         let ratingsMap: RatingMap = {}
         if (session?.user?.id) {
-          // Fetch user profile for self-rating check
-          const profileRes = await fetch("/api/profile")
+          const [profileRes, ratingsRes] = await Promise.all([
+            fetch("/api/profile"),
+            fetch("/api/ratings"),
+          ])
+          
           if (profileRes.ok) {
             const profileData = await profileRes.json()
             setUserProfile({ name: profileData.name, discordName: profileData.discordName })
           }
           
-          const ratingsRes = await fetch("/api/ratings")
           if (ratingsRes.ok) {
             const ratingsData = await ratingsRes.json()
             ratingsData.forEach((r: { playerId: string; score: number }) => {
@@ -404,8 +425,7 @@ export default function RatePage() {
     )
   }
   
-  // Rating period ended - only allow rating legends
-  const RATING_PERIOD_ENDED = true  // Set to false to re-enable current player ratings
+  const isPeriodEnded = periodLoaded && periodEnd ? new Date() > periodEnd : false
   const isRatingLegends = selectedCategory === "LEGENDS"
   
   // Loading
@@ -537,14 +557,14 @@ export default function RatePage() {
       )}
       
       {/* Rating Period Ended Notice - Only for non-legends */}
-      {RATING_PERIOD_ENDED && !isRatingLegends && (
+      {isPeriodEnded && !isRatingLegends && (
         <div className="mx-4 mt-4 p-6 bg-white/[0.02] border border-white/[0.04] rounded-xl text-center">
           <div className="text-4xl mb-4">📅</div>
           <h2 className="text-xl font-display font-bold text-white mb-2">
-            December 2025 Rating Period Ended
+            {periodName || "Rating"} Period Ended
           </h2>
           <p className="text-[#888] mb-4">
-            New ratings open on <span className="text-white font-semibold">12/01/2026</span>
+            A new rating period will open soon.
           </p>
           <p className="text-[#555] text-sm">
             You can still rate <button onClick={() => setSelectedCategory("LEGENDS")} className="text-white hover:text-white/80 underline">Legends</button> in the meantime!
@@ -554,7 +574,7 @@ export default function RatePage() {
       
       {/* Main Card Area - Takes remaining space */}
       <div className="flex-1 flex items-center justify-center px-4 py-4 overflow-hidden">
-        {RATING_PERIOD_ENDED && !isRatingLegends ? null : filteredPlayers.length > 0 && currentPlayer ? (
+        {isPeriodEnded && !isRatingLegends ? null : filteredPlayers.length > 0 && currentPlayer ? (
           isSelfRatingPlayer ? (
             // Self-rating prevention - show message and skip button
             <div className="w-full max-w-md text-center">

@@ -1411,7 +1411,9 @@ export default function AdminPage() {
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
                         currentPeriodName: periodName,
-                        currentPeriodEnd: new Date(periodEndDate).toISOString()
+                        currentPeriodEnd: new Date(periodEndDate).toISOString(),
+                        adminUsername: username,
+                        adminPassword: password,
                       })
                     })
                     if (res.ok) {
@@ -1539,6 +1541,8 @@ export default function AdminPage() {
                         periodName: newPeriodCurrentName,
                         newPeriodName: newPeriodNextName,
                         newPeriodEnd: newPeriodEndDate ? new Date(newPeriodEndDate).toISOString() : null,
+                        adminUsername: username,
+                        adminPassword: password,
                       })
                     })
                     const data = await res.json()

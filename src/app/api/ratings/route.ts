@@ -104,10 +104,25 @@ export async function POST(request: NextRequest) {
       }, { status: 403 })
     }
     
-    // No cooldown - users can edit anytime
-    
     const body = await request.json()
     const { ratings } = body as { ratings: { playerId: string; score: number }[] }
+
+    // Check if rating period is still active (skip for legend-only submissions)
+    const settings = await prisma.siteSettings.findUnique({ where: { id: "settings" } })
+    if (settings?.currentPeriodEnd && new Date() > new Date(settings.currentPeriodEnd)) {
+      const playerIds = ratings.map(r => r.playerId)
+      const legendPlayers = await prisma.player.findMany({
+        where: { id: { in: playerIds }, isLegend: true },
+        select: { id: true }
+      })
+      const legendIdSet = new Set(legendPlayers.map(p => p.id))
+      const hasNonLegendRating = ratings.some(r => !legendIdSet.has(r.playerId))
+      if (hasNonLegendRating) {
+        return NextResponse.json({
+          error: "The current rating period has ended. Only legend ratings are accepted."
+        }, { status: 403 })
+      }
+    }
     
     if (!Array.isArray(ratings)) {
       return NextResponse.json({ error: "Invalid ratings format" }, { status: 400 })

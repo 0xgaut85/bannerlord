@@ -7,7 +7,13 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { periodName, newPeriodName, newPeriodEnd } = body
+    const { periodName, newPeriodName, newPeriodEnd, adminUsername, adminPassword } = body
+
+    const envUser = process.env.ADMIN_USERNAME
+    const envPass = process.env.ADMIN_PASSWORD
+    if (!envUser || !envPass || adminUsername !== envUser || adminPassword !== envPass) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
     if (!periodName) {
       return NextResponse.json({ error: "Current period name required for snapshot" }, { status: 400 })
