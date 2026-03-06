@@ -103,16 +103,16 @@ function getCardStyle(rating: number) {
     isHolo: true,
   }
   if (rating >= 90) return {
-    bg: "bg-[#faf5c0]/50",
-    border: "border-yellow-200/80",
+    bg: "bg-[#ffdf00]/40",
+    border: "border-[#ffdf00]/70",
     text: "text-yellow-950",
-    tierColor: "text-yellow-300",
+    tierColor: "text-[#ffdf00]",
   }
   if (rating >= 85) return {
-    bg: "bg-[#e8d660]/45",
-    border: "border-yellow-300/70",
+    bg: "bg-[#d4af37]/35",
+    border: "border-[#d4af37]/60",
     text: "text-yellow-950",
-    tierColor: "text-yellow-400",
+    tierColor: "text-[#d4af37]",
   }
   if (rating >= 80) return {
     bg: "bg-white/30",

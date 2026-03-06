@@ -32,17 +32,17 @@ function getCardStyle(rating: number) {
     isHolo: true,
   }
   if (rating >= 90) return {
-    bg: "linear-gradient(145deg, #f0e68c 0%, #f5eea0 25%, #faf5c0 50%, #f5eea0 75%, #f0e68c 100%)",
-    border: "border-yellow-200/70",
-    accent: "from-yellow-100 via-white to-yellow-100",
+    bg: "linear-gradient(145deg, #e6c800 0%, #f2d500 25%, #ffdf00 50%, #f2d500 75%, #e6c800 100%)",
+    border: "border-[#ffdf00]/70",
+    accent: "from-yellow-200 via-white to-yellow-200",
     text: "text-yellow-950",
-    subtext: "text-yellow-800",
+    subtext: "text-yellow-900",
     noiseOpacity: 0.18,
   }
   if (rating >= 85) return {
-    bg: "linear-gradient(145deg, #c9b840 0%, #dbc950 25%, #e8d660 50%, #dbc950 75%, #c9b840 100%)",
-    border: "border-yellow-300/60",
-    accent: "from-yellow-200 via-yellow-50 to-yellow-200",
+    bg: "linear-gradient(145deg, #b8962e 0%, #c6a332 25%, #d4af37 50%, #c6a332 75%, #b8962e 100%)",
+    border: "border-[#d4af37]/60",
+    accent: "from-[#d4af37] via-yellow-100 to-[#d4af37]",
     text: "text-yellow-950",
     subtext: "text-yellow-900",
     noiseOpacity: 0.20,
