@@ -758,7 +758,7 @@ function FifaDisplayCard({
         <div className="relative h-full flex flex-col p-4 z-30">
           <div className="flex justify-between items-start mb-2">
             <div className="flex flex-col items-center -ml-1">
-              <span className={`text-4xl font-black ${style.text} leading-none drop-shadow-lg`}>
+              <span className={`text-4xl font-black ${style.text} leading-none drop-shadow-lg ${(style as any).isHolo ? `rating-shine rating-shine-${(style as any).holoVariant || "ruby"}` : ""}`}>
                 {player.averageRating.toFixed(0)}
               </span>
               <span className={`text-[10px] font-bold ${style.subtext} tracking-widest mt-1 uppercase`}>
@@ -783,8 +783,8 @@ function FifaDisplayCard({
           {/* Avatar */}
           <div className="flex-1 relative flex flex-col items-center justify-start mt-0">
             <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-28 h-28 bg-gradient-to-t ${style.accent} opacity-15 blur-2xl rounded-full`} />
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30 z-10">
-              <Image src={avatarSrc} alt={player.playerName} width={96} height={96} className="w-full h-full object-cover" />
+            <div className="relative w-[120px] h-[120px] sm:w-[144px] sm:h-[144px] rounded-xl overflow-hidden shadow-2xl border-2 border-white/10 ring-4 ring-black/30 z-10">
+              <Image src={avatarSrc} alt={player.playerName} width={144} height={144} className="w-full h-full object-cover" />
             </div>
             
             {/* Clan Logo (left) */}
@@ -862,7 +862,7 @@ function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeR
           {/* Top: Rating & Rank & Tier */}
           <div className="flex justify-between items-start">
             <div className="flex flex-col items-center">
-              <span className={`text-2xl font-black ${style.text} leading-none`} style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+              <span className={`text-2xl font-black ${style.text} leading-none ${(style as any).isHolo ? `rating-shine rating-shine-${(style as any).holoVariant || "ruby"}` : ""}`} style={{ textShadow: (style as any).isHolo ? undefined : '1px 1px 2px rgba(0,0,0,0.5)' }}>
                 {player.averageRating.toFixed(0)}
               </span>
               <span className={`text-[8px] font-bold ${style.subtext} tracking-wider uppercase`}>
@@ -877,7 +877,7 @@ function ElitePlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTimeR
 
           {/* Middle: Avatar */}
           <div className="flex-1 relative flex flex-col items-center justify-start py-0.5">
-            <div className="relative w-14 h-14 rounded-full overflow-hidden shadow-lg border border-white/10 z-10">
+            <div className="relative w-[84px] h-[84px] rounded-lg overflow-hidden shadow-lg border border-white/10 z-10">
               <Image
                 src={avatarSrc}
                 alt={player.playerName}
@@ -952,9 +952,9 @@ function CompactPlayerCard({ player, onPlayerClick, clanLogo }: { player: AllTim
         <Image 
           src={avatarSrc} 
           alt={player.playerName} 
-          width={28} 
-          height={28} 
-          className="w-7 h-7 rounded-full object-cover border border-white/10" 
+          width={42} 
+          height={42} 
+          className="w-[42px] h-[42px] rounded-md object-cover border border-white/10" 
         />
         {clanLogo && (
           <Image 

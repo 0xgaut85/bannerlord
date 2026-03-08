@@ -230,8 +230,8 @@ body {
 }
 
 .holo-card {
-  animation: rubyBorder 4s ease-in-out infinite;
-  border-width: 1.5px;
+  animation: rubyBorder 4s ease-in-out infinite !important;
+  border-color: rgba(220,40,60,0.8) !important;
 }
 
 .ruby-conic {
@@ -287,15 +287,15 @@ body {
 
 /* ──── Bright Gold card effect (90-95 tier) ──── */
 @keyframes goldBorder {
-  0%   { border-color: rgba(255,223,0,0.7); box-shadow: 0 0 12px rgba(255,223,0,0.3), inset 0 0 6px rgba(255,223,0,0.08); }
-  33%  { border-color: rgba(230,200,0,0.6); box-shadow: 0 0 10px rgba(230,200,0,0.25), inset 0 0 6px rgba(230,200,0,0.06); }
-  66%  { border-color: rgba(255,235,50,0.75); box-shadow: 0 0 15px rgba(255,235,50,0.3), inset 0 0 6px rgba(255,235,50,0.08); }
-  100% { border-color: rgba(255,223,0,0.7); box-shadow: 0 0 12px rgba(255,223,0,0.3), inset 0 0 6px rgba(255,223,0,0.08); }
+  0%   { border-color: rgba(255,223,0,0.85); box-shadow: 0 0 18px rgba(255,223,0,0.45), inset 0 0 8px rgba(255,223,0,0.1); }
+  33%  { border-color: rgba(230,200,0,0.7); box-shadow: 0 0 14px rgba(230,200,0,0.35), inset 0 0 8px rgba(230,200,0,0.08); }
+  66%  { border-color: rgba(255,235,50,0.9); box-shadow: 0 0 22px rgba(255,235,50,0.4), inset 0 0 8px rgba(255,235,50,0.1); }
+  100% { border-color: rgba(255,223,0,0.85); box-shadow: 0 0 18px rgba(255,223,0,0.45), inset 0 0 8px rgba(255,223,0,0.1); }
 }
 
 .gold-card {
-  animation: goldBorder 4s ease-in-out infinite;
-  border-width: 1.5px;
+  animation: goldBorder 4s ease-in-out infinite !important;
+  border-color: rgba(255,223,0,0.7) !important;
 }
 
 .gold-conic {
@@ -345,15 +345,15 @@ body {
 
 /* ──── Legend card effect ──── */
 @keyframes legendBorder {
-  0%   { border-color: rgba(192,168,120,0.7); box-shadow: 0 0 10px rgba(192,168,120,0.25), inset 0 0 6px rgba(192,168,120,0.06); }
-  33%  { border-color: rgba(160,140,100,0.6); box-shadow: 0 0 8px rgba(160,140,100,0.2), inset 0 0 6px rgba(160,140,100,0.05); }
-  66%  { border-color: rgba(210,190,140,0.75); box-shadow: 0 0 12px rgba(210,190,140,0.3), inset 0 0 6px rgba(210,190,140,0.07); }
-  100% { border-color: rgba(192,168,120,0.7); box-shadow: 0 0 10px rgba(192,168,120,0.25), inset 0 0 6px rgba(192,168,120,0.06); }
+  0%   { border-color: rgba(192,168,120,0.85); box-shadow: 0 0 16px rgba(192,168,120,0.4), inset 0 0 8px rgba(192,168,120,0.08); }
+  33%  { border-color: rgba(160,140,100,0.7); box-shadow: 0 0 12px rgba(160,140,100,0.3), inset 0 0 8px rgba(160,140,100,0.06); }
+  66%  { border-color: rgba(210,190,140,0.9); box-shadow: 0 0 20px rgba(210,190,140,0.4), inset 0 0 8px rgba(210,190,140,0.08); }
+  100% { border-color: rgba(192,168,120,0.85); box-shadow: 0 0 16px rgba(192,168,120,0.4), inset 0 0 8px rgba(192,168,120,0.08); }
 }
 
 .legend-card {
-  animation: legendBorder 4s ease-in-out infinite;
-  border-width: 1.5px;
+  animation: legendBorder 4s ease-in-out infinite !important;
+  border-color: rgba(192,168,120,0.7) !important;
 }
 
 .legend-conic {
@@ -404,4 +404,67 @@ body {
 .legend-card-anim {
   position: relative;
   overflow: hidden;
+}
+
+/* ──── Rating number shine effect ──── */
+@keyframes ratingShine {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.rating-shine {
+  position: relative;
+  display: inline-block;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.rating-shine-ruby {
+  background-image: linear-gradient(
+    110deg,
+    currentColor 0%,
+    currentColor 35%,
+    #ffd4d4 42%,
+    #ffffff 50%,
+    #ffd4d4 58%,
+    currentColor 65%,
+    currentColor 100%
+  );
+  background-size: 200% 100%;
+  -webkit-text-fill-color: transparent;
+  animation: ratingShine 3s ease-in-out infinite;
+}
+
+.rating-shine-gold {
+  background-image: linear-gradient(
+    110deg,
+    currentColor 0%,
+    currentColor 35%,
+    #fffbe6 42%,
+    #ffffff 50%,
+    #fffbe6 58%,
+    currentColor 65%,
+    currentColor 100%
+  );
+  background-size: 200% 100%;
+  -webkit-text-fill-color: transparent;
+  animation: ratingShine 3s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+
+.rating-shine-legend {
+  background-image: linear-gradient(
+    110deg,
+    currentColor 0%,
+    currentColor 35%,
+    #f5edd8 42%,
+    #ffffff 50%,
+    #f5edd8 58%,
+    currentColor 65%,
+    currentColor 100%
+  );
+  background-size: 200% 100%;
+  -webkit-text-fill-color: transparent;
+  animation: ratingShine 3.5s ease-in-out infinite;
+  animation-delay: 0.5s;
 }

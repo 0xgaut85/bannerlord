@@ -544,9 +544,9 @@ export default function HistoryPage() {
                       className="w-full flex items-center gap-3 px-5 py-3 hover:bg-white/[0.04] transition-colors text-left"
                     >
                       {p.avatar ? (
-                        <Image src={p.avatar} alt="" width={28} height={28} className="rounded-full object-cover w-7 h-7" />
+                        <Image src={p.avatar} alt="" width={42} height={42} className="rounded-md object-cover w-[42px] h-[42px]" />
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-xs text-[#555] font-bold">
+                        <div className="w-[42px] h-[42px] rounded-md bg-white/10 flex items-center justify-center text-xs text-[#555] font-bold">
                           {p.name.charAt(0)}
                         </div>
                       )}
@@ -582,12 +582,12 @@ export default function HistoryPage() {
                     <Image
                       src={selectedEvolutionPlayer.player.avatar}
                       alt={selectedEvolutionPlayer.player.name}
-                      width={56}
-                      height={56}
-                      className="rounded-full object-cover w-14 h-14"
+                      width={84}
+                      height={84}
+                      className="rounded-lg object-cover w-[84px] h-[84px]"
                     />
                   ) : (
-                    <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-xl text-[#555] font-bold">
+                    <div className="w-[84px] h-[84px] rounded-lg bg-white/10 flex items-center justify-center text-xl text-[#555] font-bold">
                       {selectedEvolutionPlayer.player.name.charAt(0)}
                     </div>
                   )}

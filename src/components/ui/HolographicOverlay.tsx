@@ -57,7 +57,6 @@ export function HolographicOverlay({ variant = "ruby" }: { variant?: OverlayVari
         className={`absolute inset-0 ${cfg.noise} pointer-events-none z-[8] rounded-[inherit]`}
         style={{ mixBlendMode: "overlay" }}
       />
-      <div className={`absolute inset-0 ${cfg.shimmer} pointer-events-none z-[9] rounded-[inherit]`} />
     </>
   )
 }
