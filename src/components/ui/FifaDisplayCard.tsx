@@ -188,7 +188,7 @@ export function FifaDisplayCard({ player, rating, size = "md", onClick }: FifaDi
         
         {/* Avatar */}
         <div className="flex-1 flex items-center justify-center py-2">
-          <div className="relative w-14 h-14 rounded-full overflow-hidden border border-white/20">
+          <div className="relative w-[84px] h-[84px] rounded-lg overflow-hidden border border-white/20">
             <Image
               src={avatarSrc}
               alt={player.name}
