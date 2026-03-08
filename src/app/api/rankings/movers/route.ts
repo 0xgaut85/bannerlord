@@ -100,6 +100,8 @@ export async function GET() {
       const previous = Math.round(previousRating * 10) / 10
       const delta = Math.round((current - previous) * 10) / 10
 
+      // Only include Div A and B players (rating >= 80 in either current or previous)
+      if (current < 80 && previous < 80) return null
       if (delta === 0) return null
 
       return {
