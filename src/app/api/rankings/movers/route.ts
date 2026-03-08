@@ -81,7 +81,7 @@ export async function GET() {
 
     const deltas = players.map(player => {
       const realRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_"))
-      if (realRatings.length === 0) return null
+      if (realRatings.length < 5) return null
 
       let weightedSum = 0
       let totalWeight = 0
