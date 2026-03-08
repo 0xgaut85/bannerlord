@@ -345,15 +345,18 @@ export default function AdminPage() {
     if (!confirm("Are you sure you want to delete ALL ratings from this user? This cannot be undone.")) return
     
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: "DELETE"
+      const res = await fetch(`/api/admin/users/${userId}?_t=${Date.now()}`, {
+        method: "DELETE",
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store', 'Pragma': 'no-cache' }
       })
+      const data = await res.json()
       if (res.ok) {
-        alert("All ratings deleted successfully")
+        alert(`All ratings deleted successfully (${data.count || 0} removed)`)
         setSelectedUser(null)
         fetchUsers(userPage, userSearch, false)
       } else {
-        alert("Failed to delete ratings")
+        alert(`Failed to delete ratings: ${data.error || res.statusText}`)
       }
     } catch (error) {
       alert("Error deleting ratings")
@@ -1048,13 +1051,21 @@ export default function AdminPage() {
                           className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30 !px-2 !py-1"
                           onClick={async () => {
                             if (!confirm(`Delete rating for ${rating.player.name}?`)) return
+                            const ratingId = rating.id
                             try {
-                              const res = await fetch(`/api/admin/ratings/${rating.id}`, { method: "DELETE" })
-                              if (res.ok) {
-                                setSelectedUser({
-                                  ...selectedUser,
-                                  ratings: selectedUser.ratings.filter((r: any) => r.id !== rating.id)
-                                })
+                              const res = await fetch(`/api/admin/ratings/${ratingId}?_t=${Date.now()}`, {
+                                method: "DELETE",
+                                cache: 'no-store',
+                                headers: { 'Cache-Control': 'no-cache, no-store', 'Pragma': 'no-cache' }
+                              })
+                              const data = await res.json()
+                              if (res.ok || data.success) {
+                                setSelectedUser((prev: any) => prev ? {
+                                  ...prev,
+                                  ratings: prev.ratings.filter((r: any) => r.id !== ratingId)
+                                } : null)
+                              } else {
+                                alert(`Failed to delete: ${data.error || res.statusText}`)
                               }
                             } catch (err) {
                               alert("Failed to delete rating")

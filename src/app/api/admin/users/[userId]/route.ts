@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const userId = params.userId
+    const { userId } = await params
     
     if (!userId) {
       return NextResponse.json({ error: "User ID required" }, { status: 400 })
     }
 
-    // Get user with their ratings
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -48,21 +50,20 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const userId = params.userId
+    const { userId } = await params
     
     if (!userId) {
       return NextResponse.json({ error: "User ID required" }, { status: 400 })
     }
 
-    // Delete all ratings for this user
-    await prisma.rating.deleteMany({
+    const result = await prisma.rating.deleteMany({
       where: { raterId: userId }
     })
 
-    return NextResponse.json({ message: "All ratings deleted successfully" })
+    return NextResponse.json({ message: "All ratings deleted successfully", count: result.count })
   } catch (error) {
     console.error("Error deleting user ratings:", error)
     return NextResponse.json({ error: "Failed to delete user ratings" }, { status: 500 })
