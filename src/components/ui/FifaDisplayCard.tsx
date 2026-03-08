@@ -16,7 +16,7 @@ interface FifaDisplayCardProps {
     clanLogo?: string | null
   }
   rating: number
-  size?: "sm" | "md" | "lg"
+  size?: "sm" | "md" | "lg" | "fill"
   onClick?: () => void
 }
 
@@ -126,6 +126,7 @@ const sizeClasses = {
   sm: "w-32 aspect-[2/3]",
   md: "w-44 aspect-[2/3]",
   lg: "w-56 aspect-[2/3]",
+  fill: "w-full aspect-[2/3]",
 }
 
 export function FifaDisplayCard({ player, rating, size = "md", onClick }: FifaDisplayCardProps) {

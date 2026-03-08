@@ -60,13 +60,13 @@ export default function HomePage() {
 
       <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-stretch w-full overflow-hidden">
         {/* ─── LEFT: Mover Cards ─── */}
-        <div className="lg:w-1/2 relative flex items-center justify-center px-3 py-4 lg:py-6">
+        <div className="lg:w-1/2 relative flex items-stretch px-4 py-4 lg:py-6">
           {loading ? (
-            <div className="flex items-center justify-center h-64">
+            <div className="flex items-center justify-center w-full">
               <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="space-y-5 w-full mx-auto px-2">
+            <div className="flex flex-col gap-5 w-full h-full">
               {winners.length > 0 && (
                 <MoverRow label="They are waking up" players={winners} type="winner" />
               )}
@@ -74,7 +74,7 @@ export default function HomePage() {
                 <MoverRow label="Getting rusty" players={losers} type="loser" />
               )}
               {winners.length === 0 && losers.length === 0 && (
-                <p className="text-center text-[#444] text-sm">No rating changes yet</p>
+                <p className="text-center text-[#444] text-sm self-center">No rating changes yet</p>
               )}
             </div>
           )}
@@ -150,39 +150,37 @@ function MoverRow({ label, players, type }: { label: string; players: Mover[]; t
   const isWinner = type === "winner"
 
   return (
-    <div>
+    <div className="flex-1 flex flex-col min-h-0">
       <p className={`text-[10px] font-semibold tracking-[0.3em] uppercase mb-2 text-center ${
         isWinner ? "text-emerald-500/70" : "text-red-500/70"
       }`}>
         {label}
       </p>
-      <div className="flex justify-center gap-2 sm:gap-3">
+      <div className="flex-1 flex justify-center items-stretch gap-2 min-h-0">
         {players.map((p) => (
-          <Tilt3DCard key={p.id} maxTilt={10} scale={1.04}>
-            <div className="relative">
-              <FifaDisplayCard
-                player={{
-                  id: p.id,
-                  name: p.name,
-                  category: p.category,
-                  nationality: p.nationality,
-                  clan: p.clan,
-                  avatar: p.avatar,
-                  clanLogo: p.clanLogo,
-                }}
-                rating={p.currentRating}
-                size="md"
-              />
-              {/* Delta badge */}
-              <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 z-30 px-2.5 py-1 rounded-lg text-xs font-black shadow-lg whitespace-nowrap ${
-                isWinner
-                  ? "bg-emerald-500 text-white"
-                  : "bg-red-500 text-white"
-              }`}>
-                {isWinner ? "+" : ""}{p.delta.toFixed(1)}
-              </div>
+          <div key={p.id} className="flex-1 min-w-0 max-w-[20%] relative">
+            <FifaDisplayCard
+              player={{
+                id: p.id,
+                name: p.name,
+                category: p.category,
+                nationality: p.nationality,
+                clan: p.clan,
+                avatar: p.avatar,
+                clanLogo: p.clanLogo,
+              }}
+              rating={p.currentRating}
+              size="fill"
+            />
+            {/* Delta badge */}
+            <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 z-30 px-2 py-0.5 rounded-md text-[11px] font-black shadow-lg whitespace-nowrap ${
+              isWinner
+                ? "bg-emerald-500 text-white"
+                : "bg-red-500 text-white"
+            }`}>
+              {isWinner ? "+" : ""}{p.delta.toFixed(1)}
             </div>
-          </Tilt3DCard>
+          </div>
         ))}
       </div>
     </div>
