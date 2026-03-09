@@ -829,6 +829,62 @@ export default function AdminPage() {
                 </Button>
               </div>
             </div>
+            <div className="mb-6 p-4 bg-green-500/5 rounded-xl border border-green-500/20">
+              <h3 className="text-green-400 font-medium mb-3">Add a Rating</h3>
+              <div className="flex gap-2 flex-wrap">
+                <input
+                  type="text"
+                  placeholder="Rater name (e.g., Zorkberg)"
+                  id="add-rater-name"
+                  className="flex-1 min-w-[140px] px-4 py-2 bg-white/[0.03] border border-white/[0.04] rounded-lg text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                />
+                <span className="text-[#555] self-center">rated</span>
+                <input
+                  type="text"
+                  placeholder="Player name (e.g., Silver)"
+                  id="add-player-name"
+                  className="flex-1 min-w-[140px] px-4 py-2 bg-white/[0.03] border border-white/[0.04] rounded-lg text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                />
+                <input
+                  type="number"
+                  placeholder="Score"
+                  id="add-score"
+                  min={50}
+                  max={99}
+                  className="w-24 px-4 py-2 bg-white/[0.03] border border-white/[0.04] rounded-lg text-white placeholder:text-[#444] focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                />
+                <Button
+                  className="!bg-green-500/20 !text-green-400 hover:!bg-green-500/30"
+                  onClick={async () => {
+                    const raterName = (document.getElementById("add-rater-name") as HTMLInputElement).value.trim()
+                    const playerName = (document.getElementById("add-player-name") as HTMLInputElement).value.trim()
+                    const score = (document.getElementById("add-score") as HTMLInputElement).value.trim()
+                    if (!raterName || !playerName || !score) {
+                      alert("Please fill in all fields")
+                      return
+                    }
+                    if (!confirm(`Add rating: ${raterName} rated ${playerName} → ${score}?`)) return
+                    try {
+                      const res = await fetch("/api/admin/add-rating", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ raterName, playerName, score: parseInt(score) }),
+                      })
+                      const data = await res.json()
+                      if (res.ok) {
+                        alert(data.message)
+                      } else {
+                        alert(`Error: ${data.error}`)
+                      }
+                    } catch (error) {
+                      alert("Failed to add rating")
+                    }
+                  }}
+                >
+                  Add Rating
+                </Button>
+              </div>
+            </div>
             <div className="mb-6">
               <input
                 placeholder="Search players..."
