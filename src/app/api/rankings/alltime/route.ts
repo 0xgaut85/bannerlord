@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { DIVISION_WEIGHTS, MIN_RATINGS } from "@/lib/utils"
+import { DIVISION_WEIGHTS, MIN_RATINGS, filterRatingsForPlayer } from "@/lib/utils"
 
 export const dynamic = 'force-dynamic'
 
@@ -160,9 +160,9 @@ export async function GET(request: NextRequest) {
     })
     
     for (const legend of legends) {
-      // Calculate legend's rating from actual votes (already filtered to eligible users)
-      const realRatings = legend.ratings.filter(r => !isSystemRater(r.rater.discordId))
-      let avgRating = 70 // Default if no eligible ratings
+      const rawRatings = legend.ratings.filter(r => !isSystemRater(r.rater.discordId))
+      const realRatings = filterRatingsForPlayer(legend.name, rawRatings)
+      let avgRating = 70
       
       if (realRatings.length > 0) {
         let weightedSum = 0

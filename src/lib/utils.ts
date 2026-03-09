@@ -190,3 +190,24 @@ export function getTierFromRating(rating: number): string {
 export function cleanPlayerName(name: string): string {
   return name.replace(/ \(Legend\)/g, ' (L)')
 }
+
+// Rating score filter for specific players
+const RATING_BOUNDS: Record<string, { max?: number; min?: number }> = {
+  chuckster: { max: 93 },
+  rigo: { max: 92 },
+  obelix: { min: 84 },
+}
+
+export function filterRatingsForPlayer(
+  playerName: string,
+  ratings: { score: number; [key: string]: any }[]
+): typeof ratings {
+  const key = playerName.toLowerCase().trim()
+  const bounds = RATING_BOUNDS[key]
+  if (!bounds) return ratings
+  return ratings.filter(r => {
+    if (bounds.max !== undefined && r.score > bounds.max) return false
+    if (bounds.min !== undefined && r.score < bounds.min) return false
+    return true
+  })
+}

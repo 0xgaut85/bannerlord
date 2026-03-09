@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { DIVISION_WEIGHTS, MIN_RATINGS } from "@/lib/utils"
+import { DIVISION_WEIGHTS, MIN_RATINGS, filterRatingsForPlayer } from "@/lib/utils"
 
 export const dynamic = 'force-dynamic'
 
@@ -93,8 +93,7 @@ export async function GET(
       return NextResponse.json({ error: "Player not found" }, { status: 404 })
     }
 
-    // Filter out system ratings and format the response
-    const realRatings = player.ratings
+    const allRealRatings = player.ratings
       .filter(r => !r.rater.discordId?.startsWith("system_"))
       .map(r => ({
         id: r.id,
@@ -104,7 +103,8 @@ export async function GET(
         raterDivision: r.rater.division,
       }))
 
-    // Calculate WEIGHTED average from real ratings (same as rankings)
+    const realRatings = filterRatingsForPlayer(player.name, allRealRatings)
+
     let averageRating: number | null = null
     if (realRatings.length > 0) {
       let weightedSum = 0
@@ -112,7 +112,7 @@ export async function GET(
       for (const rating of realRatings) {
         const weight = rating.raterDivision 
           ? DIVISION_WEIGHTS[rating.raterDivision] 
-          : 0.075  // No division = lowest weight
+          : 0.075
         weightedSum += rating.score * weight
         totalWeight += weight
       }

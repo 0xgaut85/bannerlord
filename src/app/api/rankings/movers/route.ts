@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { DIVISION_WEIGHTS } from "@/lib/utils"
+import { DIVISION_WEIGHTS, filterRatingsForPlayer } from "@/lib/utils"
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -80,7 +80,8 @@ export async function GET() {
     clans.forEach(c => { clanLogos[c.shortName] = c.logo; if (c.name) clanLogos[c.name] = c.logo })
 
     const deltas = players.map(player => {
-      const realRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_"))
+      const rawRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_"))
+      const realRatings = filterRatingsForPlayer(player.name, rawRatings)
       if (realRatings.length < 5) return null
 
       let weightedSum = 0
