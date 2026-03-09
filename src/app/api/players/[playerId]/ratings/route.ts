@@ -93,23 +93,29 @@ export async function GET(
       return NextResponse.json({ error: "Player not found" }, { status: 404 })
     }
 
+    // All real ratings for display (includes muted — nobody should notice)
     const allRealRatings = player.ratings
-      .filter(r => !r.rater.discordId?.startsWith("system_") && !r.isMuted)
+      .filter(r => !r.rater.discordId?.startsWith("system_"))
       .map(r => ({
         id: r.id,
         score: r.score,
+        isMuted: r.isMuted,
         raterName: r.rater.name,
         raterDiscordName: r.rater.discordName,
         raterDivision: r.rater.division,
       }))
 
-    const realRatings = filterRatingsForPlayer(player.name, allRealRatings)
+    // For average: exclude muted + apply hidden bounds
+    const ratingsForAvg = filterRatingsForPlayer(
+      player.name,
+      allRealRatings.filter(r => !r.isMuted)
+    )
 
     let averageRating: number | null = null
-    if (realRatings.length > 0) {
+    if (ratingsForAvg.length > 0) {
       let weightedSum = 0
       let totalWeight = 0
-      for (const rating of realRatings) {
+      for (const rating of ratingsForAvg) {
         const weight = rating.raterDivision 
           ? DIVISION_WEIGHTS[rating.raterDivision] 
           : 0.075
@@ -118,6 +124,9 @@ export async function GET(
       }
       averageRating = totalWeight > 0 ? weightedSum / totalWeight : null
     }
+
+    // Display list: all ratings without exposing muted status
+    const displayRatings = allRealRatings.map(({ isMuted, ...rest }) => rest)
 
     // Fetch most recent historical rating for this player to compute delta
     const lastHistorical = await prisma.historicalRanking.findFirst({
@@ -145,9 +154,9 @@ export async function GET(
         clan: player.clan,
         nationality: player.nationality,
       },
-      ratings: realRatings,
+      ratings: displayRatings,
       averageRating: currentRounded,
-      totalRatings: realRatings.length,
+      totalRatings: displayRatings.length,
       previousRating,
       previousPeriod,
       ratingDelta,
