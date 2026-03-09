@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
       // System ratings are ONLY used as defaults when NO real ratings exist
       // Once a player has at least 1 real rating, system ratings are completely ignored
       const rawRealRatings = player.ratings.filter(r => 
-        !r.rater.discordId?.startsWith("system_")
+        !r.rater.discordId?.startsWith("system_") && !r.isMuted
       )
       const realRatings = filterRatingsForPlayer(player.name, rawRealRatings)
       const systemRatings = player.ratings.filter(r => 

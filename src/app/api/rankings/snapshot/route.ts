@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     
     for (const player of players) {
       // Filter to real ratings only
-      const realRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_"))
+      const realRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_") && !r.isMuted)
       
       let averageRating: number
       

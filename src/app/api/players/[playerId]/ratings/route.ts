@@ -94,7 +94,7 @@ export async function GET(
     }
 
     const allRealRatings = player.ratings
-      .filter(r => !r.rater.discordId?.startsWith("system_"))
+      .filter(r => !r.rater.discordId?.startsWith("system_") && !r.isMuted)
       .map(r => ({
         id: r.id,
         score: r.score,

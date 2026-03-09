@@ -1032,20 +1032,56 @@ export default function AdminPage() {
 
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">
                   {selectedUser.ratings.map((rating: any) => (
-                    <div key={rating.id} className="bg-white/[0.02] p-4 rounded-lg flex items-center justify-between">
+                    <div key={rating.id} className={`p-4 rounded-lg flex items-center justify-between ${rating.isMuted ? 'bg-yellow-500/5 border border-yellow-500/20' : 'bg-white/[0.02]'}`}>
                       <div className="flex items-center gap-4">
                         <Flag code={rating.player.nationality} size="md" />
                         <div>
-                          <h3 className="text-white font-medium">{rating.player.name}</h3>
+                          <h3 className={`font-medium ${rating.isMuted ? 'text-[#666] line-through' : 'text-white'}`}>{rating.player.name}</h3>
                           <p className="text-[#555] text-sm">
                             {rating.player.category} {rating.player.clan && `• ${rating.player.clan}`}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-2xl font-bold text-white">
+                      <div className="flex items-center gap-3">
+                        <span className={`text-2xl font-bold ${rating.isMuted ? 'text-[#666] line-through' : 'text-white'}`}>
                           {rating.score}
                         </span>
+                        {rating.isMuted && (
+                          <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded text-xs font-medium">
+                            MUTED
+                          </span>
+                        )}
+                        <Button
+                          size="sm"
+                          className={`!px-2 !py-1 ${rating.isMuted ? '!bg-green-500/20 !text-green-400 hover:!bg-green-500/30' : '!bg-yellow-500/20 !text-yellow-400 hover:!bg-yellow-500/30'}`}
+                          onClick={async () => {
+                            const ratingId = rating.id
+                            const newMuted = !rating.isMuted
+                            try {
+                              const res = await fetch(`/api/admin/ratings/${ratingId}/mute`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ muted: newMuted })
+                              })
+                              const data = await res.json()
+                              if (res.ok && data.success) {
+                                setSelectedUser((prev: any) => prev ? {
+                                  ...prev,
+                                  ratings: prev.ratings.map((r: any) =>
+                                    r.id === ratingId ? { ...r, isMuted: newMuted } : r
+                                  )
+                                } : null)
+                              } else {
+                                alert(`Failed to ${newMuted ? 'mute' : 'unmute'}: ${data.error || res.statusText}`)
+                              }
+                            } catch (err) {
+                              alert(`Failed to ${newMuted ? 'mute' : 'unmute'} rating`)
+                            }
+                          }}
+                          title={rating.isMuted ? "Unmute (include in average)" : "Mute (exclude from average)"}
+                        >
+                          {rating.isMuted ? '🔊' : '🔇'}
+                        </Button>
                         <Button
                           size="sm"
                           className="!bg-red-500/20 !text-red-400 hover:!bg-red-500/30 !px-2 !py-1"

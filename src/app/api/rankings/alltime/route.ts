@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
     })
     
     for (const legend of legends) {
-      const rawRatings = legend.ratings.filter(r => !isSystemRater(r.rater.discordId))
+      const rawRatings = legend.ratings.filter(r => !isSystemRater(r.rater.discordId) && !r.isMuted)
       const realRatings = filterRatingsForPlayer(legend.name, rawRatings)
       let avgRating = 70
       

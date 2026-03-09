@@ -198,10 +198,10 @@ const RATING_BOUNDS: Record<string, { max?: number; min?: number }> = {
   obelix: { min: 84 },
 }
 
-export function filterRatingsForPlayer(
+export function filterRatingsForPlayer<T extends { score: number }>(
   playerName: string,
-  ratings: { score: number; [key: string]: any }[]
-): typeof ratings {
+  ratings: T[]
+): T[] {
   const key = playerName.toLowerCase().trim()
   const bounds = RATING_BOUNDS[key]
   if (!bounds) return ratings

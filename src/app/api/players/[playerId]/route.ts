@@ -44,7 +44,7 @@ export async function GET(
 
     // Calculate rating (legends are rated normally like everyone else)
     let averageRating: number
-    const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
+    const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId) && !r.isMuted)
     if (realRatings.length > 0) {
       let weightedSum = 0
       let totalWeight = 0

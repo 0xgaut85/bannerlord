@@ -62,7 +62,7 @@ export async function GET() {
 
     for (const player of players) {
       // Filter to only real user ratings (exclude system ratings)
-      const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId))
+      const realRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId) && !r.isMuted)
       
       if (realRatings.length === 0) continue
       

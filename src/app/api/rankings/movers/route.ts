@@ -80,7 +80,7 @@ export async function GET() {
     clans.forEach(c => { clanLogos[c.shortName] = c.logo; if (c.name) clanLogos[c.name] = c.logo })
 
     const deltas = players.map(player => {
-      const rawRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_"))
+      const rawRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_") && !r.isMuted)
       const realRatings = filterRatingsForPlayer(player.name, rawRatings)
       if (realRatings.length < 5) return null
 
