@@ -249,10 +249,15 @@ export default function RatePage() {
     setRatings(updatedRatings)
     
     try {
-      const ratingsToSend = Object.entries(updatedRatings).map(([playerId, score]) => ({
+      let ratingsToSend = Object.entries(updatedRatings).map(([playerId, score]) => ({
         playerId,
         score,
       }))
+
+      if (isPeriodEnded) {
+        const legendIds = new Set(players.filter(p => p.isLegend).map(p => p.id))
+        ratingsToSend = ratingsToSend.filter(r => legendIds.has(r.playerId))
+      }
       
       const res = await fetch("/api/ratings", {
         method: "POST",
