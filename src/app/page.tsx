@@ -54,19 +54,19 @@ export default function HomePage() {
   }, [])
 
   return (
-    <div className="relative h-[calc(100vh-3.5rem)] flex flex-col bg-black overflow-hidden">
+    <div className="relative min-h-[calc(100vh-3.5rem)] lg:h-[calc(100vh-3.5rem)] flex flex-col bg-black overflow-x-hidden">
       {/* Subtle ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-white/[0.015] rounded-full blur-[150px] pointer-events-none" />
 
-      <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-stretch w-full overflow-hidden">
+      <div className="relative z-10 flex-1 flex flex-col-reverse lg:flex-row items-stretch w-full lg:overflow-hidden">
         {/* ─── LEFT: Mover Cards ─── */}
-        <div className="lg:w-1/2 relative flex items-center justify-center px-3 py-4 lg:py-6">
+        <div className="lg:w-1/2 relative flex items-center justify-center px-2 sm:px-3 py-4 lg:py-6">
           {loading ? (
-            <div className="flex items-center justify-center h-64">
+            <div className="flex items-center justify-center h-40 lg:h-64">
               <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="space-y-5 w-full mx-auto px-2">
+            <div className="space-y-4 lg:space-y-5 w-full mx-auto px-1 sm:px-2">
               {winners.length > 0 && (
                 <MoverRow label="They are waking up" players={winners} type="winner" />
               )}
@@ -81,41 +81,41 @@ export default function HomePage() {
         </div>
 
         {/* ─── RIGHT: Titles & CTAs ─── */}
-        <div className="lg:w-1/2 flex flex-col items-center justify-center px-6 py-6 lg:py-0">
+        <div className="lg:w-1/2 flex flex-col items-center justify-center px-4 sm:px-6 py-6 lg:py-0">
           <div className="w-full text-center">
-            <p className="text-[11px] font-semibold tracking-[0.35em] uppercase text-[#444] mb-4 lg:mb-6 animate-fade-up">
+            <p className="text-[10px] sm:text-[11px] font-semibold tracking-[0.35em] uppercase text-[#444] mb-3 sm:mb-4 lg:mb-6 animate-fade-up">
               Mount & Blade II
             </p>
 
-            <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl font-bold text-white leading-[0.9] tracking-tight mb-4 lg:mb-6 animate-fade-up stagger-1">
+            <h1 className="font-display text-4xl sm:text-6xl lg:text-8xl font-bold text-white leading-[0.9] tracking-tight mb-3 sm:mb-4 lg:mb-6 animate-fade-up stagger-1">
               Bannerlord
             </h1>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-[#555] leading-[0.95] tracking-tight mb-5 lg:mb-8 animate-fade-up stagger-2">
+            <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-[#555] leading-[0.95] tracking-tight mb-4 sm:mb-5 lg:mb-8 animate-fade-up stagger-2">
               Ranking
             </h2>
 
-            <p className="text-[#444] text-sm sm:text-base lg:text-lg leading-relaxed max-w-md mx-auto mb-8 lg:mb-12 animate-fade-up stagger-3">
+            <p className="text-[#444] text-xs sm:text-base lg:text-lg leading-relaxed max-w-md mx-auto mb-5 sm:mb-8 lg:mb-12 animate-fade-up stagger-3">
               The definitive ranking system for competitive players.
             </p>
 
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-6 lg:mb-10 max-w-md mx-auto animate-fade-up stagger-4">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-3 mb-5 sm:mb-6 lg:mb-10 max-w-md mx-auto animate-fade-up stagger-4">
               {links.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="group p-3 lg:p-4 rounded-lg border border-white/[0.04] hover:border-white/[0.1] bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-200"
+                  className="group p-2.5 sm:p-3 lg:p-4 rounded-lg border border-white/[0.04] hover:border-white/[0.1] bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-200"
                 >
-                  <h3 className="text-white text-[12px] lg:text-[13px] font-semibold mb-1">
+                  <h3 className="text-white text-[11px] sm:text-[12px] lg:text-[13px] font-semibold mb-0.5 sm:mb-1">
                     {item.title}
                   </h3>
-                  <p className="text-[#333] text-[10px] lg:text-[11px] leading-relaxed">
+                  <p className="text-[#333] text-[9px] sm:text-[10px] lg:text-[11px] leading-relaxed">
                     {item.desc}
                   </p>
                 </Link>
               ))}
             </div>
 
-            <div className="flex items-center justify-center gap-4 animate-fade-up stagger-5">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 animate-fade-up stagger-5">
               <Link href="/community">
                 <Button size="lg" variant="primary">
                   View Rankings
@@ -124,7 +124,7 @@ export default function HomePage() {
               {!session && (
                 <button
                   onClick={() => signIn("discord")}
-                  className="text-[#444] hover:text-white text-[14px] font-medium transition-colors duration-200"
+                  className="text-[#444] hover:text-white text-[13px] sm:text-[14px] font-medium transition-colors duration-200"
                 >
                   Sign in to Rate
                 </button>
@@ -156,9 +156,9 @@ function MoverRow({ label, players, type }: { label: string; players: Mover[]; t
       }`}>
         {label}
       </p>
-      <div className="flex justify-center gap-2 sm:gap-3">
+      <div className="flex justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 px-1 scrollbar-hide">
         {players.map((p) => (
-          <Tilt3DCard key={p.id} maxTilt={10} scale={1.04}>
+          <Tilt3DCard key={p.id} maxTilt={10} scale={1.04} className="shrink-0">
             <div className="relative">
               <FifaDisplayCard
                 player={{
@@ -171,10 +171,10 @@ function MoverRow({ label, players, type }: { label: string; players: Mover[]; t
                   clanLogo: p.clanLogo,
                 }}
                 rating={p.currentRating}
-                size="lg"
+                size="sm"
               />
               {/* Delta badge */}
-              <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 z-30 px-2.5 py-1 rounded-lg text-xs font-black shadow-lg whitespace-nowrap ${
+              <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 z-30 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black shadow-lg whitespace-nowrap ${
                 isWinner
                   ? "bg-emerald-500 text-white"
                   : "bg-red-500 text-white"
