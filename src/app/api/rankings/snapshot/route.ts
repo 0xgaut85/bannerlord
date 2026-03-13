@@ -1,8 +1,38 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { DIVISION_WEIGHTS, filterRatingsForPlayer } from "@/lib/utils"
+import { DIVISION_WEIGHTS, MIN_RATINGS, filterRatingsForPlayer } from "@/lib/utils"
 
 export const dynamic = 'force-dynamic'
+
+async function getEligibleUserIds(): Promise<string[]> {
+  const users = await prisma.user.findMany({
+    where: {
+      OR: [
+        { isProfileComplete: true },
+        { discordId: { startsWith: "system_" } }
+      ]
+    },
+    select: {
+      id: true,
+      discordId: true,
+      ratings: {
+        select: { player: { select: { category: true } } }
+      }
+    }
+  })
+
+  const ids: string[] = []
+  for (const user of users) {
+    if (user.discordId?.startsWith("system_")) { ids.push(user.id); continue }
+    const inf = user.ratings.filter(r => r.player.category === "INFANTRY").length
+    const cav = user.ratings.filter(r => r.player.category === "CAVALRY").length
+    const arc = user.ratings.filter(r => r.player.category === "ARCHER").length
+    if (inf >= MIN_RATINGS.INFANTRY && cav >= MIN_RATINGS.CAVALRY && arc >= MIN_RATINGS.ARCHER) {
+      ids.push(user.id)
+    }
+  }
+  return ids
+}
 
 // Save current rankings as a historical snapshot
 export async function POST(request: NextRequest) {
@@ -22,11 +52,16 @@ export async function POST(request: NextRequest) {
     if (existingPeriod) {
       return NextResponse.json({ error: "Period already exists" }, { status: 400 })
     }
+
+    const eligibleUserIds = await getEligibleUserIds()
     
-    // Get all players with ratings
+    // Get all players with ratings from eligible users only
     const players = await prisma.player.findMany({
       include: {
         ratings: {
+          where: {
+            raterId: { in: eligibleUserIds }
+          },
           include: {
             rater: {
               select: { division: true, discordId: true }
