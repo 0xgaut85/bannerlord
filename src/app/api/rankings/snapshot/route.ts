@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
-import { DIVISION_WEIGHTS, DIVISION_DEFAULT_RATINGS } from "@/lib/utils"
+import { DIVISION_WEIGHTS, filterRatingsForPlayer } from "@/lib/utils"
 
 export const dynamic = 'force-dynamic'
 
@@ -48,32 +48,24 @@ export async function POST(request: NextRequest) {
     }[] = []
     
     for (const player of players) {
-      // Filter to real ratings only
-      const realRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_") && !r.isMuted)
+      const rawRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_") && !r.isMuted)
+      const realRatings = filterRatingsForPlayer(player.name, rawRatings)
       
-      let averageRating: number
+      if (realRatings.length < 2) continue
+
+      let weightedSum = 0
+      let totalWeight = 0
       
-      if (realRatings.length > 0) {
-        // Calculate weighted average
-        let weightedSum = 0
-        let totalWeight = 0
-        
-        for (const rating of realRatings) {
-          const weight = rating.rater.division 
-            ? DIVISION_WEIGHTS[rating.rater.division] 
-            : 0.075  // No division = lowest weight
-          weightedSum += rating.score * weight
-          totalWeight += weight
-        }
-        
-        averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
-      } else {
-        // Use default rating based on division
-        averageRating = player.division 
-          ? DIVISION_DEFAULT_RATINGS[player.division] 
-          : 70
+      for (const rating of realRatings) {
+        const weight = rating.rater.division 
+          ? DIVISION_WEIGHTS[rating.rater.division] 
+          : 0.075
+        weightedSum += rating.score * weight
+        totalWeight += weight
       }
       
+      const averageRating = totalWeight > 0 ? weightedSum / totalWeight : 70
+
       rankings.push({
         playerId: player.id,
         playerName: player.name,

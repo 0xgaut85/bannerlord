@@ -138,6 +138,67 @@ export async function GET(request: NextRequest) {
       }
     }
     
+    // Fetch current live ratings for non-legend players and include in their all-time average
+    const activePlayers = await prisma.player.findMany({
+      where: {
+        isLegend: false,
+        ...(category ? { category: category as any } : {}),
+      },
+      include: {
+        ratings: {
+          where: {
+            raterId: { in: eligibleUserIds }
+          },
+          include: {
+            rater: {
+              select: { division: true, discordId: true }
+            }
+          }
+        }
+      }
+    })
+
+    for (const player of activePlayers) {
+      const rawRatings = player.ratings.filter(r => !isSystemRater(r.rater.discordId) && !r.isMuted)
+      const realRatings = filterRatingsForPlayer(player.name, rawRatings)
+      if (realRatings.length < 2) continue
+
+      let weightedSum = 0
+      let totalWeight = 0
+      for (const rating of realRatings) {
+        const weight = rating.rater.division
+          ? DIVISION_WEIGHTS[rating.rater.division]
+          : 0.075
+        weightedSum += rating.score * weight
+        totalWeight += weight
+      }
+      const currentRating = totalWeight > 0 ? weightedSum / totalWeight : 70
+
+      const existing = playerMap.get(player.id)
+      if (existing) {
+        existing.ratings.push(currentRating)
+        existing.periodNames.push("Current")
+        existing.history.push({ period: "Current", periodId: "", rating: Math.round(currentRating * 10) / 10 })
+        existing.playerName = player.name
+        existing.clan = player.clan
+        existing.nationality = player.nationality
+        existing.avatar = player.avatar
+      } else {
+        playerMap.set(player.id, {
+          playerId: player.id,
+          playerName: player.name,
+          category: player.category,
+          clan: player.clan,
+          nationality: player.nationality,
+          ratings: [currentRating],
+          periodNames: ["Current"],
+          history: [{ period: "Current", periodId: "", rating: Math.round(currentRating * 10) / 10 }],
+          isLegend: false,
+          avatar: player.avatar,
+        })
+      }
+    }
+
     // Also fetch legends and add them to all-time rankings
     // Only include ratings from eligible users
     const legends = await prisma.player.findMany({
