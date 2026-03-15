@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
           },
           include: {
             rater: {
-              select: { division: true, discordId: true }
+              select: { division: true, discordId: true, name: true, discordName: true }
             }
           }
         }
@@ -137,8 +137,35 @@ export async function POST(request: NextRequest) {
       },
       include: { rankings: true }
     })
+
+    // Preserve individual ratings as HistoricalRating records
+    const savedPlayerIds = new Set(rankings.map(r => r.playerId))
+    const individualRatings: {
+      periodId: string; playerId: string; raterId: string; score: number
+      raterName: string | null; raterDiscordName: string | null; raterDivision: string | null
+    }[] = []
+
+    for (const player of players) {
+      if (!savedPlayerIds.has(player.id)) continue
+      const realRatings = player.ratings.filter(r => !r.rater.discordId?.startsWith("system_") && !r.isMuted)
+      for (const r of realRatings) {
+        individualRatings.push({
+          periodId: period.id,
+          playerId: player.id,
+          raterId: r.raterId,
+          score: r.score,
+          raterName: r.rater.name,
+          raterDiscordName: r.rater.discordName,
+          raterDivision: r.rater.division,
+        })
+      }
+    }
+
+    if (individualRatings.length > 0) {
+      await prisma.historicalRating.createMany({ data: individualRatings })
+    }
     
-    return NextResponse.json({ success: true, period })
+    return NextResponse.json({ success: true, period, ratingsPreserved: individualRatings.length })
   } catch (error) {
     console.error("Snapshot POST error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
